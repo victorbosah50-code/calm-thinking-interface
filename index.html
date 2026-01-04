@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌿 Calm Thinking Interface 🌿</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<title>🌿 Your Calm Thinking Journey 🌿</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  /* General styles */
   body, html {
     margin: 0; padding: 0;
-    width: 100%; height: 100%;
+    height: 100%; width: 100%;
     font-family: 'Nunito', sans-serif;
     overflow: hidden;
     background: #000;
@@ -17,249 +16,420 @@
     justify-content: center;
     align-items: center;
   }
-
-  /* Video background */
   #bgVideo {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
     object-fit: cover;
     z-index: -2;
-    opacity: 0.6;
+    opacity: 0.65;
   }
-
-  /* Container */
   .container {
     position: relative;
     z-index: 1;
-    max-width: 700px;
-    width: 90%;
-    background: rgba(255,255,255,0.88);
-    padding: 30px;
-    border-radius: 16px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    max-width: 720px;
+    width: 92%;
+    background: rgba(255,255,255,0.93);
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
     text-align: center;
+    min-height: 520px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 1.2s ease-out, transform 1.2s ease-out;
   }
-
+  .container.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
   h1 {
-    font-size: 2rem;
+    font-size: 2.4rem;
+    color: #2c5282;
     margin-bottom: 20px;
     opacity: 0;
-    animation: fadeBounce 1.5s forwards;
+    transform: translateY(-20px);
+    transition: opacity 1s ease 0.3s, transform 1s ease 0.3s;
   }
-
-  p { line-height: 1.6; font-size: 1.1rem; }
-
-  button {
-    margin-top: 20px;
-    padding: 12px 24px;
-    font-size: 1rem;
-    cursor: pointer;
-    border: none;
-    border-radius: 8px;
-    background-color: #4a90e2;
-    color: white;
-    transition: transform 0.2s, box-shadow 0.2s;
+  .container.visible h1 {
+    opacity: 1;
+    transform: translateY(0);
   }
-
-  button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(74,144,226,0.4);
-  }
-
-  .footer {
-    font-size: 0.8rem;
-    color: #444;
-    margin-top: 25px;
-  }
-
-  .summary {
-    background-color: rgba(255,255,255,0.96);
-    padding: 28px;
-    border-radius: 16px;
-    margin-top: 25px;
-    white-space: pre-wrap;
-    font-size: 1rem;
-    line-height: 1.7;
+  p {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: #333;
     opacity: 0;
-    transition: opacity 1s;
+    transform: translateY(20px);
+    transition: opacity 1s ease 0.5s, transform 1s ease 0.5s;
   }
-
-  @keyframes fadeBounce {
-    0% { opacity: 0; transform: translateY(-20px);}
-    50% { opacity: 1; transform: translateY(8px);}
-    100% { opacity: 1; transform: translateY(0);}
+  .container.visible p {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .personal-feedback {
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(74,144,226,0.12);
+    border-radius: 16px;
+    font-style: italic;
+    color: #2c5282;
+    font-size: 1.15rem;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+  .personal-feedback.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+  textarea {
+    width: 100%;
+    max-width: 620px;
+    height: 140px;
+    padding: 16px;
+    margin: 20px 0;
+    border: 2px solid #a0d8ef;
+    border-radius: 14px;
+    font-size: 1.15rem;
+    font-family: 'Nunito', sans-serif;
+    background: #f8fdff;
+    resize: vertical;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease 0.7s, transform 1s ease 0.7s;
+  }
+  .container.visible textarea {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  button {
+    padding: 14px 32px;
+    font-size: 1.15rem;
+    margin: 12px;
+    border: none;
+    border-radius: 14px;
+    background: #4a90e2;
+    color: white;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.4s ease;
+  }
+  button.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  button:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(74,144,226,0.45);
+  }
+  .game-area {
+    margin: 40px 0;
+    padding: 35px;
+    background: rgba(255,255,255,0.96);
+    border-radius: 22px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 1.4s ease 0.2s, transform 1.4s ease 0.2s;
+  }
+  .game-area.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .game-title {
+    font-size: 1.9rem;
+    color: #6b46c1;
+    margin-bottom: 20px;
+    opacity: 0;
+    transform: translateY(-15px);
+    transition: opacity 1s ease 0.4s, transform 1s ease 0.4s;
+  }
+  .game-area.visible .game-title {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .breath-instruction {
+    margin: 25px 0;
+    font-size: 1.4rem;
+    color: #2c5282;
+    min-height: 50px;
+    opacity: 0;
+    transition: opacity 1s ease 0.6s;
+  }
+  .game-area.visible .breath-instruction {
+    opacity: 1;
+  }
+  .breathing-circle {
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, #a8edea, #89dceb);
+    border-radius: 50%;
+    margin: 35px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.9rem;
+    font-weight: 600;
+    box-shadow: 0 15px 40px rgba(137,220,235,0.35);
+    /* Ultra-smooth breathing animation */
+    transition: transform 5s cubic-bezier(0.4, 0.0, 0.2, 1), 
+                background 5s ease;
+    cursor: pointer;
+    user-select: none;
+  }
+  .breathing-circle.expanding {
+    transform: scale(1.8);
+    background: radial-gradient(circle, #fed6e3, #fcb7d2);
+    box-shadow: 0 20px 50px rgba(252,183,210,0.5);
+  }
+  .summary {
+    text-align: left;
+    background: rgba(255,255,255,0.98);
+    padding: 40px;
+    border-radius: 24px;
+    font-size: 1.2rem;
+    line-height: 2.1;
+    white-space: pre-wrap;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.15);
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 1.8s ease, transform 1.8s ease;
+  }
+  .summary.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .footer {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 40px;
+    opacity: 0;
+    transition: opacity 1.5s ease 1s;
+  }
+  .container.visible .footer {
+    opacity: 1;
   }
 </style>
 </head>
 <body>
 
-<!-- Nature video background (replace with desired video URL) -->
 <video autoplay muted loop id="bgVideo">
-  <!-- Example: ocean waves video -->
-  <source src="https://www.mixkit.co/free-stock-video/ocean-waves.mp4" type="video/mp4">
+  <source src="https://cdn.coverr.co/videos/coverr-serene-forest-stream-1569/1080p.mp4" type="video/mp4">
 </video>
 
-<div class="container">
-  <h1 id="title">🌿 Welcome to Calm Thinking 🌿</h1>
-  <p id="prompt">Take a deep breath and get ready for a peaceful reflection journey. Press "Start" to begin! 😊</p>
-  <button id="startButton" onclick="startReflection()">Start</button>
-
-  <div class="footer">This tool supports reflection only. No data is saved or tracked.</div>
+<div class="container" id="mainContainer">
+  <h1>🌿 Your Calm Thinking Journey 🌿</h1>
+  <p>
+    Breathe in deeply… and let it go.<br><br>
+    This is your safe space to untangle thoughts, find clarity, and feel lighter.<br>
+    We’ll reflect together, breathe mindfully, and celebrate you every step of the way.
+  </p>
+  <button id="startBtn">Begin My Journey</button>
+  <div class="footer">No data is saved or tracked — this moment is just for you.</div>
 </div>
 
 <script>
-// Initial state
 let currentStep = 0;
 const responses = [];
 
-// Steps for reflection
 const steps = [
-  { title: "Focus", text: "What’s on your mind right now?", reflection: true, followup: "Let’s dive deeper." },
-  { title: "Facts", text: "What facts do you know for sure?", reflection: true, followup: "Facts help clear the mind." },
-  { title: "Assumptions", text: "What assumptions are you making?", reflection: true, followup: "Challenge your assumptions." },
-  { title: "Control", text: "What can you control in this situation?", reflection: true, followup: "Focus on what you can influence." },
-  { title: "Time", text: "If you waited 24 hours, what would change?", reflection: true, followup: "Time gives perspective." },
-  { title: "Next Step", text: "What is one small step you can take?", reflection: true, followup: "Every small step counts." },
-  { title: "Brain Game", text: "Let’s have some fun before we conclude!", reflection: false },
-  { title: "Mood", text: "How are you feeling now? (Calm, Neutral, Stressed, Thoughtful)", reflection: false },
-  { title: "Conclusion", text: "", reflection: false }
+  { type: "reflect", title: "What's on Your Mind?", question: "Right now, what’s taking up space in your thoughts? Big or small — share whatever feels true." },
+  { type: "reflect", title: "The Facts", question: "What do you know for sure about this situation? Stick to the clear, undeniable truths." },
+  { type: "reflect", title: "Assumptions", question: "What assumptions might you be holding onto? Gently name them — no judgment here." },
+  { type: "reflect", title: "Your Circle of Control", question: "What parts of this can you actually influence or change? Focus on your power." },
+  { type: "reflect", title: "The Gift of Time", question: "If you waited 24 hours, what might feel different? What new perspective could emerge?" },
+  { type: "reflect", title: "One Gentle Step", question: "What’s one small, kind action you could take next? Even tiny steps move mountains." },
+  { type: "mood", title: "How Are You Feeling Now?" },
+  { type: "conclusion", title: "Your Journey Complete" }
 ];
 
-// Start reflection journey
-function startReflection() {
-  document.getElementById("startButton").style.display = "none";
-  document.getElementById("title").style.opacity = 1;
-  renderStep();
+const feedbackTemplates = [
+  "Thank you for sharing that so openly. Just putting it into words already creates space and lightness — you’re doing beautifully.",
+  "Seeing the facts clearly like this takes real strength. You’re grounding yourself with courage and wisdom.",
+  "Naming assumptions is one of the bravest things we can do. You’re freeing your mind — keep going, you’ve got this!",
+  "Focusing on what you can control is pure empowerment. You’re stepping into your true strength right now.",
+  "Beautiful perspective. Time really is a gentle healer, and trusting it shows how wise and patient you are.",
+  "That small step sounds perfect. Every big change starts exactly like this — you’re moving forward with grace."
+];
+
+const gameTitles = [
+  "🌼 Breathe & Bloom",
+  "🍃 Gentle Waves",
+  "✨ Light Within",
+  "🕊️ Peaceful Flow",
+  "🌅 Dawn Breath",
+  "🌱 Rooted & Calm"
+];
+
+function startJourney() {
+  const container = document.getElementById("mainContainer");
+  container.classList.add("visible");
+  setTimeout(() => {
+    document.getElementById("startBtn").classList.add("visible");
+  }, 300);
 }
 
-// Render each step
-function renderStep() {
-  const step = steps[currentStep];
-  const container = document.querySelector(".container");
+function advanceStep() {
+  if (currentStep >= steps.length) return;
 
-  // Clear container except the title and footer
-  container.innerHTML = `<h1 id="title">${step.title}</h1><div class="footer">This tool supports reflection only. No data is saved or tracked.</div>`;
+  const container = document.getElementById("mainContainer");
+  container.innerHTML = `
+    <h1>${steps[currentStep].title}</h1>
+    <div class="footer">No data is saved or tracked — this moment is just for you.</div>
+  `;
+  container.classList.remove("visible");
+  setTimeout(() => container.classList.add("visible"), 100);
 
-  // Set prompt text
-  const prompt = document.createElement("p");
-  prompt.id = "prompt";
-  prompt.innerText = step.text;
-  container.appendChild(prompt);
+  if (steps[currentStep].type === "reflect") {
+    const question = document.createElement("p");
+    question.innerHTML = steps[currentStep].question;
+    container.appendChild(question);
 
-  // Add input area and next button if needed
-  if (step.title !== "Brain Game" && step.title !== "Conclusion" && step.title !== "Mood") {
-    const inputArea = document.createElement("textarea");
-    inputArea.placeholder = "Type here...";
-    container.appendChild(inputArea);
+    const textarea = document.createElement("textarea");
+    textarea.placeholder = "Share your thoughts here…";
+    container.appendChild(textarea);
 
-    const nextButton = document.createElement("button");
-    nextButton.innerText = "Next";
-    nextButton.onclick = () => nextStep(inputArea.value.trim(), inputArea);
-    container.appendChild(nextButton);
-  } else if (step.title === "Brain Game") {
-    // Trigger brain game logic
+    const nextBtn = document.createElement("button");
+    nextBtn.textContent = "Continue";
+    nextBtn.onclick = () => handleReflection(textarea.value.trim());
+    container.appendChild(nextBtn);
+
     setTimeout(() => {
-      promptBrainGame();
-    }, 500);
-  } else if (step.title === "Mood") {
-    // Add mood selection
-    const moodOptions = ["Calm", "Neutral", "Stressed", "Thoughtful"];
-    moodOptions.forEach(mood => {
-      const button = document.createElement("button");
-      button.innerText = mood;
-      button.onclick = () => nextStep(mood, null);
-      container.appendChild(button);
+      textarea.classList.add("visible");
+      nextBtn.classList.add("visible");
+    }, 600);
+
+  } else if (steps[currentStep].type === "mood") {
+    const moodP = document.createElement("p");
+    moodP.textContent = "Before we wrap up, how are you feeling right now?";
+    container.appendChild(moodP);
+
+    const moods = ["Calm 🌊", "Thoughtful 🌙", "Lighter ✨", "Hopeful 🌟", "Still Processing 🌫️"];
+    moods.forEach(mood => {
+      const btn = document.createElement("button");
+      btn.textContent = mood;
+      btn.onclick = () => {
+        responses.push({ step: "Final Mood", input: mood });
+        currentStep++;
+        advanceStep();
+      };
+      container.appendChild(btn);
+      setTimeout(() => btn.classList.add("visible"), 600 + moods.indexOf(mood) * 100);
     });
-  } else if (step.title === "Conclusion") {
-    // Show conclusion
+
+  } else if (steps[currentStep].type === "conclusion") {
     showConclusion();
   }
 }
 
-// Handle the next step
-function nextStep(userInput, inputArea) {
-  const step = steps[currentStep];
-
-  if (step.reflection && userInput === "") {
-    alert("Please type something to continue.");
+function handleReflection(userInput) {
+  if (!userInput) {
+    alert("It’s okay to share just a little — even one word helps. 💙");
     return;
   }
 
-  if (step.reflection) {
-    responses.push({ step: step.title, input: userInput });
-  }
+  responses.push({ step: steps[currentStep].title, input: userInput });
 
-  if (step.title === "Mood") {
-    // Change background based on mood
-    document.body.style.background = getMoodGradient(userInput);
-  }
+  const container = document.getElementById("mainContainer");
+  const feedback = document.createElement("div");
+  feedback.className = "personal-feedback";
+  feedback.textContent = feedbackTemplates[currentStep];
+  container.appendChild(feedback);
 
-  currentStep++;
-  // Clear previous input and button
-  if (inputArea) inputArea.remove();
-  const buttons = document.querySelectorAll("button");
-  buttons.forEach(btn => btn.remove());
-
-  // Render the next step or conclusion
-  if (currentStep < steps.length) {
-    renderStep();
-  } else {
-    showConclusion();
-  }
+  setTimeout(() => feedback.classList.add("visible"), 200);
+  setTimeout(() => launchBreathingGame(), 1600);
 }
 
-// Mood-based gradient
-function getMoodGradient(mood) {
-  const gradients = {
-    Calm: "linear-gradient(135deg, #a8edea, #fed6e3)",
-    Neutral: "linear-gradient(135deg, #f0f4f8, #d9e2ec)",
-    Stressed: "linear-gradient(135deg, #ff9a9e, #fecfef)",
-    Thoughtful: "linear-gradient(135deg, #cfd9df, #e2ebf0)"
-  };
-  return gradients[mood] || gradients["Neutral"];
-}
+function launchBreathingGame() {
+  const container = document.getElementById("mainContainer");
+  const gameArea = document.createElement("div");
+  gameArea.className = "game-area";
 
-// Brain game (multiple-choice, memory, logic)
-function promptBrainGame() {
-  const container = document.querySelector(".container");
-  container.innerHTML = `<h1 id="title">🧠 Brain Game 🧠</h1>`;
+  gameArea.innerHTML = `
+    <div class="game-title">🎮 ${gameTitles[currentStep]}</div>
+    <p class="breath-instruction">Click the circle and breathe with it...<br>Let everything soften.</p>
+    <div class="breathing-circle" id="breathCircle">Breathe In</div>
+    <button style="background:#6b46c1; margin-top: 35px;" id="continueBtn">I feel calmer — Continue</button>
+  `;
 
-  // Multiple-choice question
-  const mcQuestion = document.createElement("p");
-  mcQuestion.innerText = "What is the capital of France?";
-  container.appendChild(mcQuestion);
+  container.appendChild(gameArea);
+  setTimeout(() => gameArea.classList.add("visible"), 200);
 
-  const options = ["Paris", "London", "Rome", "Berlin"];
-  options.forEach(option => {
-    const button = document.createElement("button");
-    button.innerText = option;
-    button.onclick = () => handleMCAnswer(option);
-    container.appendChild(button);
+  const circle = document.getElementById("breathCircle");
+  const instruction = document.querySelector(".breath-instruction");
+  const continueBtn = document.getElementById("continueBtn");
+
+  let isBreathing = false;
+
+  function startBreathingCycle() {
+    if (isBreathing) return;
+    isBreathing = true;
+
+    instruction.textContent = "Breathe in gently...";
+    circle.textContent = "Inhale";
+    circle.classList.add("expanding");
+
+    setTimeout(() => {
+      instruction.textContent = "Hold softly...";
+      circle.textContent = "Hold";
+    }, 5000);
+
+    setTimeout(() => {
+      instruction.textContent = "Breathe out slowly...";
+      circle.textContent = "Exhale";
+      circle.classList.remove("expanding");
+    }, 9000);
+
+    setTimeout(() => {
+      instruction.textContent = "Click anytime to breathe again<br>or continue when ready";
+      circle.textContent = "Breathe In";
+      isBreathing = false;
+    }, 14000);
+  }
+
+  circle.addEventListener("click", startBreathingCycle);
+  continueBtn.addEventListener("click", () => {
+    currentStep++;
+    advanceStep();
   });
+
+  // Gentle auto-start
+  setTimeout(startBreathingCycle, 1000);
 }
 
-// Handle multiple-choice answer
-function handleMCAnswer(selectedOption) {
-  const correctAnswer = "Paris";
-  if (selectedOption === correctAnswer) {
-    alert("Correct! Now let’s move on.");
-    nextStep("", null); // Move to next step
-  } else {
-    alert("Oops! That’s not correct. Try again.");
-  }
-}
-
-// Show conclusion
 function showConclusion() {
-  const container = document.querySelector(".container");
-  container.innerHTML = `<div class="summary">🌈 Your Reflection Journey 🌈\n\n${responses.map(r => `${r.step}: ${r.input}`).join("\n")}\n\n💖 Take a deep breath, smile, and feel calm! 💖\nYou’ve reflected, played fun games, and found clarity. Every step you take is progress. 😊🌸</div>`;
+  const container = document.getElementById("mainContainer");
+  let summaryText = "🌟 Congratulations — You’ve Completed Your Journey! 🌟\n\n";
+
+  responses.forEach(r => {
+    summaryText += `✨ ${r.step}\n${r.input}\n\n`;
+  });
+
+  summaryText += "Look at what you just did:\n";
+  summaryText += "You gave yourself time. You reflected with honesty and kindness.\n";
+  summaryText += "You breathed deeply, mindfully — letting calm flow through you.\n\n";
+  summaryText += "This quiet strength you’ve shown? It’s profound.\n";
+  summaryText += "You are resilient, worthy, and capable of deep peace — exactly as you are.\n\n";
+  summaryText += "I’m so truly proud of you.\n";
+  summaryText += "Come back anytime. This space is always here for you. 🌿💖✨";
+
+  container.innerHTML = `<div class="summary">${summaryText}</div>`;
+  setTimeout(() => {
+    document.querySelector(".summary").classList.add("visible");
+  }, 300);
 }
 
+document.getElementById("startBtn").onclick = () => {
+  startJourney();
+  setTimeout(advanceStep, 1200);
+};
 </script>
+
 </body>
 </html>
