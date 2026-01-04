@@ -15,12 +15,9 @@ video#bgVideo {
 }
 .container {
   position:relative; z-index:1; max-width:720px; width:90%;
-  background:rgba(0,0,0,0.6); /* semi-transparent dark for text readability */
-  padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.4);
+  background:rgba(0,0,0,0.6); padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.4);
   display:flex; flex-direction:column; align-items:center; text-align:center; transition:all 0.5s;
-  background-size:cover;
-  background-position:center;
-  color:#fff;
+  background-size:cover; background-position:center; color:#fff;
 }
 h1 { font-size:2rem; margin-bottom:15px; opacity:0; animation:fadeBounce 1.5s forwards;}
 p { line-height:1.6; font-size:1.1rem; }
@@ -48,7 +45,6 @@ select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8
   <h1 id="title">🌿 Welcome to Calm Thinking 🌿</h1>
   <p id="prompt">Take a deep breath and get ready for a peaceful reflection journey. Press "Start" to begin! 😊</p>
 
-  <!-- Background selector -->
   <label for="bgSelect">Choose Background:</label>
   <select id="bgSelect">
     <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4">Flowers</option>
@@ -56,7 +52,6 @@ select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8
     <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/forest.mp4">Forest</option>
   </select>
 
-  <!-- Ambient sound selector -->
   <label for="soundSelect">Choose Ambient Sound:</label>
   <select id="soundSelect">
     <option value="rainforest">Rainforest (Birds + Rain)</option>
@@ -65,7 +60,6 @@ select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8
     <option value="birdsstream">Birds & Stream</option>
   </select>
 
-  <!-- Breathing pattern selector -->
   <label for="breathingSelect">Choose Breathing Exercise:</label>
   <select id="breathingSelect">
     <option value="478">4-7-8 Breathing</option>
@@ -90,24 +84,12 @@ let currentStep = 0;
 const responses = [];
 let breathingInterval;
 
-// Map ambient sounds to audio URLs and matching container backgrounds
+// Ambient options with matching backgrounds
 const ambientOptions = {
-  rainforest: {
-    url:"https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3",
-    bg:"https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60"
-  },
-  rainstorm: {
-    url:"https://www.orangefreesounds.com/wp-content/uploads/2022/02/Thunderstorm-sound.mp3",
-    bg:"https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60"
-  },
-  gentlerain: {
-    url:"https://bigsoundbank.com/UPLOAD/mp3/0055.mp3",
-    bg:"https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?auto=format&fit=crop&w=800&q=60"
-  },
-  birdsstream: {
-    url:"https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3",
-    bg:"https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60"
-  }
+  rainforest: { url:"https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3", bg:"https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60" },
+  rainstorm: { url:"https://www.orangefreesounds.com/wp-content/uploads/2022/02/Thunderstorm-sound.mp3", bg:"https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60" },
+  gentlerain: { url:"https://bigsoundbank.com/UPLOAD/mp3/0055.mp3", bg:"https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?auto=format&fit=crop&w=800&q=60" },
+  birdsstream: { url:"https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3", bg:"https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60" }
 };
 
 const steps = [
@@ -127,11 +109,10 @@ startButton.onclick = () => {
   startButton.style.display="none";
   renderStep();
 };
-
 bgSelect.onchange = ()=>{ bgVideo.src=bgSelect.value; bgVideo.load(); };
 soundSelect.onchange = ()=>{ setAmbient(soundSelect.value); };
 
-// Set ambient audio + container background
+// Set ambient audio and container background
 function setAmbient(key){
   const option = ambientOptions[key];
   ambientAudio.src = option.url;
@@ -153,7 +134,7 @@ function renderStep(){
     nextBtn.onclick=()=>{
       if(textarea.value.trim()===""){ alert("Please enter a response."); return; }
       responses.push({step:step.title,input:textarea.value});
-      renderInteractiveGame(textarea.value); // show interactive mini-game
+      renderDynamicGame(textarea.value);
     };
     container.appendChild(nextBtn);
   } else if(step.breathing){
@@ -163,16 +144,36 @@ function renderStep(){
   }
 }
 
-// Mini interactive game (example: click challenge)
-function renderInteractiveGame(userInput){
-  container.innerHTML=`<h1>🎯 Fun Moment!</h1><p>Interactive fun based on: "${userInput}"</p>`;
+// Dynamic game based on user input
+function renderDynamicGame(userInput){
+  container.innerHTML=`<h1>🎯 Interactive Game! 🎯</h1><p>Fun based on your input: "${userInput}"</p>`;
   const gameDiv=document.createElement("div"); gameDiv.className="game-area"; container.appendChild(gameDiv);
 
-  let clicks=0;
-  const btn=document.createElement("button"); btn.innerText="Click me!";
-  const counter=document.createElement("p"); counter.innerText="Clicks: 0";
-  btn.onclick=()=>{ clicks++; counter.innerText="Clicks: "+clicks; };
-  gameDiv.appendChild(btn); gameDiv.appendChild(counter);
+  // Determine game type
+  const text = userInput.toLowerCase();
+  if(text.includes("sleep") || text.includes("rest")){
+    gameDiv.innerHTML="<p>Follow the breathing circle to relax!</p>";
+    startBreathingExercise();
+    return;
+  } else if(text.includes("work") || text.includes("stress") || text.includes("deadline")){
+    // memory challenge
+    const sequence = ["🔵","🟢","🟡"];
+    let userSeq=[];
+    gameDiv.innerHTML=`<p>Remember this sequence: ${sequence.join(" ")}</p>`;
+    setTimeout(()=>{ gameDiv.innerHTML="<p>Now click the sequence in order!</p>"; sequence.forEach(sym=>{ 
+      const btn = document.createElement("button"); btn.innerText=sym;
+      btn.onclick = ()=>{ userSeq.push(sym); if(userSeq.length===sequence.length){ alert("Great! You remembered it!"); nextStep(); } };
+      gameDiv.appendChild(btn);
+    }); },2000);
+    return;
+  } else {
+    // fun click game
+    let clicks=0;
+    const btn=document.createElement("button"); btn.innerText="Click me!";
+    const counter=document.createElement("p"); counter.innerText="Clicks: 0";
+    btn.onclick=()=>{ clicks++; counter.innerText="Clicks: "+clicks; };
+    gameDiv.appendChild(btn); gameDiv.appendChild(counter);
+  }
 
   const continueBtn=document.createElement("button"); continueBtn.innerText="Continue";
   continueBtn.onclick=()=>{ nextStep(); };
@@ -189,12 +190,12 @@ function startBreathingExercise(){
   if(pattern==="box"){ inhale=4000; hold=4000; exhale=4000; }
 
   const cycle=()=>{
-    circle.classList.add("expanding"); // inhale
+    circle.classList.add("expanding");
     setTimeout(()=>{
       setTimeout(()=>{
-        circle.classList.remove("expanding"); // exhale
+        circle.classList.remove("expanding");
         setTimeout(cycle,0);
-      },exhale); // hold
+      },exhale);
     },inhale+hold);
   };
   cycle();
@@ -204,15 +205,15 @@ function startBreathingExercise(){
   container.appendChild(nextBtn);
 }
 
-// Move to next step
+// Next step
 function nextStep(){ currentStep++; if(currentStep<steps.length) renderStep(); else showConclusion(); }
 
-// Show personalized conclusion
+// Conclusion
 function showConclusion(){
   container.innerHTML=`<h1>🎉 Congratulations! 🎉</h1>`;
   const summary=document.createElement("div"); summary.className="summary";
   summary.innerHTML="🌈 Your Reflection Journey 🌈<br><br>"+responses.map(r=>`<strong>${r.step}:</strong> ${r.input}`).join("<br>")+
-    `<br><br>💖 Amazing! You've taken mindful steps, reflected thoughtfully, and explored interactive exercises. Keep going, every small effort counts! 🌟`;
+    `<br><br>💖 Amazing! You've reflected thoughtfully and explored interactive exercises. Keep going, every small effort counts! 🌟`;
   container.appendChild(summary);
 }
 </script>
