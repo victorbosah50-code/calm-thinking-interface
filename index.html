@@ -145,7 +145,7 @@ function renderStep(){
     nextBtn.onclick=()=>{ 
       if(textarea.value.trim()===""){ alert("Please enter a response."); return; }
       responses.push({step:step.title,input:textarea.value});
-      renderWordInsightGame(textarea.value);
+      renderNextGame(textarea.value);
     };
     container.appendChild(nextBtn);
   } else if(step.breathing){
@@ -155,29 +155,31 @@ function renderStep(){
   }
 }
 
-// ----- Advanced Word Insight Challenge -----
+// ----- Dynamic Multi-Game Selector -----
+function renderNextGame(userInput){
+  // Array of game functions
+  const games = [renderWordInsightGame, renderToneAnalyzerGame, renderMemoryGame, renderClickGame];
+
+  // Pick game based on step index for variety
+  const gameFunc = games[currentStep % games.length];
+  gameFunc(userInput);
+}
+
+// ----- Word Insight Game -----
 function renderWordInsightGame(userInput){
   container.innerHTML=`<h1>🧠 Word Insight Challenge 🧠</h1>
-  <p>Let's explore key ideas from your response: "${userInput}"</p>`;
+  <p>Arrange the keywords from your response in order:</p>`;
 
   const gameDiv = document.createElement("div");
   gameDiv.className = "game-area";
   container.appendChild(gameDiv);
 
-  // Extract keywords
   const keywords = userInput.split(/\s+/).filter(w=>w.length>3).slice(0,5);
   if(keywords.length===0) keywords.push("focus","mind","calm");
-
   const shuffled = keywords.sort(()=>Math.random()-0.5);
 
-  gameDiv.innerHTML = `<p>Arrange these keywords in the order they appeared in your response:</p>`;
-  
-  const inputDiv = document.createElement("div");
-  inputDiv.style.display="flex";
-  inputDiv.style.flexWrap="wrap";
-  inputDiv.style.justifyContent="center";
-  inputDiv.style.gap="10px";
-  
+  const inputDiv=document.createElement("div");
+  inputDiv.style.display="flex"; inputDiv.style.flexWrap="wrap"; inputDiv.style.justifyContent="center"; inputDiv.style.gap="10px";
   shuffled.forEach(word=>{
     const btn=document.createElement("button");
     btn.innerText = word;
@@ -187,93 +189,99 @@ function renderWordInsightGame(userInput){
   });
   gameDiv.appendChild(inputDiv);
 
-  const selectedDiv = document.createElement("div");
-  selectedDiv.style.marginTop="15px";
-  container.appendChild(selectedDiv);
+  const selectedDiv = document.createElement("div"); selectedDiv.style.marginTop="15px"; container.appendChild(selectedDiv);
 
   let selectedWords=[];
-
   function selectWord(btn){
     btn.disabled=true;
     selectedWords.push(btn.dataset.word);
     selectedDiv.innerText="Selected: "+selectedWords.join(", ");
 
     if(selectedWords.length===keywords.length){
-      // Score
       const score = selectedWords.filter((w,i)=>w===keywords[i]).length;
-      const result = document.createElement("p");
-      result.innerHTML = `✅ You got <strong>${score}/${keywords.length}</strong> in correct order!`;
-      selectedDiv.appendChild(result);
-
-      const continueBtn = document.createElement("button");
-      continueBtn.innerText="Next: Mindfulness Insight";
-      continueBtn.onclick = ()=> renderToneAnalyzer(userInput);
+      selectedDiv.innerHTML+=`<p>✅ You got <strong>${score}/${keywords.length}</strong> correct!</p>`;
+      const continueBtn=document.createElement("button"); continueBtn.innerText="Continue"; continueBtn.onclick=nextStep;
       container.appendChild(continueBtn);
     }
   }
 }
 
-// ----- Tone Analyzer & Mindfulness Insight -----
-function renderToneAnalyzer(userInput){
+// ----- Tone Analyzer Game -----
+function renderToneAnalyzerGame(userInput){
   container.innerHTML=`<h1>🧘 Mindfulness Insight 🧘</h1>
-  <p>Analyzing your thoughts to give personalized feedback...</p>`;
+  <p>Analyzing your thoughts for personalized feedback...</p>`;
+  const gameDiv=document.createElement("div"); gameDiv.className="game-area"; container.appendChild(gameDiv);
 
-  const gameDiv = document.createElement("div");
-  gameDiv.className="game-area";
-  container.appendChild(gameDiv);
+  const calm=["calm","peace","relax","serene","happy","joy"];
+  const stressed=["stress","anxious","tired","deadline","worry"];
+  const motivated=["goal","focus","plan","action","success"];
+  const text=userInput.toLowerCase();
+  let score=0;
 
-  // Simple tone detection
-  const calmWords = ["calm","peace","relax","serene","happy","joy","mindful"];
-  const stressedWords = ["stress","anxious","tired","deadline","worry","frustrate"];
-  const motivatedWords = ["goal","focus","plan","action","achieve","work","success"];
+  calm.forEach(w=>{if(text.includes(w)) score+=2;});
+  stressed.forEach(w=>{if(text.includes(w)) score-=2;});
+  motivated.forEach(w=>{if(text.includes(w)) score+=1;});
 
-  const text = userInput.toLowerCase();
-  let tone = "neutral";
-  let score = 0;
+  let tone="Neutral 🤔";
+  if(score>=3) tone="Calm & Positive 😊";
+  else if(score<=-2) tone="Stressed 😟";
+  else if(score>0) tone="Motivated 💪";
 
-  calmWords.forEach(w=>{ if(text.includes(w)) score+=2; });
-  stressedWords.forEach(w=>{ if(text.includes(w)) score-=2; });
-  motivatedWords.forEach(w=>{ if(text.includes(w)) score+=1; });
-
-  if(score >= 3) tone="Calm & Positive 😊";
-  else if(score <= -2) tone="Stressed 😟";
-  else if(score > 0) tone="Motivated 💪";
-  else tone="Neutral 🤔";
-
-  // Display feedback
-  gameDiv.innerHTML = `<p>Your mindfulness insight: <strong>${tone}</strong></p>`;
-  
-  const advice = document.createElement("p");
-  advice.style.marginTop="10px";
-  if(tone.includes("Calm")) advice.innerText="You're in a mindful state! Keep focusing on positive thoughts and breathing.";
-  else if(tone.includes("Stressed")) advice.innerText="Take a deep breath. Focus on what you can control. Small steps help reduce stress.";
-  else if(tone.includes("Motivated")) advice.innerText="Channel your motivation wisely. Balance action with reflection.";
-  else advice.innerText="Try to be aware of your feelings and thoughts. Reflection helps clarity.";
+  gameDiv.innerHTML=`<p>Your mindfulness insight: <strong>${tone}</strong></p>`;
+  const advice=document.createElement("p"); advice.style.marginTop="10px";
+  if(tone.includes("Calm")) advice.innerText="You're mindful! Keep focusing on positive thoughts.";
+  else if(tone.includes("Stressed")) advice.innerText="Breathe deeply and focus on what you can control.";
+  else if(tone.includes("Motivated")) advice.innerText="Channel motivation wisely. Balance action with reflection.";
+  else advice.innerText="Observe your thoughts and feelings carefully.";
   gameDiv.appendChild(advice);
 
-  const continueBtn=document.createElement("button");
-  continueBtn.innerText="Next Step";
-  continueBtn.onclick=nextStep;
+  const continueBtn=document.createElement("button"); continueBtn.innerText="Continue"; continueBtn.onclick=nextStep;
   container.appendChild(continueBtn);
 }
 
-// ----- Breathing -----
+// ----- Memory Game -----
+function renderMemoryGame(userInput){
+  container.innerHTML=`<h1>🧩 Memory Challenge 🧩</h1>
+  <p>Try to remember this sequence of symbols:</p>`;
+  const gameDiv=document.createElement("div"); gameDiv.className="game-area"; container.appendChild(gameDiv);
+  const sequence=["🔵","🟢","🟡"]; let userSeq=[];
+  gameDiv.innerHTML=`<p>Remember this sequence: ${sequence.join(" ")}</p>`;
+  setTimeout(()=>{
+    gameDiv.innerHTML="<p>Now click them in order:</p>";
+    sequence.forEach(sym=>{
+      const btn=document.createElement("button"); btn.innerText=sym;
+      btn.onclick=()=>{ userSeq.push(sym); if(userSeq.length===sequence.length){ alert("Great memory!"); nextStep(); } };
+      gameDiv.appendChild(btn);
+    });
+  },2000);
+}
+
+// ----- Click Game -----
+function renderClickGame(userInput){
+  container.innerHTML=`<h1>🎯 Fun Click Game 🎯</h1>
+  <p>Click as fast as you can!</p>`;
+  const gameDiv=document.createElement("div"); gameDiv.className="game-area"; container.appendChild(gameDiv);
+  let clicks=0;
+  const btn=document.createElement("button"); btn.innerText="Click me!";
+  const counter=document.createElement("p"); counter.innerText="Clicks: 0";
+  btn.onclick=()=>{ clicks++; counter.innerText="Clicks: "+clicks; };
+  gameDiv.appendChild(btn); gameDiv.appendChild(counter);
+  setTimeout(nextStep,10000); // auto continue after 10 sec
+}
+
+// ----- Breathing Exercise -----
 function startBreathingExercise(){
-  const pattern = breathingSelect.value;
+  const pattern=breathingSelect.value;
   const circle=document.createElement("div"); circle.className="breathing-circle"; circle.innerText="Breathe";
   container.appendChild(circle);
-
   let inhale=4000, hold=7000, exhale=8000;
   if(pattern==="box"){ inhale=4000; hold=4000; exhale=4000; }
-
   const cycle=()=>{
     circle.classList.add("expanding");
     setTimeout(()=>{ setTimeout(()=>{ circle.classList.remove("expanding"); setTimeout(cycle,0); },exhale); },inhale+hold);
   };
   cycle();
-
-  const nextBtn=document.createElement("button"); nextBtn.innerText="Next";
-  nextBtn.onclick=nextStep;
+  const nextBtn=document.createElement("button"); nextBtn.innerText="Next"; nextBtn.onclick=nextStep;
   container.appendChild(nextBtn);
 }
 
@@ -285,7 +293,7 @@ function showConclusion(){
   container.innerHTML=`<h1>🎉 Congratulations! 🎉</h1>`;
   const summary=document.createElement("div"); summary.className="summary";
   summary.innerHTML="🌈 Your Reflection Journey 🌈<br><br>"+responses.map(r=>`<strong>${r.step}:</strong> ${r.input}`).join("<br>")+
-    `<br><br>💖 Amazing! You've reflected thoughtfully and explored advanced exercises. Keep growing your mindfulness! 🌟`;
+    `<br><br>💖 Amazing! You've explored multiple games and mindfulness exercises. Keep growing! 🌟`;
   container.appendChild(summary);
 }
 </script>
