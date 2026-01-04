@@ -25,7 +25,8 @@ button { padding:12px 24px; margin:10px; font-size:1rem; border:none; border-rad
 button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(74,144,226,0.4); }
 .summary { background:rgba(255,255,255,0.96); padding:25px; border-radius:16px; margin-top:15px; white-space:pre-wrap; font-size:1rem; line-height:1.6; opacity:1; }
 .breathing-circle { width:180px; height:180px; border-radius:50%; background:radial-gradient(circle,#a8edea,#89dceb);
-  display:flex; align-items:center; justify-content:center; color:white; font-weight:600; font-size:1.5rem; margin:20px auto; cursor:pointer; transition:all 6s ease;
+  display:flex; align-items:center; justify-content:center; color:white; font-weight:600; font-size:1.5rem; margin:20px auto; cursor:pointer;
+  transition:all 0.5s linear;
 }
 .breathing-circle.expanding { transform:scale(1.8); background:radial-gradient(circle,#fed6e3,#fcb7d2);}
 @keyframes fadeBounce {0%{opacity:0;transform:translateY(-20px);}50%{opacity:1;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);}}
@@ -73,63 +74,69 @@ const container = document.getElementById("mainContainer");
 
 let currentStep = 0;
 const responses = [];
+let breathingInterval;
+
 const steps = [
   { title:"Focus", text:"What’s on your mind right now?", reflection:true },
   { title:"Facts", text:"What facts do you know for sure?", reflection:true },
   { title:"Assumptions", text:"What assumptions are you making?", reflection:true },
   { title:"Control", text:"What can you control?", reflection:true },
-  { title:"Breathing", text:"Follow the circle to relax", reflection:false, breathing:true },
+  { title:"Breathing", text:"Follow the 4-7-8 breathing pattern", reflection:false, breathing:true },
   { title:"Next Step", text:"What is one small step you can take?", reflection:true },
   { title:"Brain Game", text:"🧠 Brain Game", reflection:false },
   { title:"Mood", text:"How are you feeling now?", reflection:false },
   { title:"Conclusion", text:"", reflection:false }
 ];
 
-// Start journey
 startButton.onclick = () => {
-  bgVideo.src = bgSelect.value;
-  bgVideo.load();
-  ambientAudio.src = soundSelect.value;
-  ambientAudio.volume = 0.4;
-  ambientAudio.play();
+  bgVideo.src = bgSelect.value; bgVideo.load();
+  ambientAudio.src = soundSelect.value; ambientAudio.volume=0.4; ambientAudio.play();
   startButton.style.display="none";
   renderStep();
 };
+bgSelect.onchange = ()=>{ bgVideo.src=bgSelect.value; bgVideo.load(); };
+soundSelect.onchange = ()=>{ ambientAudio.src=soundSelect.value; ambientAudio.play(); };
 
-// Update background dynamically
-bgSelect.onchange = () => { bgVideo.src = bgSelect.value; bgVideo.load(); };
-soundSelect.onchange = () => { ambientAudio.src = soundSelect.value; ambientAudio.play(); };
-
-// Render steps
 function renderStep(){
+  clearInterval(breathingInterval); // stop any previous breathing loops
   const step = steps[currentStep];
   container.innerHTML=`<h1>${step.title}</h1><p>${step.text}</p>`;
 
   if(step.reflection){
-    const textarea=document.createElement("textarea");
-    textarea.placeholder="Type here...";
+    const textarea=document.createElement("textarea"); textarea.placeholder="Type here...";
     container.appendChild(textarea);
-    const nextBtn=document.createElement("button");
-    nextBtn.innerText="Next";
+    const nextBtn=document.createElement("button"); nextBtn.innerText="Next";
     nextBtn.onclick=()=>{ 
       if(textarea.value.trim()===""){ alert("Please enter a response."); return; }
-      responses.push({step:step.title,input:textarea.value});
-      nextStep();
+      responses.push({step:step.title,input:textarea.value}); nextStep();
     };
     container.appendChild(nextBtn);
   } else if(step.breathing){
-    const circle=document.createElement("div");
-    circle.className="breathing-circle";
-    circle.innerText="Breathe";
-    circle.onclick=()=>circle.classList.toggle("expanding");
+    const circle=document.createElement("div"); circle.className="breathing-circle"; circle.innerText="Breathe";
     container.appendChild(circle);
-    const nextBtn=document.createElement("button");
-    nextBtn.innerText="Next";
+
+    // 4-7-8 breathing cycle in seconds
+    const inhale=4000, hold=7000, exhale=8000;
+    let phase=0; // 0=in,1=hold,2=out
+
+    breathingInterval = setInterval(()=>{
+      if(phase===0){ circle.classList.add("expanding"); phase=1;
+      } else if(phase===1){ phase=2; // hold
+      } else if(phase===2){ circle.classList.remove("expanding"); phase=0; } }, 1000);
+    
+    // animate phases with correct timing
+    const cycle=()=>{
+      circle.classList.add("expanding");
+      setTimeout(()=>{ /* hold */ setTimeout(()=>{ circle.classList.remove("expanding"); setTimeout(cycle,0); },exhale); },inhale+hold);
+    };
+    cycle();
+
+    const nextBtn=document.createElement("button"); nextBtn.innerText="Next";
     nextBtn.onclick=nextStep;
     container.appendChild(nextBtn);
+
   } else if(step.title==="Brain Game"){
-    const question=document.createElement("p");
-    question.innerText="What is the capital of France?";
+    const question=document.createElement("p"); question.innerText="What is the capital of France?";
     container.appendChild(question);
     ["Paris","London","Rome","Berlin"].forEach(opt=>{
       const btn=document.createElement("button");
@@ -145,8 +152,7 @@ function renderStep(){
       container.appendChild(btn);
     });
   } else if(step.title==="Conclusion"){
-    const summary=document.createElement("div");
-    summary.className="summary";
+    const summary=document.createElement("div"); summary.className="summary";
     summary.innerText="🌈 Your Reflection Journey 🌈\n\n"+responses.map(r=>`${r.step}: ${r.input}`).join("\n");
     container.appendChild(summary);
   }
