@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🌿 Calm Thinking Interactive Journey 🌿</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="https://source.unsplash.com/40x40/?nature" id="favicon">
 <style>
 body, html { margin:0; padding:0; width:100%; height:100%; font-family:'Nunito',sans-serif; display:flex; justify-content:center; align-items:center; background:#000; overflow:hidden; }
 video#bgVideo { position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1; opacity:0.6; }
@@ -76,21 +77,22 @@ const soundSelect = document.getElementById("soundSelect");
 const breathingSelect = document.getElementById("breathingSelect");
 const container = document.getElementById("mainContainer");
 const rainContainer = document.getElementById("rain");
+const favicon=document.getElementById("favicon");
 
-let currentStep = 0;
-const responses = [];
+let currentStep=0;
+let responses=[];
 let breathingInterval;
 
-// --- Ambient Options ---
+// Ambient sounds
 const ambientOptions = {
-  rainforest: { url:"https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3", thunder:false },
-  rainstorm: { url:"https://www.orangefreesounds.com/wp-content/uploads/2022/02/Thunderstorm-sound.mp3", thunder:true },
-  gentlerain: { url:"https://bigsoundbank.com/UPLOAD/mp3/0055.mp3", thunder:false },
-  birdsstream: { url:"https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3", thunder:false }
+  rainforest:{url:"https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3",thunder:false},
+  rainstorm:{url:"https://www.orangefreesounds.com/wp-content/uploads/2022/02/Thunderstorm-sound.mp3",thunder:true},
+  gentlerain:{url:"https://bigsoundbank.com/UPLOAD/mp3/0055.mp3",thunder:false},
+  birdsstream:{url:"https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3",thunder:false}
 };
 
-// --- Steps ---
-const steps = [
+// Reflection steps
+const steps=[
   {title:"Focus", text:"What’s on your mind right now?", reflection:true},
   {title:"Facts", text:"What facts do you know for sure?", reflection:true},
   {title:"Assumptions", text:"What assumptions are you making?", reflection:true},
@@ -101,28 +103,26 @@ const steps = [
 ];
 
 // --- Start Journey ---
-startButton.onclick = () => {
+startButton.onclick = ()=>{
   setAmbient(soundSelect.value);
-  bgVideo.src = bgSelect.value; bgVideo.load();
+  bgVideo.src=bgSelect.value; bgVideo.load();
   startButton.style.display="none";
   createRain(100);
   renderStep();
 };
-bgSelect.onchange = ()=>{ bgVideo.src=bgSelect.value; bgVideo.load(); };
-soundSelect.onchange = ()=>{ setAmbient(soundSelect.value); };
+bgSelect.onchange=()=>{ bgVideo.src=bgSelect.value; bgVideo.load(); };
+soundSelect.onchange=()=>{ setAmbient(soundSelect.value); };
 
-// --- Set Ambient ---
 function setAmbient(key){
-  const option = ambientOptions[key];
-  ambientAudio.src = option.url; ambientAudio.volume = 0.5; ambientAudio.play();
+  const option=ambientOptions[key];
+  ambientAudio.src=option.url; ambientAudio.volume=0.5; ambientAudio.play();
   if(option.thunder){
-    thunderAudio.src = "https://orangefreesounds.com/wp-content/uploads/2022/02/Thunder-sound.mp3";
-    thunderAudio.volume = 0.7;
-    setInterval(()=>{ thunderAudio.play(); }, 15000 + Math.random()*10000);
+    thunderAudio.src="https://orangefreesounds.com/wp-content/uploads/2022/02/Thunder-sound.mp3";
+    thunderAudio.volume=0.7;
+    setInterval(()=>{ thunderAudio.play(); },15000+Math.random()*10000);
   }
 }
 
-// --- Rain ---
 function createRain(count){
   for(let i=0;i<count;i++){
     const drop=document.createElement("div");
@@ -138,69 +138,74 @@ function createRain(count){
 function renderStep(){
   clearInterval(breathingInterval);
   if(currentStep>=steps.length){ showConclusion(); return; }
-  const step = steps[currentStep];
+  const step=steps[currentStep];
+
+  // Update tab with live nature image
+  document.title=step.title+" 🌿 Calm Thinking";
+  favicon.href=`https://source.unsplash.com/40x40/?nature,${currentStep}`;
+
   container.innerHTML=`<h1>${step.title}</h1><p>${step.text}</p>`;
 
   if(step.reflection){
-    const textarea=document.createElement("textarea"); textarea.placeholder="Type here..."; container.appendChild(textarea);
+    const textarea=document.createElement("textarea");
+    textarea.placeholder="Type here..."; container.appendChild(textarea);
     const nextBtn=document.createElement("button"); nextBtn.innerText="Next";
-    nextBtn.onclick=()=>{ 
+    nextBtn.onclick=()=>{
       if(textarea.value.trim()===""){ alert("Enter a response"); return; }
       responses.push({step:step.title,input:textarea.value});
-      renderRandomGame(textarea.value);
+      renderBrainGame(textarea.value);
     };
     container.appendChild(nextBtn);
 
   } else if(step.breathing){
     startBreathingExercise();
-  } else { currentStep++; renderStep(); }
+  } else{ currentStep++; renderStep(); }
 }
 
 // --- Breathing ---
 function startBreathingExercise(){
-  const pattern = breathingSelect.value;
-  const circle = document.createElement("div"); circle.className="breathing-circle"; circle.innerText="Breathe";
+  const pattern=breathingSelect.value;
+  const circle=document.createElement("div"); circle.className="breathing-circle"; circle.innerText="Breathe";
   container.appendChild(circle);
 
   let inhale=4000, hold=7000, exhale=8000;
   if(pattern==="box"){ inhale=4000; hold=4000; exhale=4000; }
 
   let phase=0;
-  breathingInterval = setInterval(()=>{
+  breathingInterval=setInterval(()=>{
     if(phase===0){ circle.innerText="Inhale"; circle.classList.add("expanding"); phase=1; }
     else if(phase===1){ circle.innerText="Hold"; phase=2; }
-    else { circle.innerText="Exhale"; circle.classList.remove("expanding"); phase=0; }
+    else{ circle.innerText="Exhale"; circle.classList.remove("expanding"); phase=0; }
   },1000);
 
-  const nextBtn=document.createElement("button"); nextBtn.innerText="Next"; 
+  const nextBtn=document.createElement("button"); nextBtn.innerText="Next";
   nextBtn.onclick=()=>{
-    clearInterval(breathingInterval);
-    currentStep++;
-    renderStep();
+    clearInterval(breathingInterval); currentStep++; renderStep();
   };
   container.appendChild(nextBtn);
 }
 
-// --- Mini-games ---
-function renderRandomGame(input){
-  const games = [renderScrabbleGame, renderFocusGame];
-  const gameFunc = games[Math.floor(Math.random()*games.length)];
-  gameFunc(input);
-}
-
-function renderScrabbleGame(input){
-  container.innerHTML=`<h1>🧩 Scrabble Challenge</h1>
-  <div class="game-area"><p>Use letters from your input: "${input}"</p><p>(Placeholder)</p></div>`;
-  const continueBtn=document.createElement("button"); continueBtn.innerText="Continue";
-  continueBtn.onclick=()=>{ currentStep++; renderStep(); };
-  container.appendChild(continueBtn);
-}
-
-function renderFocusGame(input){
-  container.innerHTML=`<h1>🎯 Focus Challenge</h1><div class="game-area"><p>Focus game placeholder</p></div>`;
-  const continueBtn=document.createElement("button"); continueBtn.innerText="Continue";
-  continueBtn.onclick=()=>{ currentStep++; renderStep(); };
-  container.appendChild(continueBtn);
+// --- Brain Game (new) ---
+function renderBrainGame(input){
+  container.innerHTML=`<h1>🧠 Brain Challenge</h1>
+  <div class="game-area">
+    <p>Find all unique letters from your response: "${input}"</p>
+    <div id="letters"></div>
+  </div>`;
+  const lettersDiv=document.getElementById("letters");
+  const letters=[...new Set(input.replace(/[^a-zA-Z]/g,"").toUpperCase().split(""))];
+  let found=[];
+  letters.forEach(l=>{
+    const btn=document.createElement("button"); btn.innerText=l;
+    btn.onclick=()=>{
+      btn.disabled=true; found.push(l);
+      if(found.length===letters.length){
+        const cont=document.createElement("button"); cont.innerText="Continue";
+        cont.onclick=()=>{ currentStep++; renderStep(); }; container.appendChild(cont);
+      }
+    };
+    lettersDiv.appendChild(btn);
+  });
 }
 
 // --- Conclusion & Game Hub ---
@@ -219,29 +224,25 @@ function showConclusion(){
   container.appendChild(hub);
 }
 
-// --- Game Hub ---
+// --- Game Hub Placeholders ---
 function playBoardGames(){ alert("Board games coming soon!"); }
 function playBasketball(){ alert("Basketball game coming soon!"); }
 
-// --- 8-Ball Pool ---
+// --- Realistic 8-Ball Pool ---
 function playPool(){
-  container.innerHTML=`<h1>🎱 8-Ball Pool</h1><canvas id="poolCanvas" width="600" height="300"></canvas>`;
+  container.innerHTML=`<h1>🎱 8-Ball Pool</h1><canvas id="poolCanvas" width="600" height="300"></canvas>
+  <p>Click to hit cue ball. Pocket balls to score.</p>`;
   const canvas=document.getElementById("poolCanvas");
   const ctx=canvas.getContext("2d");
-  
-  const balls=[];
   const radius=10;
+  const balls=[], pockets=[{x:10,y:10},{x:590,y:10},{x:10,y:290},{x:590,y:290},{x:300,y:10},{x:300,y:290}];
 
-  // --- Initialize balls ---
+  // Initialize balls
   const colors=["yellow","blue","red","purple","orange","green","brown","black"];
-  for(let i=0;i<8;i++){
-    balls.push({x:50+i*25, y:150, color:colors[i], dx:0, dy:0});
-  }
-
-  // Cue ball
+  for(let i=0;i<8;i++){ balls.push({x:50+i*25, y:150, dx:0, dy:0, color:colors[i], potted:false}); }
   const cue={x:550, y:150, dx:0, dy:0, color:"white"};
 
-  let shooting=false;
+  let shooting=false, score=0;
 
   canvas.onclick=(e)=>{
     const rect=canvas.getBoundingClientRect();
@@ -249,24 +250,55 @@ function playPool(){
     const my=e.clientY-rect.top;
     const angle=Math.atan2(my-cue.y, mx-cue.x);
     const power=5;
-    cue.dx=Math.cos(angle)*power;
-    cue.dy=Math.sin(angle)*power;
-    shooting=true;
+    cue.dx=Math.cos(angle)*power; cue.dy=Math.sin(angle)*power; shooting=true;
   };
+
+  function dist(a,b){ return Math.hypot(a.x-b.x,a.y-b.y); }
+
+  function handleCollisions(){
+    for(let i=0;i<balls.length;i++){
+      if(balls[i].potted) continue;
+      // wall collisions
+      if(balls[i].x-radius<0 || balls[i].x+radius>canvas.width) balls[i].dx*=-1;
+      if(balls[i].y-radius<0 || balls[i].y+radius>canvas.height) balls[i].dy*=-1;
+      // pocket
+      for(const p of pockets){
+        if(dist(balls[i],p)<radius*2){ balls[i].potted=true; score++; }
+      }
+      // collision with cue
+      const dx=balls[i].x-cue.x, dy=balls[i].y-cue.y;
+      const d=Math.hypot(dx,dy);
+      if(d<radius*2){
+        const angle=Math.atan2(dy,dx);
+        const speed=Math.hypot(cue.dx,cue.dy);
+        balls[i].dx=Math.cos(angle)*speed; balls[i].dy=Math.sin(angle)*speed;
+        cue.dx*=0.7; cue.dy*=0.7;
+      }
+      // ball-ball collision
+      for(let j=i+1;j<balls.length;j++){
+        if(balls[j].potted) continue;
+        const dx=balls[j].x-balls[i].x, dy=balls[j].y-balls[i].y;
+        const d=Math.hypot(dx,dy);
+        if(d<radius*2){
+          const angle=Math.atan2(dy,dx);
+          const speed1=Math.hypot(balls[i].dx,balls[i].dy);
+          const speed2=Math.hypot(balls[j].dx,balls[j].dy);
+          balls[i].dx=Math.cos(angle)*speed2; balls[i].dy=Math.sin(angle)*speed2;
+          balls[j].dx=Math.cos(angle)*speed1; balls[j].dy=Math.sin(angle)*speed1;
+        }
+      }
+    }
+    // cue ball wall
+    if(cue.x-radius<0 || cue.x+radius>canvas.width) cue.dx*=-1;
+    if(cue.y-radius<0 || cue.y+radius>canvas.height) cue.dy*=-1;
+  }
 
   function draw(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
-    balls.forEach(b=>{
-      ctx.beginPath(); ctx.arc(b.x,b.y,radius,0,Math.PI*2); ctx.fillStyle=b.color; ctx.fill();
-      b.x+=b.dx; b.y+=b.dy; b.dx*=0.98; b.dy*=0.98;
+    // pockets
+    pockets.forEach(p=>{
+      ctx.beginPath(); ctx.arc(p.x,p.y,radius*1.5,0,Math.PI*2); ctx.fillStyle="black"; ctx.fill();
     });
-    ctx.beginPath(); ctx.arc(cue.x,cue.y,radius,0,Math.PI*2); ctx.fillStyle=cue.color; ctx.fill();
-    cue.x+=cue.dx; cue.y+=cue.dy; cue.dx*=0.98; cue.dy*=0.98;
-
-    requestAnimationFrame(draw);
-  }
-  draw();
-}
-</script>
-</body>
-</html>
+    balls.forEach(b=>{
+      if(!b.potted){ ctx.beginPath(); ctx.arc(b.x,b.y,radius,0,Math.PI*2); ctx.fillStyle=b.color; ctx.fill(); }
+      b.x+=b.dx; b.y+=b.dy; b.dx*=0.98; b.dy*=0.98
