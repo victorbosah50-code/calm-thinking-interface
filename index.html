@@ -6,6 +6,7 @@
 <title>🌿 Your Calm Thinking Journey 🌿</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+  /* === Base Styles === */
   body, html {
     margin: 0; padding: 0;
     height: 100%; width: 100%;
@@ -16,104 +17,165 @@
     justify-content: center;
     align-items: center;
   }
-  #bgVideo {
+  video#bgVideo {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
     object-fit: cover;
     z-index: -2;
     opacity: 0;
-    transition: opacity 2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 3s ease;
   }
-  #bgVideo.loaded {
-    opacity: 0.65;
-  }
+  video#bgVideo.loaded { opacity: 0.6; }
   .container {
     position: relative;
     z-index: 1;
     max-width: 720px;
     width: 92%;
-    background: rgba(255,255,255,0.93);
+    background: rgba(255,255,255,0.95);
     padding: 40px;
-    border-radius: 24px;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    border-radius: 28px;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.25);
     text-align: center;
     min-height: 520px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(40px);
+    transition: opacity 1.8s ease, transform 1.8s ease;
   }
-  .container.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  /* ... (keep all other styles from previous version unchanged for brevity) ... */
-  /* Include all the previous styles for h1, p, personal-feedback, textarea, button, game-area, etc. */
-  h1 { font-size: 2.4rem; color: #2c5282; margin-bottom: 20px; opacity: 0; transform: translateY(-20px); transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1) 0.3s, transform 1s cubic-bezier(0.4, 0, 0.2, 1) 0.3s; }
-  .container.visible h1 { opacity: 1; transform: translateY(0); }
-  /* Add the rest as in the previous code */
+  .container.visible { opacity: 1; transform: translateY(0); }
+  h1 { color: #2c5282; margin-bottom: 20px; }
+  p { color: #333; line-height: 1.8; }
+  textarea { width: 100%; height: 140px; margin: 20px 0; padding: 16px; border-radius: 14px; border: 2px solid #a0d8ef; resize: vertical; font-family: 'Nunito', sans-serif; font-size: 1.1rem; }
+  button { padding: 14px 32px; margin: 12px; border: none; border-radius: 14px; background: #4a90e2; color: white; font-size: 1.1rem; cursor: pointer; }
+  button:hover { transform: translateY(-6px); box-shadow: 0 15px 35px rgba(74,144,226,0.45); }
+  .breathing-circle { width: 200px; height: 200px; margin: 40px auto; border-radius: 50%; background: radial-gradient(circle, #a8edea, #89dceb); display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:600; color:white; cursor:pointer; transition: all 6s ease; }
+  .breathing-circle.expanding { transform: scale(1.8); background: radial-gradient(circle, #fed6e3, #fcb7d2); }
+  select { margin: 20px 0; padding: 12px; border-radius: 12px; border: 2px solid #a0d8ef; background: #f8fdff; font-size:1.1rem; cursor:pointer; }
+  .summary { background: rgba(255,255,255,0.98); padding: 30px; border-radius: 28px; font-size:1.2rem; text-align:left; white-space: pre-wrap; }
 </style>
 </head>
 <body>
 
 <video autoplay muted loop playsinline id="bgVideo">
-  <!-- Default fallback video -->
-  <source src="https://player.vimeo.com/external/379934686.hd.mp4?s=8a1b3b8a6f0b0f3b0e4a4e4b4b4b4b4b&profile_id=175" type="video/mp4">
+  <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
 </video>
 
 <div class="container" id="mainContainer">
   <h1>🌿 Your Calm Thinking Journey 🌿</h1>
-  <p>
-    Breathe in deeply… and let it go.<br><br>
-    This is your safe space to untangle thoughts, find clarity, and feel lighter.<br>
-    We’ll reflect together, breathe mindfully, relax with guided audio, and celebrate you every step of the way.
-  </p>
-  <label for="bgSelect">Choose Your Nature Background:</label>
+  <p>Breathe in deeply… and let it go.<br>This is your sanctuary of peace.</p>
+  <label for="bgSelect">Choose Nature Scene:</label>
   <select id="bgSelect">
-    <option value="https://player.vimeo.com/external/379934686.hd.mp4?s=8a1b3b8a6f0b0f3b0e4a4e4b4b4b4b4b&profile_id=175">Serene Forest Stream</option>
-    <option value="https://player.vimeo.com/external/410227648.hd.mp4?s=8f0b0e4a4e4b4b4b4b4b4b4b&profile_id=175">Calm Ocean Waves at Sunset</option>
-    <option value="https://player.vimeo.com/external/357543098.hd.mp4?s=5e4b4b4b4b4b4b4b4b4b&profile_id=174">Peaceful Mountain Lake</option>
-    <option value="https://player.vimeo.com/external/291332674.hd.mp4?s=2b4b4b4b4b4b4b4b&profile_id=175">Gentle River Flow</option>
-    <option value="https://player.vimeo.com/external/439784672.hd.mp4?s=9c4b4b4b4b4b4b4b&profile_id=175">Autumn Forest Aerial</option>
+    <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4">Serene Flowers</option>
+    <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/river.mp4">Peaceful River</option>
   </select>
   <button id="startBtn">Begin My Journey</button>
-  <div class="footer">No data is saved or tracked — this moment is just for you.</div>
 </div>
 
+<div class="container" id="gameContainer" style="display:none;">
+  <h2 id="stepTitle"></h2>
+  <p id="stepPrompt"></p>
+  <textarea id="userInput" placeholder="Write your thoughts here..."></textarea>
+  <div class="breathing-circle" id="breathingCircle">Breathe</div>
+  <button id="nextStepBtn">Next</button>
+  <div class="summary" id="journeySummary" style="display:none;"></div>
+</div>
+
+<audio id="ambientSound" loop></audio>
+
 <script>
-// ... (keep all previous JavaScript code)
-
-// Add this to fix dark screen: ensure video loads and shows
 const bgVideo = document.getElementById("bgVideo");
-bgVideo.addEventListener("loadeddata", () => {
-  bgVideo.classList.add("loaded");
-});
-bgVideo.addEventListener("error", () => {
-  // Fallback if one video fails
-  console.warn("Video load error, trying fallback");
-  bgVideo.src = "https://player.vimeo.com/external/379934686.hd.mp4?s=8a1b3b8a6f0b0f3b0e4a4e4b4b4b4b4b&profile_id=175";
+const container = document.getElementById("mainContainer");
+const gameContainer = document.getElementById("gameContainer");
+const startBtn = document.getElementById("startBtn");
+const nextStepBtn = document.getElementById("nextStepBtn");
+const stepTitle = document.getElementById("stepTitle");
+const stepPrompt = document.getElementById("stepPrompt");
+const userInput = document.getElementById("userInput");
+const summaryEl = document.getElementById("journeySummary");
+const breathingCircle = document.getElementById("breathingCircle");
+const bgSelect = document.getElementById("bgSelect");
+const ambientSound = document.getElementById("ambientSound");
+
+const steps = [
+  { type:'reflect', title:'What\'s on your mind?', prompt:'Write down anything that comes to your mind.'},
+  { type:'reflect', title:'The Facts', prompt:'What are the facts of the situation?'},
+  { type:'reflect', title:'Assumptions', prompt:'What assumptions are you making?'},
+  { type:'breathing', title:'4-7-8 Breath', prompt:'Follow the circle to inhale and exhale.'},
+  { type:'reflect', title:'One Gentle Step', prompt:'What small step can you take today?'},
+  { type:'conclusion', title:'Your Journey Complete', prompt:'Here\'s a summary of your reflections:'}
+];
+
+const responses = [];
+let currentStep = 0;
+
+// Ambient Sound Options
+const ambientOptions = [
+  { name:'Rainforest', url:'https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3' },
+  { name:'Gentle Rain', url:'https://bigsoundbank.com/UPLOAD/mp3/0055.mp3' }
+];
+
+// Start Journey
+startBtn.onclick = () => {
+  container.classList.add('visible');
+  bgVideo.src = bgSelect.value;
   bgVideo.load();
-});
+  bgVideo.onloadeddata = () => bgVideo.classList.add('loaded');
 
-// When changing background
-document.getElementById("bgSelect").addEventListener("change", (e) => {
-  bgVideo.classList.remove("loaded");
-  bgVideo.src = e.target.value;
+  ambientSound.src = ambientOptions[0].url;
+  ambientSound.volume = 0.4;
+  ambientSound.play();
+
+  setTimeout(() => {
+    container.style.display='none';
+    gameContainer.style.display='flex';
+    showStep();
+  }, 1500);
+};
+
+// Show Current Step
+function showStep() {
+  const step = steps[currentStep];
+  stepTitle.textContent = step.title;
+  stepPrompt.textContent = step.prompt;
+  userInput.style.display = step.type==='reflect' ? 'block':'none';
+  breathingCircle.style.display = step.type==='breathing' ? 'flex':'none';
+  if(step.type==='conclusion'){
+    userInput.style.display='none';
+    breathingCircle.style.display='none';
+    summaryEl.style.display='block';
+    summaryEl.textContent = responses.map((r,i)=>`${i+1}. ${r}`).join('\n\n');
+    nextStepBtn.style.display='none';
+  }
+}
+
+// Next Step Button
+nextStepBtn.onclick = () => {
+  if(steps[currentStep].type==='reflect'){
+    responses.push(userInput.value || '[No response]');
+    userInput.value='';
+  }
+  currentStep++;
+  if(currentStep < steps.length){
+    showStep();
+  }
+};
+
+// Breathing Circle Animation
+let breathing = false;
+breathingCircle.onclick = () => {
+  breathing = !breathing;
+  if(breathing) breathingCircle.classList.add('expanding');
+  else breathingCircle.classList.remove('expanding');
+};
+
+// Change background on select
+bgSelect.onchange = () => {
+  bgVideo.src = bgSelect.value;
   bgVideo.load();
-  bgVideo.addEventListener("loadeddata", () => {
-    bgVideo.classList.add("loaded");
-  }, { once: true });
-});
-
-// Update audio sources to reliable free ones
-const pmrAudio = "https://www.therapistaid.com/downloads/progressive-muscle-relaxation.mp3"; // Example reliable link; replace with actual if needed
-const guidedAudio = "https://www.tarabrach.com/wp-content/uploads/2023/12/2023-12-13-Meditation-Basic-Meditation-Instructions-Tara-Brach.mp3"; // Example from Tara's site
-
-// ... rest of script unchanged, just ensure audio srcs are updated in the code
-
+};
 </script>
 
 </body>
