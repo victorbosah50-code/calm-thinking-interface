@@ -13,6 +13,22 @@ body, html {
 video#bgVideo {
   position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1; opacity:0.6;
 }
+
+/* Rain container */
+.rain-container {
+  position: fixed;
+  top:0; left:0; width:100%; height:100%;
+  pointer-events:none; z-index:0; overflow:hidden;
+}
+.drop {
+  position:absolute; width:2px; height:15px; background:rgba(255,255,255,0.3); bottom:100%;
+  animation-name:fall;
+  animation-timing-function: linear;
+}
+@keyframes fall {
+  to { transform: translateY(110vh); opacity:0; }
+}
+
 .container {
   position:relative; z-index:1; max-width:720px; width:90%;
   background:rgba(255,255,255,0.25);
@@ -54,6 +70,8 @@ select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8
   <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
 </video>
 
+<div class="rain-container" id="rain"></div>
+
 <div class="container" id="mainContainer">
   <h1 id="title">🌿 Welcome to Calm Thinking 🌿</h1>
   <p id="prompt">Take a deep breath and get ready for a peaceful reflection journey. Press "Start" to begin! 😊</p>
@@ -83,26 +101,29 @@ select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8
 </div>
 
 <audio id="ambientAudio" loop></audio>
+<audio id="thunderAudio"></audio>
 
 <script>
 const bgVideo = document.getElementById("bgVideo");
 const ambientAudio = document.getElementById("ambientAudio");
+const thunderAudio = document.getElementById("thunderAudio");
 const startButton = document.getElementById("startButton");
 const bgSelect = document.getElementById("bgSelect");
 const soundSelect = document.getElementById("soundSelect");
 const breathingSelect = document.getElementById("breathingSelect");
 const container = document.getElementById("mainContainer");
+const rainContainer = document.getElementById("rain");
 
 let currentStep = 0;
 const responses = [];
 let breathingInterval;
 
-// Ambient audio options
+// Ambient options with thunder/rain layering
 const ambientOptions = {
-  rainforest: "https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3",
-  rainstorm: "https://www.orangefreesounds.com/wp-content/uploads/2022/02/Thunderstorm-sound.mp3",
-  gentlerain: "https://bigsoundbank.com/UPLOAD/mp3/0055.mp3",
-  birdsstream: "https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3"
+  rainforest: { url:"https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3", thunder:false },
+  rainstorm: { url:"https://www.orangefreesounds.com/wp-content/uploads/2022/02/Thunderstorm-sound.mp3", thunder:true },
+  gentlerain: { url:"https://bigsoundbank.com/UPLOAD/mp3/0055.mp3", thunder:false },
+  birdsstream: { url:"https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3", thunder:false }
 };
 
 const steps = [
@@ -120,6 +141,7 @@ startButton.onclick = () => {
   setAmbient(soundSelect.value);
   bgVideo.src = bgSelect.value; bgVideo.load();
   startButton.style.display="none";
+  createRain(100); // start rain
   renderStep();
 };
 bgSelect.onchange = ()=>{ bgVideo.src=bgSelect.value; bgVideo.load(); };
@@ -127,9 +149,27 @@ soundSelect.onchange = ()=>{ setAmbient(soundSelect.value); };
 
 // Set ambient audio
 function setAmbient(key){
-  ambientAudio.src = ambientOptions[key];
+  const option = ambientOptions[key];
+  ambientAudio.src = option.url;
   ambientAudio.volume = 0.5;
   ambientAudio.play();
+  if(option.thunder){
+    thunderAudio.src = "https://orangefreesounds.com/wp-content/uploads/2022/02/Thunder-sound.mp3";
+    thunderAudio.volume = 0.7;
+    setInterval(()=>{ thunderAudio.play(); }, 15000 + Math.random()*10000);
+  }
+}
+
+// Rain animation
+function createRain(count){
+  for(let i=0;i<count;i++){
+    const drop=document.createElement("div");
+    drop.className="drop";
+    drop.style.left=Math.random()*100+"%";
+    drop.style.animationDuration=(0.5+Math.random()*0.5)+"s";
+    drop.style.animationDelay=Math.random()*5+"s";
+    rainContainer.appendChild(drop);
+  }
 }
 
 // Render steps
@@ -145,7 +185,7 @@ function renderStep(){
     nextBtn.onclick=()=>{ 
       if(textarea.value.trim()===""){ alert("Please enter a response."); return; }
       responses.push({step:step.title,input:textarea.value});
-      renderNextGame(textarea.value);
+      renderRandomGame(textarea.value);
     };
     container.appendChild(nextBtn);
   } else if(step.breathing){
@@ -155,13 +195,10 @@ function renderStep(){
   }
 }
 
-// ----- Dynamic Multi-Game Selector -----
-function renderNextGame(userInput){
-  // Array of game functions
+// ----- Randomized Game Selector -----
+function renderRandomGame(userInput){
   const games = [renderWordInsightGame, renderToneAnalyzerGame, renderMemoryGame, renderClickGame];
-
-  // Pick game based on step index for variety
-  const gameFunc = games[currentStep % games.length];
+  const gameFunc = games[Math.floor(Math.random()*games.length)];
   gameFunc(userInput);
 }
 
@@ -170,40 +207,30 @@ function renderWordInsightGame(userInput){
   container.innerHTML=`<h1>🧠 Word Insight Challenge 🧠</h1>
   <p>Arrange the keywords from your response in order:</p>`;
 
-  const gameDiv = document.createElement("div");
-  gameDiv.className = "game-area";
-  container.appendChild(gameDiv);
-
+  const gameDiv=document.createElement("div"); gameDiv.className="game-area"; container.appendChild(gameDiv);
   const keywords = userInput.split(/\s+/).filter(w=>w.length>3).slice(0,5);
   if(keywords.length===0) keywords.push("focus","mind","calm");
   const shuffled = keywords.sort(()=>Math.random()-0.5);
 
-  const inputDiv=document.createElement("div");
-  inputDiv.style.display="flex"; inputDiv.style.flexWrap="wrap"; inputDiv.style.justifyContent="center"; inputDiv.style.gap="10px";
+  const inputDiv=document.createElement("div"); inputDiv.style.display="flex"; inputDiv.style.flexWrap="wrap"; inputDiv.style.justifyContent="center"; inputDiv.style.gap="10px";
   shuffled.forEach(word=>{
-    const btn=document.createElement("button");
-    btn.innerText = word;
-    btn.dataset.word = word;
-    btn.onclick = ()=> selectWord(btn);
+    const btn=document.createElement("button"); btn.innerText=word; btn.dataset.word=word;
+    btn.onclick=()=>{
+      btn.disabled=true;
+      selectedWords.push(btn.dataset.word);
+      selectedDiv.innerText="Selected: "+selectedWords.join(", ");
+      if(selectedWords.length===keywords.length){
+        const score = selectedWords.filter((w,i)=>w===keywords[i]).length;
+        selectedDiv.innerHTML+=`<p>✅ You got <strong>${score}/${keywords.length}</strong> correct!</p>`;
+        const continueBtn=document.createElement("button"); continueBtn.innerText="Continue"; continueBtn.onclick=nextStep;
+        container.appendChild(continueBtn);
+      }
+    };
     inputDiv.appendChild(btn);
   });
   gameDiv.appendChild(inputDiv);
-
-  const selectedDiv = document.createElement("div"); selectedDiv.style.marginTop="15px"; container.appendChild(selectedDiv);
-
-  let selectedWords=[];
-  function selectWord(btn){
-    btn.disabled=true;
-    selectedWords.push(btn.dataset.word);
-    selectedDiv.innerText="Selected: "+selectedWords.join(", ");
-
-    if(selectedWords.length===keywords.length){
-      const score = selectedWords.filter((w,i)=>w===keywords[i]).length;
-      selectedDiv.innerHTML+=`<p>✅ You got <strong>${score}/${keywords.length}</strong> correct!</p>`;
-      const continueBtn=document.createElement("button"); continueBtn.innerText="Continue"; continueBtn.onclick=nextStep;
-      container.appendChild(continueBtn);
-    }
-  }
+  const selectedDiv=document.createElement("div"); selectedDiv.style.marginTop="15px"; container.appendChild(selectedDiv);
+  const selectedWords=[];
 }
 
 // ----- Tone Analyzer Game -----
@@ -217,7 +244,6 @@ function renderToneAnalyzerGame(userInput){
   const motivated=["goal","focus","plan","action","success"];
   const text=userInput.toLowerCase();
   let score=0;
-
   calm.forEach(w=>{if(text.includes(w)) score+=2;});
   stressed.forEach(w=>{if(text.includes(w)) score-=2;});
   motivated.forEach(w=>{if(text.includes(w)) score+=1;});
@@ -234,15 +260,13 @@ function renderToneAnalyzerGame(userInput){
   else if(tone.includes("Motivated")) advice.innerText="Channel motivation wisely. Balance action with reflection.";
   else advice.innerText="Observe your thoughts and feelings carefully.";
   gameDiv.appendChild(advice);
-
   const continueBtn=document.createElement("button"); continueBtn.innerText="Continue"; continueBtn.onclick=nextStep;
   container.appendChild(continueBtn);
 }
 
 // ----- Memory Game -----
 function renderMemoryGame(userInput){
-  container.innerHTML=`<h1>🧩 Memory Challenge 🧩</h1>
-  <p>Try to remember this sequence of symbols:</p>`;
+  container.innerHTML=`<h1>🧩 Memory Challenge 🧩</h1><p>Try to remember this sequence of symbols:</p>`;
   const gameDiv=document.createElement("div"); gameDiv.className="game-area"; container.appendChild(gameDiv);
   const sequence=["🔵","🟢","🟡"]; let userSeq=[];
   gameDiv.innerHTML=`<p>Remember this sequence: ${sequence.join(" ")}</p>`;
@@ -258,15 +282,14 @@ function renderMemoryGame(userInput){
 
 // ----- Click Game -----
 function renderClickGame(userInput){
-  container.innerHTML=`<h1>🎯 Fun Click Game 🎯</h1>
-  <p>Click as fast as you can!</p>`;
+  container.innerHTML=`<h1>🎯 Fun Click Game 🎯</h1><p>Click as fast as you can!</p>`;
   const gameDiv=document.createElement("div"); gameDiv.className="game-area"; container.appendChild(gameDiv);
   let clicks=0;
   const btn=document.createElement("button"); btn.innerText="Click me!";
   const counter=document.createElement("p"); counter.innerText="Clicks: 0";
   btn.onclick=()=>{ clicks++; counter.innerText="Clicks: "+clicks; };
   gameDiv.appendChild(btn); gameDiv.appendChild(counter);
-  setTimeout(nextStep,10000); // auto continue after 10 sec
+  setTimeout(nextStep,10000);
 }
 
 // ----- Breathing Exercise -----
@@ -293,7 +316,7 @@ function showConclusion(){
   container.innerHTML=`<h1>🎉 Congratulations! 🎉</h1>`;
   const summary=document.createElement("div"); summary.className="summary";
   summary.innerHTML="🌈 Your Reflection Journey 🌈<br><br>"+responses.map(r=>`<strong>${r.step}:</strong> ${r.input}`).join("<br>")+
-    `<br><br>💖 Amazing! You've explored multiple games and mindfulness exercises. Keep growing! 🌟`;
+    `<br><br>💖 Amazing! You've explored multiple dynamic games and mindfulness exercises. Keep growing your awareness! 🌟`;
   container.appendChild(summary);
 }
 </script>
