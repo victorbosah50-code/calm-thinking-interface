@@ -51,10 +51,10 @@ button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(74,144,226,0.4)
 }
 .breathing-circle { width:180px; height:180px; border-radius:50%; background:radial-gradient(circle,#a8edea,#89dceb);
   display:flex; align-items:center; justify-content:center; color:black; font-weight:600; font-size:1.5rem; margin:20px auto; cursor:pointer;
-  transition:all 0.5s linear;
+  transition:all 1s linear;
 }
 .breathing-circle.expanding { transform:scale(1.8); background:radial-gradient(circle,#fed6e3,#fcb7d2);}
-@keyframes fadeBounce {0%{opacity:0;transform:translateY(-20px);}50%{opacity:1;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);}}
+@keyframes fadeBounce {0%{opacity:0;transform:translateY(-20px);}50%{opacity:1;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);} }
 select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8ef; font-size:1rem; cursor:pointer; }
 .game-area { 
   margin:15px 0; padding:15px; background:rgba(255,255,255,0.2); 
@@ -213,6 +213,7 @@ function renderWordInsightGame(userInput){
   const shuffled = keywords.sort(()=>Math.random()-0.5);
 
   const inputDiv=document.createElement("div"); inputDiv.style.display="flex"; inputDiv.style.flexWrap="wrap"; inputDiv.style.justifyContent="center"; inputDiv.style.gap="10px";
+  const selectedWords=[];
   shuffled.forEach(word=>{
     const btn=document.createElement("button"); btn.innerText=word; btn.dataset.word=word;
     btn.onclick=()=>{
@@ -230,7 +231,6 @@ function renderWordInsightGame(userInput){
   });
   gameDiv.appendChild(inputDiv);
   const selectedDiv=document.createElement("div"); selectedDiv.style.marginTop="15px"; container.appendChild(selectedDiv);
-  const selectedWords=[];
 }
 
 // ----- Tone Analyzer Game -----
@@ -274,7 +274,13 @@ function renderMemoryGame(userInput){
     gameDiv.innerHTML="<p>Now click them in order:</p>";
     sequence.forEach(sym=>{
       const btn=document.createElement("button"); btn.innerText=sym;
-      btn.onclick=()=>{ userSeq.push(sym); if(userSeq.length===sequence.length){ alert("Great memory!"); nextStep(); } };
+      btn.onclick=()=>{ 
+        userSeq.push(sym); 
+        if(userSeq.length===sequence.length){ 
+          alert("Great memory!"); 
+          nextStep(); 
+        } 
+      };
       gameDiv.appendChild(btn);
     });
   },2000);
@@ -294,17 +300,37 @@ function renderClickGame(userInput){
 
 // ----- Breathing Exercise -----
 function startBreathingExercise(){
-  const pattern=breathingSelect.value;
-  const circle=document.createElement("div"); circle.className="breathing-circle"; circle.innerText="Breathe";
+  const pattern = breathingSelect.value;
+  const circle = document.createElement("div");
+  circle.className = "breathing-circle";
+  circle.innerText = "Breathe";
   container.appendChild(circle);
+
   let inhale=4000, hold=7000, exhale=8000;
   if(pattern==="box"){ inhale=4000; hold=4000; exhale=4000; }
-  const cycle=()=>{
-    circle.classList.add("expanding");
-    setTimeout(()=>{ setTimeout(()=>{ circle.classList.remove("expanding"); setTimeout(cycle,0); },exhale); },inhale+hold);
+
+  let step = 0; // 0=inhale, 1=hold, 2=exhale
+  breathingInterval = setInterval(()=>{
+    if(step===0){ 
+      circle.innerText="Inhale"; 
+      circle.classList.add("expanding");
+      step=1;
+    } else if(step===1){ 
+      circle.innerText="Hold"; 
+      step=2;
+    } else { 
+      circle.innerText="Exhale"; 
+      circle.classList.remove("expanding");
+      step=0;
+    }
+  }, inhale + hold + exhale);
+
+  const nextBtn = document.createElement("button");
+  nextBtn.innerText = "Next";
+  nextBtn.onclick = () => {
+    clearInterval(breathingInterval);
+    nextStep();
   };
-  cycle();
-  const nextBtn=document.createElement("button"); nextBtn.innerText="Next"; nextBtn.onclick=nextStep;
   container.appendChild(nextBtn);
 }
 
