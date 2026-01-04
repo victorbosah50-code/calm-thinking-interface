@@ -3,18 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌿 Calm Thinking + Games 🌿</title>
+<title>🌿 Calm Thinking Interactive Journey 🌿</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
 <style>
 body, html { margin:0; padding:0; width:100%; height:100%; font-family:'Nunito',sans-serif; display:flex; justify-content:center; align-items:center; background:#000; overflow:hidden; }
-.container { position:relative; z-index:1; max-width:800px; width:95%; background:rgba(255,255,255,0.25); backdrop-filter: blur(10px); padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.4); display:flex; flex-direction:column; align-items:center; text-align:center; color:#000; }
+video#bgVideo { position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1; opacity:0.6; }
+.rain-container { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
+.drop { position:absolute; width:2px; height:15px; background:rgba(255,255,255,0.3); bottom:100%; animation-name:fall; animation-timing-function: linear; }
+@keyframes fall { to { transform: translateY(110vh); opacity:0; } }
+
+.container { position:relative; z-index:1; max-width:720px; width:90%; background:rgba(255,255,255,0.25); backdrop-filter: blur(10px); padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.4); display:flex; flex-direction:column; align-items:center; text-align:center; transition:all 0.5s; color:#000; }
 h1 { font-size:2rem; margin-bottom:15px; opacity:0; animation:fadeBounce 1.5s forwards; }
 p { line-height:1.6; font-size:1.1rem; color:#000; }
-textarea { width:100%; height:100px; margin:15px 0; padding:12px; border-radius:10px; border:2px solid #a0d8ef; font-family:'Nunito'; font-size:1rem; resize:vertical; background:rgba(255,255,255,0.9); color:#000; }
+textarea { width:100%; height:120px; margin:15px 0; padding:12px; border-radius:10px; border:2px solid #a0d8ef; font-family:'Nunito'; font-size:1rem; resize:vertical; background:rgba(255,255,255,0.9); color:#000; }
 button { padding:12px 24px; margin:10px; font-size:1rem; border:none; border-radius:10px; background:#4a90e2; color:#fff; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; }
 button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(74,144,226,0.4); }
 .breathing-circle { width:180px; height:180px; border-radius:50%; background:radial-gradient(circle,#a8edea,#89dceb); display:flex; align-items:center; justify-content:center; color:black; font-weight:600; font-size:1.5rem; margin:20px auto; cursor:pointer; transition:all 1s linear; }
 .breathing-circle.expanding { transform:scale(1.8); background:radial-gradient(circle,#fed6e3,#fcb7d2);}
+select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8ef; font-size:1rem; cursor:pointer; }
 .game-area { margin:15px 0; padding:15px; background:rgba(255,255,255,0.2); border-radius:12px; width:100%; text-align:center; color:#000; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);}
 canvas { background:green; border-radius:12px; margin-top:15px; }
 @keyframes fadeBounce {0%{opacity:0;transform:translateY(-20px);}50%{opacity:1;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);} }
@@ -22,94 +28,184 @@ canvas { background:green; border-radius:12px; margin-top:15px; }
 </head>
 <body>
 
+<!-- Background Video -->
+<video autoplay muted loop id="bgVideo">
+  <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
+</video>
+
+<!-- Rain Container -->
+<div class="rain-container" id="rain"></div>
+
+<!-- Main Container -->
 <div class="container" id="mainContainer">
   <h1>🌿 Welcome to Calm Thinking 🌿</h1>
-  <p>Take a deep breath and reflect on your thoughts. Press "Start" to begin!</p>
+  <p>Take a deep breath and prepare for a reflective journey. Press "Start" to begin!</p>
+
+  <label for="bgSelect">Choose Background:</label>
+  <select id="bgSelect">
+    <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4">Flowers</option>
+    <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/river.mp4">River</option>
+    <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/forest.mp4">Forest</option>
+  </select>
+
+  <label for="soundSelect">Choose Ambient Sound:</label>
+  <select id="soundSelect">
+    <option value="rainforest">Rainforest (Birds + Rain)</option>
+    <option value="rainstorm">Storm & Thunder</option>
+    <option value="gentlerain">Gentle Rain</option>
+    <option value="birdsstream">Birds & Stream</option>
+  </select>
+
+  <label for="breathingSelect">Choose Breathing Exercise:</label>
+  <select id="breathingSelect">
+    <option value="478">4-7-8 Breathing</option>
+    <option value="box">Box Breathing</option>
+  </select>
+
   <button id="startButton">Start</button>
 </div>
 
+<audio id="ambientAudio" loop></audio>
+<audio id="thunderAudio"></audio>
+
 <script>
-const container = document.getElementById("mainContainer");
+const bgVideo = document.getElementById("bgVideo");
+const ambientAudio = document.getElementById("ambientAudio");
+const thunderAudio = document.getElementById("thunderAudio");
 const startButton = document.getElementById("startButton");
+const bgSelect = document.getElementById("bgSelect");
+const soundSelect = document.getElementById("soundSelect");
+const breathingSelect = document.getElementById("breathingSelect");
+const container = document.getElementById("mainContainer");
+const rainContainer = document.getElementById("rain");
+
 let currentStep = 0;
 const responses = [];
 let breathingInterval;
 
-// Steps
+// Ambient Options
+const ambientOptions = {
+  rainforest: { url:"https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3", thunder:false },
+  rainstorm: { url:"https://www.orangefreesounds.com/wp-content/uploads/2022/02/Thunderstorm-sound.mp3", thunder:true },
+  gentlerain: { url:"https://bigsoundbank.com/UPLOAD/mp3/0055.mp3", thunder:false },
+  birdsstream: { url:"https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3", thunder:false }
+};
+
+// Reflection Steps with Questions
 const steps = [
-  {title:"Focus", reflection:true},
-  {title:"Facts", reflection:true},
-  {title:"Assumptions", reflection:true},
-  {title:"Control", reflection:true},
-  {title:"Breathing", reflection:false, breathing:true},
-  {title:"Next Step", reflection:true},
-  {title:"Conclusion", reflection:false}
+  {title:"Focus", text:"What’s on your mind right now?", reflection:true},
+  {title:"Facts", text:"What facts do you know for sure?", reflection:true},
+  {title:"Assumptions", text:"What assumptions are you making?", reflection:true},
+  {title:"Control", text:"What can you control in this situation?", reflection:true},
+  {title:"Breathing", text:"Time to relax with a breathing exercise.", reflection:false, breathing:true},
+  {title:"Next Step", text:"What is one small step you can take?", reflection:true},
+  {title:"Conclusion", text:"", reflection:false}
 ];
 
-startButton.onclick = () => { renderStep(); };
+// Start Journey
+startButton.onclick = () => {
+  setAmbient(soundSelect.value);
+  bgVideo.src = bgSelect.value; bgVideo.load();
+  startButton.style.display="none";
+  createRain(100); // start rain
+  renderStep();
+};
+bgSelect.onchange = ()=>{ bgVideo.src=bgSelect.value; bgVideo.load(); };
+soundSelect.onchange = ()=>{ setAmbient(soundSelect.value); };
 
-// --- Render Steps ---
+// Set Ambient Audio
+function setAmbient(key){
+  const option = ambientOptions[key];
+  ambientAudio.src = option.url;
+  ambientAudio.volume = 0.5;
+  ambientAudio.play();
+  if(option.thunder){
+    thunderAudio.src = "https://orangefreesounds.com/wp-content/uploads/2022/02/Thunder-sound.mp3";
+    thunderAudio.volume = 0.7;
+    setInterval(()=>{ thunderAudio.play(); }, 15000 + Math.random()*10000);
+  }
+}
+
+// Rain Animation
+function createRain(count){
+  for(let i=0;i<count;i++){
+    const drop=document.createElement("div");
+    drop.className="drop";
+    drop.style.left=Math.random()*100+"%";
+    drop.style.animationDuration=(0.5+Math.random()*0.5)+"s";
+    drop.style.animationDelay=Math.random()*5+"s";
+    rainContainer.appendChild(drop);
+  }
+}
+
+// Render Steps
 function renderStep(){
+  clearInterval(breathingInterval);
   if(currentStep>=steps.length){ showConclusion(); return; }
   const step = steps[currentStep];
-  container.innerHTML=`<h1>${step.title}</h1>`;
+  container.innerHTML=`<h1>${step.title}</h1><p>${step.text}</p>`;
+
   if(step.reflection){
     const textarea=document.createElement("textarea"); textarea.placeholder="Type here..."; container.appendChild(textarea);
-    const btn=document.createElement("button"); btn.innerText="Next"; btn.onclick=()=>{
-      if(textarea.value.trim()===""){ alert("Enter response"); return; }
+    const nextBtn=document.createElement("button"); nextBtn.innerText="Next";
+    nextBtn.onclick=()=>{ 
+      if(textarea.value.trim()===""){ alert("Please enter a response."); return; }
       responses.push({step:step.title,input:textarea.value});
       renderRandomGame(textarea.value);
-    }; container.appendChild(btn);
+    };
+    container.appendChild(nextBtn);
   } else if(step.breathing){
     startBreathingExercise();
   } else { currentStep++; renderStep(); }
 }
 
-// --- Breathing ---
+// ----- Breathing Exercise -----
 function startBreathingExercise(){
-  const circle=document.createElement("div"); circle.className="breathing-circle"; circle.innerText="Breathe"; container.appendChild(circle);
+  const pattern=breathingSelect.value;
+  const circle=document.createElement("div"); circle.className="breathing-circle"; circle.innerText="Breathe";
+  container.appendChild(circle);
   let inhale=4000, hold=7000, exhale=8000;
-  let step=0;
-  breathingInterval=setInterval(()=>{
-    if(step===0){ circle.innerText="Inhale"; circle.classList.add("expanding"); step=1; }
-    else if(step===1){ circle.innerText="Hold"; step=2; }
-    else{ circle.innerText="Exhale"; circle.classList.remove("expanding"); step=0; }
-  }, inhale+hold+exhale);
-  const nextBtn=document.createElement("button"); nextBtn.innerText="Next"; nextBtn.onclick=()=>{
-    clearInterval(breathingInterval); currentStep++; renderStep();
-  }; container.appendChild(nextBtn);
+  if(pattern==="box"){ inhale=4000; hold=4000; exhale=4000; }
+  const cycle=()=>{
+    circle.classList.add("expanding");
+    setTimeout(()=>{ circle.classList.remove("expanding"); setTimeout(cycle,0); },exhale);
+  };
+  cycle();
+  const nextBtn=document.createElement("button"); nextBtn.innerText="Next"; nextBtn.onclick=()=>{ clearInterval(breathingInterval); currentStep++; renderStep(); };
+  container.appendChild(nextBtn);
 }
 
-// --- Random Mini-Games ---
-function renderRandomGame(input){
-  const games=[renderScrabbleGame, renderFocusGame];
-  const gameFunc=games[Math.floor(Math.random()*games.length)];
-  gameFunc(input);
+// ----- Random Mini-Games -----
+function renderRandomGame(userInput){
+  const games = [renderScrabbleGame, renderFocusGame];
+  const gameFunc = games[Math.floor(Math.random()*games.length)];
+  gameFunc(userInput);
 }
 
-// --- Scrabble Game ---
-function renderScrabbleGame(input){ 
+// ----- Scrabble Game -----
+function renderScrabbleGame(userInput){
   container.innerHTML=`<h1>🅂🅂🅁🄰🄱🄱🄻🄴 Challenge</h1>`;
-  alert("Scrabble mini-game coming soon!");
-  currentStep++; renderStep();
+  const gameDiv=document.createElement("div"); gameDiv.className="game-area"; gameDiv.innerHTML="<p>Arrange letters here (placeholder)</p>"; container.appendChild(gameDiv);
+  const continueBtn=document.createElement("button"); continueBtn.innerText="Continue"; continueBtn.onclick=()=>{ currentStep++; renderStep(); };
+  container.appendChild(continueBtn);
 }
 
-// --- Focus Game ---
-function renderFocusGame(input){
+// ----- Focus Game -----
+function renderFocusGame(userInput){
   container.innerHTML=`<h1>🎯 Focus Game</h1>`;
-  alert("Focus mini-game coming soon!");
-  currentStep++; renderStep();
+  const gameDiv=document.createElement("div"); gameDiv.className="game-area"; gameDiv.innerHTML="<p>Focus game placeholder</p>"; container.appendChild(gameDiv);
+  const continueBtn=document.createElement("button"); continueBtn.innerText="Continue"; continueBtn.onclick=()=>{ currentStep++; renderStep(); };
+  container.appendChild(continueBtn);
 }
 
-// --- Conclusion ---
+// ----- Conclusion and Post-Journey Games -----
 function showConclusion(){
   container.innerHTML=`<h1>🎉 Congratulations! 🎉</h1>`;
-  const summary=document.createElement("div");
-  summary.innerHTML=responses.map(r=>`<strong>${r.step}:</strong> ${r.input}`).join("<br>")+
-    `<br><br>🎮 Play More Games!`;
+  const summary=document.createElement("div"); summary.className="summary";
+  summary.innerHTML="🌈 Your Reflection Journey 🌈<br><br>"+responses.map(r=>`<strong>${r.step}:</strong> ${r.input}`).join("<br>")+
+    `<br><br>💖 Amazing! Explore more games below! 🌟`;
   container.appendChild(summary);
 
-  // Post-Journey Game Hub
   const hub=document.createElement("div");
   const boardBtn=document.createElement("button"); boardBtn.innerText="Board Games"; boardBtn.onclick=playBoardGames;
   const basketballBtn=document.createElement("button"); basketballBtn.innerText="Basketball Focus"; basketballBtn.onclick=playBasketball;
@@ -119,71 +215,14 @@ function showConclusion(){
 }
 
 // --- Board Games Placeholder ---
-function playBoardGames(){ alert("Tic-Tac-Toe / Board Game coming soon!"); }
+function playBoardGames(){ alert("Board games coming soon!"); }
 
-// --- Basketball Placeholder ---
-function playBasketball(){ alert("Basketball Focus Game coming soon!"); }
+// --- Basketball Focus Placeholder ---
+function playBasketball(){ alert("Basketball focus game coming soon!"); }
 
-// --- 8-Ball Pool ---
-function playPool(){
-  container.innerHTML=`<h1>🎱 8-Ball Pool 🎱</h1>`;
-  const canvas=document.createElement("canvas"); canvas.width=700; canvas.height=350; container.appendChild(canvas);
-  const ctx=canvas.getContext("2d");
+// --- 8-Ball Pool Placeholder ---
+function playPool(){ alert("8-ball pool coming soon!"); }
 
-  const BALL_RADIUS=12;
-  const pockets=[{x:0,y:0},{x:canvas.width/2,y:0},{x:canvas.width,y:0},{x:0,y:canvas.height},{x:canvas.width/2,y:canvas.height},{x:canvas.width,y:canvas.height}];
-  let balls=[];
-  const colors=["yellow","blue","red","purple","orange","green","maroon","black","yellow","blue","red","purple","orange","green","maroon"];
-  for(let i=0;i<16;i++){ balls.push({x:0,y:0,vx:0,vy:0,color:colors[i],pocketed:false}); }
-
-  // Triangle formation for balls
-  let startX=canvas.width*0.7, startY=canvas.height/2;
-  let idx=1;
-  for(let r=0;r<5;r++){
-    for(let c=0;c<=r;c++){
-      balls[idx].x=startX+r*BALL_RADIUS*2;
-      balls[idx].y=startY-(r*BALL_RADIUS)+c*BALL_RADIUS*2;
-      idx++; if(idx>=balls.length) break;
-    }
-  }
-  balls[0].x=canvas.width*0.3; balls[0].y=canvas.height/2; // cue ball
-
-  let aiming=false, aimStart={x:0,y:0};
-  canvas.onmousedown=e=>{ aiming=true; aimStart={x:e.offsetX,y:e.offsetY}; };
-  canvas.onmouseup=e=>{
-    if(!aiming) return; aiming=false;
-    const dx=aimStart.x-e.offsetX; const dy=aimStart.y-e.offsetY;
-    balls[0].vx=dx/5; balls[0].vy=dy/5;
-  };
-
-  function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle="green"; ctx.fillRect(0,0,canvas.width,canvas.height);
-    balls.forEach(b=>{
-      if(b.pocketed) return;
-      ctx.beginPath();
-      ctx.arc(b.x,b.y,BALL_RADIUS,0,Math.PI*2);
-      ctx.fillStyle=b.color; ctx.fill(); ctx.strokeStyle="black"; ctx.stroke();
-    });
-  }
-
-  function update(){
-    balls.forEach(b=>{
-      if(b.pocketed) return;
-      b.x+=b.vx; b.y+=b.vy;
-      b.vx*=0.98; b.vy*=0.98;
-      if(b.x<BALL_RADIUS || b.x>canvas.width-BALL_RADIUS) b.vx*=-1;
-      if(b.y<BALL_RADIUS || b.y>canvas.height-BALL_RADIUS) b.vy*=-1;
-      pockets.forEach(p=>{
-        const dx=b.x-p.x; const dy=b.y-p.y;
-        if(Math.sqrt(dx*dx+dy*dy)<BALL_RADIUS+5){ b.pocketed=true; }
-      });
-    });
-  }
-
-  function loop(){ update(); draw(); requestAnimationFrame(loop); }
-  loop();
-}
 </script>
 </body>
 </html>
