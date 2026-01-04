@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Calm Thinking</title>
+<title>Calm Thinking Interactive Journey</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -27,7 +27,7 @@ button{padding:12px 28px;margin:14px;border:none;border-radius:18px;background:#
 <div class="rain" id="rain"></div>
 
 <div class="container" id="app">
-  <h1>🌿 Calm Thinking – God Mode</h1>
+  <h1>🌿 Calm Thinking Interactive Journey</h1>
   <p>Begin a deeply therapeutic, adaptive session personalized to you.</p>
   <label for="voiceSelect">Choose your voice:</label>
   <select id="voiceSelect">
@@ -49,7 +49,7 @@ const rain=document.getElementById("rain");
 const voiceSelect=document.getElementById("voiceSelect");
 const synth=window.speechSynthesis;
 
-let step=0,responses=[],selectedVoice='none',flow=[];
+let step=0,responses=[],selectedVoice='none',flow=[],mood='Neutral';
 
 /* ---------- RAIN ---------- */
 for(let i=0;i<150;i++){
@@ -105,8 +105,8 @@ function speak(text){
   const utter=new SpeechSynthesisUtterance(text);
   const voices=synth.getVoices();
   let chosenVoice;
-  if(selectedVoice==='female') chosenVoice=voices.find(v=>/female/i.test(v.name))||voices[0];
-  if(selectedVoice==='male') chosenVoice=voices.find(v=>/male/i.test(v.name))||voices[0];
+  if(selectedVoice==='female') chosenVoice=voices.find(v=>v.name.toLowerCase().includes("female")) || voices.find(v=>v.lang.startsWith("en"));
+  if(selectedVoice==='male') chosenVoice=voices.find(v=>v.name.toLowerCase().includes("male")) || voices.find(v=>v.lang.startsWith("en"));
   utter.voice=chosenVoice;
   utter.rate=0.9;
   utter.pitch=1;
@@ -128,20 +128,42 @@ document.getElementById("startBtn").onclick=()=>{
 function renderStep(){
   if(step>=flow.length){conclude(); return;}
   if(flow[step]==="BREATH"){breathing(); return;}
-  speak(flow[step]);
-  const img=bgOptions[Math.floor(Math.random()*bgOptions.length)];
+  
+  const userImg=bgOptions[Math.floor(Math.random()*bgOptions.length)];
   app.innerHTML=`
     <h2>${flow[step]}</h2>
-    <img src="${img}" alt="Calm Nature">
+    <img src="${userImg}" alt="Calm Nature">
     <textarea placeholder="Write freely..."></textarea>
     <button>Continue</button>
   `;
+  speak(flow[step]);
+  
   app.querySelector("button").onclick=()=>{
     const val=app.querySelector("textarea").value.trim();
     if(!val){alert("Write at least a few words.");return;}
     responses.push(val);
+    analyzeMood(val);
     if(responses.length%2===0){adaptiveMicroGame(responses.slice(-2));} else {brainGame(step);}
   };
+}
+
+/* ---------- EMOTIONAL TONE ANALYSIS ---------- */
+function analyzeMood(text){
+  const lower=text.toLowerCase();
+  let score=0;
+  ["calm","peace","relax","joy","happy"].forEach(w=>{if(lower.includes(w)) score+=2;});
+  ["stress","tired","worry","anxious"].forEach(w=>{if(lower.includes(w)) score-=2;});
+  ["focus","goal","plan","success"].forEach(w=>{if(lower.includes(w)) score+=1;});
+  if(score>=3) mood="Calm"; else if(score<=-2) mood="Stressed"; else if(score>0) mood="Motivated"; else mood="Neutral";
+  dynamicBackground(mood);
+}
+
+/* ---------- DYNAMIC BACKGROUND BASED ON MOOD ---------- */
+function dynamicBackground(mood){
+  if(mood==="Calm") bgVideo.src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/river.mp4";
+  else if(mood==="Stressed") bgVideo.src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/storm.mp4";
+  else if(mood==="Motivated") bgVideo.src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/mountains.mp4";
+  else bgVideo.src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/forest.mp4";
 }
 
 /* ---------- BRAIN GAMES ---------- */
@@ -167,7 +189,7 @@ function brainGame(i){
   app.querySelector("button").onclick=()=>{step++;renderStep();};
 }
 
-/* ---------- MICRO-GAMES ---------- */
+/* ---------- MICRO-GAMES ADAPTIVE ---------- */
 function adaptiveMicroGame(lastTwo){
   const txt=lastTwo.join(" ");
   const keywords=txt.match(/\b\w{4,}\b/g)||["calm","focus","mind"];
@@ -175,7 +197,7 @@ function adaptiveMicroGame(lastTwo){
   games[Math.floor(Math.random()*games.length)](keywords);
 }
 
-/* ---------- TRIVIA GAME ---------- */
+/* ---------- TRIVIA ---------- */
 function triviaGame(words){
   const q="Which word resonates most with you now?";
   const opts=[...words].sort(()=>Math.random()-0.5);
@@ -183,7 +205,7 @@ function triviaGame(words){
   app.querySelectorAll("button").forEach(b=>{b.onclick=()=>{alert(`You chose: ${b.textContent}`);step++;renderStep();};});
 }
 
-/* ---------- MEMORY GAME ---------- */
+/* ---------- MEMORY ---------- */
 function memoryGame(words){
   const seq=words.slice(0,3);
   let user=[];
@@ -195,7 +217,7 @@ function memoryGame(words){
   };
 }
 
-/* ---------- PATTERN GAME ---------- */
+/* ---------- PATTERN ---------- */
 function patternGame(words){
   const pat=words.map(w=>w[0]+"*");
   let user=[];
@@ -241,6 +263,7 @@ function conclude(){
     <div class="card"><h3>🗣️ Idiom of the Day</h3><p>${idiom}</p></div>
     <div class="card"><h3>📜 Parable of the Day</h3><p>${parable}</p></div>
     <div class="card"><h3>😂 Joke of the Day</h3><p>${joke}</p></div>
+    <div class="card"><h3>🔮 VR / 3D Mini-Meditation</h3><p>Imagine a calm world or open a 3D/VR meditation space here (placeholder for immersive experience).</p></div>
     <p class="small">Return anytime. This space remembers you.</p>
   `;
 }
