@@ -285,7 +285,7 @@ function breathing(){
   };
 }
 
-/* ---------- CONCLUSION (Fully Personalized) ---------- */
+/* ---------- CONCLUSION (Fully Personalized + Joke) ---------- */
 function conclude(){
   speak("You showed up for yourself today.");
   const userText=responses.join(" ").toLowerCase();
@@ -307,12 +307,17 @@ function conclude(){
   let parable="A traveler paused under a tree and felt renewed.";
   if(userText.includes("heavy")||userText.includes("burden")) parable="Even the heaviest load eases when shared with care.";
 
+  // Joke dynamically (playful, friendly)
+  let joke="Why did the meditation teacher go to the bank? To find inner peace of mind!";
+  if(userText.includes("stress")||userText.includes("tired")) joke="Why don’t stressed people play hide and seek? Because good luck hiding from yourself!";
+
   app.innerHTML=`
     <h2>🌱 Session Complete</h2>
     <div class="card"><h3>📖 Word of the Day</h3><p><strong>${word}</strong><br>Derived from your reflections.</p></div>
     <div class="card"><h3>💬 Quote of the Day</h3><p><em>${quote}</em></p></div>
     <div class="card"><h3>🗣️ Idiom of the Day</h3><p>${idiom}</p></div>
     <div class="card"><h3>📜 Parable of the Day</h3><p>${parable}</p></div>
+    <div class="card"><h3>😂 Joke of the Day</h3><p>${joke}</p></div>
     <p class="small">Return anytime. This space remembers you.</p>
   `;
 }
