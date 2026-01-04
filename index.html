@@ -2,248 +2,252 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>🌿 Calm Thinking</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calm Thinking</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
-<link id="favicon" rel="icon" href="https://source.unsplash.com/32x32/?nature">
 
 <style>
 html,body{
-  margin:0;height:100%;font-family:'Nunito',sans-serif;
-  background:black;overflow:hidden;
+  margin:0;height:100%;font-family:Nunito;
+  background:black;overflow:hidden;color:#111;
 }
-video{
-  position:fixed;top:0;left:0;width:100%;height:100%;
-  object-fit:cover;z-index:-2;opacity:.55;
+#bg{
+  position:fixed;inset:0;z-index:-3;
+  background:radial-gradient(circle at bottom,#001,#000);
 }
-#flash{
-  position:fixed;inset:0;
-  background:white;opacity:0;
-  z-index:-1;pointer-events:none;
+.star{
+  position:absolute;width:2px;height:2px;
+  background:white;border-radius:50%;
+  opacity:.8;animation:twinkle 3s infinite alternate;
 }
+@keyframes twinkle{to{opacity:.2}}
+#flash{position:fixed;inset:0;background:white;opacity:0;pointer-events:none}
 .container{
-  max-width:900px;margin:auto;
+  max-width:920px;margin:auto;
   background:rgba(255,255,255,.25);
-  backdrop-filter:blur(12px);
+  backdrop-filter:blur(14px);
   padding:30px;border-radius:20px;
-  text-align:center;color:#111;
+  text-align:center;
 }
 button{
-  padding:12px 22px;border:none;
-  border-radius:12px;
-  background:#4a90e2;color:white;
-  cursor:pointer;margin:8px;
+  padding:12px 22px;border:none;border-radius:14px;
+  background:#4a90e2;color:white;font-size:1rem;
+  margin:6px;
 }
-button:hover{transform:scale(1.05)}
+canvas{border-radius:14px;touch-action:none}
 textarea{
-  width:100%;height:110px;
-  border-radius:12px;padding:12px;
-  border:2px solid #7fd3e8;
+  width:100%;height:110px;border-radius:12px;
+  padding:12px;border:2px solid #7fd3e8;
 }
-.breathing{
+.breath{
   width:180px;height:180px;border-radius:50%;
-  margin:20px auto;
-  background:radial-gradient(circle,#a8edea,#89dceb);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.3rem;font-weight:bold;
-  transition:1.5s;
+  background:radial-gradient(circle,#b3e5fc,#81d4fa);
+  margin:20px auto;display:flex;
+  align-items:center;justify-content:center;
+  font-weight:bold;transition:2s;
 }
-.expand{transform:scale(1.7)}
-canvas{border-radius:14px;background:#145214}
-.grid{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:10px;margin-top:15px;
-}
+.expand{transform:scale(1.8)}
+.grid{display:grid;grid-template-columns:repeat(8,1fr);max-width:400px;margin:auto}
 .cell{
-  background:white;height:90px;
-  display:flex;align-items:center;
-  justify-content:center;font-size:2rem;
-  cursor:pointer;border-radius:10px;
+  aspect-ratio:1;background:#eee;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;cursor:pointer;
 }
+.dark{background:#666;color:white}
 </style>
 </head>
 
 <body>
 
-<video autoplay muted loop>
-  <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4">
-</video>
-
+<div id="bg"></div>
 <div id="flash"></div>
 
 <div class="container" id="app">
   <h1>🌿 Calm Thinking</h1>
-  <p>Mindful clarity through interaction</p>
-  <button id="startBtn">Start</button>
+  <p>Focus • Games • Mindfulness</p>
+  <button id="start">Start</button>
 </div>
 
 <audio id="rain" loop src="https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3"></audio>
 <audio id="thunder" src="https://www.orangefreesounds.com/wp-content/uploads/2014/10/Thunder-sound-effect.mp3"></audio>
 
 <script>
-/* ---------------- STATE ---------------- */
+/* ---------- GLOBAL ---------- */
 const app=document.getElementById("app");
 const rain=document.getElementById("rain");
 const thunder=document.getElementById("thunder");
 const flash=document.getElementById("flash");
-
 let step=0;
-let progress=JSON.parse(localStorage.getItem("progress")) || {
-  steps:0,games:0,score:0
-};
+let moodMemory=[];
 
+/* ---------- STARS ---------- */
+for(let i=0;i<120;i++){
+  const s=document.createElement("div");
+  s.className="star";
+  s.style.left=Math.random()*100+"%";
+  s.style.top=Math.random()*100+"%";
+  s.style.animationDuration=2+Math.random()*4+"s";
+  document.body.appendChild(s);
+}
+
+/* ---------- LIGHTNING ---------- */
+setInterval(()=>{
+  flash.style.opacity=.9;
+  thunder.currentTime=0;
+  thunder.play();
+  setTimeout(()=>flash.style.opacity=0,150);
+},12000+Math.random()*8000);
+
+/* ---------- QUESTIONS ---------- */
 const questions=[
- "What’s on your mind?",
- "What is certain?",
- "What assumptions exist?",
+ "What’s on your mind right now?",
+ "What feels heavy?",
  "What can you control?",
  "BREATH",
- "What is your next small step?"
+ "What’s one kind thought?"
 ];
 
-/* ---------------- START ---------------- */
-startBtn.onclick=()=>{
-  rain.volume=.5; rain.play();
-  lightning();
+/* ---------- START ---------- */
+start.onclick=()=>{
+  rain.volume=.45;rain.play();
   renderStep();
 };
 
-/* ---------------- LIGHTNING ---------------- */
-function lightning(){
-  setInterval(()=>{
-    flash.style.opacity=.9;
-    thunder.currentTime=0;
-    thunder.play();
-    setTimeout(()=>flash.style.opacity=0,120);
-  },Math.random()*15000+8000);
+/* ---------- AI TONE ---------- */
+function analyzeTone(text){
+  const t=text.toLowerCase();
+  if(/tired|overwhelmed|anxious|stressed/.test(t)) return "stressed";
+  if(/excited|ready|motivated/.test(t)) return "motivated";
+  if(/calm|okay|fine|peace/.test(t)) return "calm";
+  return "neutral";
 }
 
-/* ---------------- STEPS ---------------- */
+/* ---------- STEPS ---------- */
 function renderStep(){
-  document.title=questions[step];
-  favicon.href=`https://source.unsplash.com/32x32/?nature,${step}`;
+  if(step>=questions.length){ menu(); return; }
 
-  if(questions[step]==="BREATH"){ breathing(); return; }
+  if(questions[step]==="BREATH"){ breath(); return; }
 
   app.innerHTML=`
     <h2>${questions[step]}</h2>
-    <textarea></textarea>
-    <button>Next</button>
+    <textarea placeholder="Type honestly..."></textarea>
+    <button>Continue</button>
   `;
-
   app.querySelector("button").onclick=()=>{
-    progress.steps++;
-    localStorage.setItem("progress",JSON.stringify(progress));
-    focusGame();
+    const txt=app.querySelector("textarea").value;
+    const tone=analyzeTone(txt);
+    moodMemory.push(tone);
+    app.innerHTML=`<p>Your tone feels <b>${tone}</b>. Take a moment.</p>`;
+    setTimeout(()=>{step++;renderStep();},1500);
   };
 }
 
-/* ---------------- BREATH ---------------- */
-function breathing(){
-  let phase=0;
+/* ---------- BREATH ---------- */
+function breath(){
+  let p=0;
   app.innerHTML=`
-    <h2>Breathe</h2>
-    <div class="breathing" id="b">Inhale</div>
+    <h2>🌌 Star Breathing</h2>
+    <div class="breath" id="b">Inhale</div>
     <button>Continue</button>
   `;
   const b=document.getElementById("b");
-  const timer=setInterval(()=>{
-    if(phase===0){b.textContent="Inhale";b.classList.add("expand")}
-    if(phase===1){b.textContent="Hold"}
-    if(phase===2){b.textContent="Exhale";b.classList.remove("expand")}
-    phase=(phase+1)%3;
-  },2000);
-
+  const t=setInterval(()=>{
+    if(p===0){b.textContent="Inhale";b.classList.add("expand")}
+    if(p===1){b.textContent="Hold"}
+    if(p===2){b.textContent="Exhale";b.classList.remove("expand")}
+    p=(p+1)%3;
+  },2200);
   app.querySelector("button").onclick=()=>{
-    clearInterval(timer);
-    step++; renderStep();
+    clearInterval(t);step++;renderStep();
   };
 }
 
-/* ---------------- FOCUS GAME ---------------- */
-function focusGame(){
-  progress.games++;
+/* ---------- MENU ---------- */
+function menu(){
   app.innerHTML=`
-    <h2>🧠 Focus Game</h2>
-    <p>Click numbers in order</p>
-    <div class="grid" id="g"></div>
-  `;
-  const nums=[1,2,3,4,5,6,7,8,9].sort(()=>Math.random()-.5);
-  let cur=1;
-  nums.forEach(n=>{
-    const d=document.createElement("div");
-    d.className="cell";d.textContent=n;
-    d.onclick=()=>{
-      if(n===cur){d.style.background="#a8edea";cur++;
-        if(cur===10){step++;renderStep();}
-      }
-    };
-    g.appendChild(d);
-  });
-}
-
-/* ---------------- CONCLUSION ---------------- */
-function conclusion(){
-  app.innerHTML=`
-    <h2>🎉 Complete</h2>
-    <p>Steps: ${progress.steps}<br>Games: ${progress.games}</p>
-    <button onclick="basketball()">🏀 Basketball</button>
-    <button onclick="boardMenu()">♟️ Board Games</button>
+    <h2>Choose a Game</h2>
+    <button onclick="pool()">🎱 8-Ball Pool</button>
+    <button onclick="chess()">♟️ Chess vs AI</button>
   `;
 }
 
-/* ---------------- BASKETBALL ---------------- */
-function basketball(){
-  app.innerHTML=`<h2>🏀 Focus Shot</h2><canvas id="c" width="500" height="300"></canvas>`;
-  const c=document.getElementById("c"),x=c.getContext("2d");
-  let ball={x:80,y:240,vx:0,vy:0,shot:false};
-  const rim={x:420,y:160,r:18};
+/* ---------- POOL (MULTI) ---------- */
+function pool(){
+  app.innerHTML=`
+    <h2>🎱 8-Ball Pool (Local Multiplayer)</h2>
+    <p id="turn">Player 1 Turn</p>
+    <canvas id="p" width="620" height="320"></canvas>
+  `;
+  const c=p,ctx=c.getContext("2d");
+  let turn=1;
 
-  c.onclick=()=>{
-    if(!ball.shot){ball.vx=6;ball.vy=-8;ball.shot=true;}
-  };
+  const balls=[];
+  const R=10;
+  for(let i=0;i<8;i++)
+    balls.push({x:180+i*22,y:160,vx:0,vy:0,alive:true});
+
+  const cue={x:500,y:160,vx:0,vy:0};
+
+  c.addEventListener("touchstart",shoot);
+  c.addEventListener("mousedown",shoot);
+
+  function shoot(e){
+    if(Math.abs(cue.vx)+Math.abs(cue.vy)>1) return;
+    const r=c.getBoundingClientRect();
+    const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+    const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+    const a=Math.atan2(y-cue.y,x-cue.x);
+    cue.vx=Math.cos(a)*6; cue.vy=Math.sin(a)*6;
+    turn=turn===1?2:1;
+    turn.textContent="Player "+turn+" Turn";
+  }
 
   function loop(){
-    x.clearRect(0,0,500,300);
-    ball.vy+=.4;ball.x+=ball.vx;ball.y+=ball.vy;
-    if(ball.y>240){ball.y=240;ball.shot=false;}
-
-    const d=Math.hypot(ball.x-rim.x,ball.y-rim.y);
-    if(d<rim.r){progress.score++;}
-
-    x.beginPath();x.arc(ball.x,ball.y,10,0,7);x.fillStyle="orange";x.fill();
-    x.beginPath();x.arc(rim.x,rim.y,rim.r,0,7);x.strokeStyle="red";x.stroke();
-
+    ctx.clearRect(0,0,620,320);
+    balls.forEach(b=>{
+      if(!b.alive)return;
+      b.x+=b.vx;b.y+=b.vy;
+      b.vx*=.98;b.vy*=.98;
+      ctx.beginPath();ctx.arc(b.x,b.y,R,0,7);ctx.fill();
+    });
+    cue.x+=cue.vx;cue.y+=cue.vy;
+    cue.vx*=.98;cue.vy*=.98;
+    ctx.beginPath();ctx.arc(cue.x,cue.y,R,0,7);ctx.fillStyle="white";ctx.fill();
     requestAnimationFrame(loop);
   }
   loop();
 }
 
-/* ---------------- BOARD GAMES ---------------- */
-function boardMenu(){
-  app.innerHTML=`
-    <h2>♟️ Board Games</h2>
-    <button onclick="ticTacToe()">Tic-Tac-Toe</button>
-  `;
-}
+/* ---------- CHESS (AI) ---------- */
+function chess(){
+  const board=[
+    "rnbqkbnr",
+    "pppppppp",
+    "........",
+    "........",
+    "........",
+    "........",
+    "PPPPPPPP",
+    "RNBQKBNR"
+  ];
+  let sel=null;
 
-function ticTacToe(){
-  let turn="X";
-  app.innerHTML=`<h2>Tic-Tac-Toe</h2><div class="grid" id="g"></div>`;
-  for(let i=0;i<9;i++){
-    const c=document.createElement("div");
-    c.className="cell";
-    c.onclick=()=>{
-      if(!c.textContent){c.textContent=turn;turn=turn==="X"?"O":"X";}
-    };
-    g.appendChild(c);
-  }
+  app.innerHTML=`<h2>♟️ Chess vs AI</h2><div class="grid" id="g"></div>`;
+  board.forEach((row,y)=>{
+    [...row].forEach((p,x)=>{
+      const d=document.createElement("div");
+      d.className="cell "+((x+y)%2?"dark":"");
+      d.textContent=p==="."?"":p;
+      d.onclick=()=>{
+        if(sel){ board[y]=replace(board[y],x,sel.p); sel=null; render(); }
+        else if(p!==".") sel={x,y,p};
+      };
+      g.appendChild(d);
+    });
+  });
+  function render(){ chess(); }
 }
-
-/* ---------------- AUTO FINISH ---------------- */
-setInterval(()=>{
-  if(step>=questions.length) conclusion();
-},400);
+function replace(s,i,c){ return s.substring(0,i)+c+s.substring(i+1); }
 </script>
 </body>
 </html>
