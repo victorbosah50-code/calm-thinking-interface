@@ -13,40 +13,18 @@ body, html {
 video#bgVideo {
   position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1; opacity:0.6;
 }
-
-/* Rain container */
-.rain-container {
-  position: fixed;
-  top:0; left:0; width:100%; height:100%;
-  pointer-events:none; z-index:0; overflow:hidden;
-}
-.drop {
-  position:absolute; width:2px; height:15px; background:rgba(255,255,255,0.3); bottom:100%;
-  animation-name:fall;
-  animation-timing-function: linear;
-}
-@keyframes fall {
-  to { transform: translateY(110vh); opacity:0; }
-}
-
 .container {
   position:relative; z-index:1; max-width:720px; width:90%;
-  background:rgba(255,255,255,0.25);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background:rgba(255,255,255,0.25); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.4);
   display:flex; flex-direction:column; align-items:center; text-align:center; transition:all 0.5s;
   color:#000;
 }
 h1 { font-size:2rem; margin-bottom:15px; opacity:0; animation:fadeBounce 1.5s forwards;}
 p { line-height:1.6; font-size:1.1rem; color:#000; }
-textarea { width:100%; height:120px; margin:15px 0; padding:12px; border-radius:10px; border:2px solid #a0d8ef; font-family:'Nunito'; font-size:1rem; resize:vertical; background:rgba(255,255,255,0.9); color:#000; }
 button { padding:12px 24px; margin:10px; font-size:1rem; border:none; border-radius:10px; background:#4a90e2; color:#fff; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; }
 button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(74,144,226,0.4); }
-.summary { 
-  background:rgba(255,255,255,0.3); 
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+.summary { background:rgba(255,255,255,0.3); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   padding:25px; border-radius:16px; margin-top:15px; white-space:pre-wrap; font-size:1rem; line-height:1.6; color:#000; 
 }
 .breathing-circle { width:180px; height:180px; border-radius:50%; background:radial-gradient(circle,#a8edea,#89dceb);
@@ -55,13 +33,11 @@ button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(74,144,226,0.4)
 }
 .breathing-circle.expanding { transform:scale(1.8); background:radial-gradient(circle,#fed6e3,#fcb7d2);}
 @keyframes fadeBounce {0%{opacity:0;transform:translateY(-20px);}50%{opacity:1;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);} }
+textarea { width:100%; height:120px; margin:15px 0; padding:12px; border-radius:10px; border:2px solid #a0d8ef; font-family:'Nunito'; font-size:1rem; resize:vertical; background:rgba(255,255,255,0.9); color:#000; }
 select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8ef; font-size:1rem; cursor:pointer; }
-.game-area { 
-  margin:15px 0; padding:15px; background:rgba(255,255,255,0.2); 
-  border-radius:12px; width:100%; text-align:center; color:#000; 
-  backdrop-filter: blur(6px); 
-  -webkit-backdrop-filter: blur(6px);
-}
+.game-area { margin:15px 0; padding:15px; background:rgba(255,255,255,0.2); border-radius:12px; width:100%; text-align:center; color:#000; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);}
+canvas { background:rgba(255,255,255,0.2); border-radius:12px; margin-top:15px; }
+#basketballCanvas, #poolCanvas { cursor:pointer; }
 </style>
 </head>
 <body>
@@ -69,8 +45,6 @@ select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8
 <video autoplay muted loop id="bgVideo">
   <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
 </video>
-
-<div class="rain-container" id="rain"></div>
 
 <div class="container" id="mainContainer">
   <h1 id="title">🌿 Welcome to Calm Thinking 🌿</h1>
@@ -104,28 +78,20 @@ select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8
 <audio id="thunderAudio"></audio>
 
 <script>
-const bgVideo = document.getElementById("bgVideo");
-const ambientAudio = document.getElementById("ambientAudio");
-const thunderAudio = document.getElementById("thunderAudio");
+const container = document.getElementById("mainContainer");
 const startButton = document.getElementById("startButton");
+const bgVideo = document.getElementById("bgVideo");
 const bgSelect = document.getElementById("bgSelect");
 const soundSelect = document.getElementById("soundSelect");
 const breathingSelect = document.getElementById("breathingSelect");
-const container = document.getElementById("mainContainer");
-const rainContainer = document.getElementById("rain");
+const ambientAudio = document.getElementById("ambientAudio");
+const thunderAudio = document.getElementById("thunderAudio");
 
 let currentStep = 0;
 const responses = [];
 let breathingInterval;
 
-// Ambient options with thunder/rain layering
-const ambientOptions = {
-  rainforest: { url:"https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3", thunder:false },
-  rainstorm: { url:"https://www.orangefreesounds.com/wp-content/uploads/2022/02/Thunderstorm-sound.mp3", thunder:true },
-  gentlerain: { url:"https://bigsoundbank.com/UPLOAD/mp3/0055.mp3", thunder:false },
-  birdsstream: { url:"https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3", thunder:false }
-};
-
+// Steps
 const steps = [
   { title:"Focus", text:"What’s on your mind right now?", reflection:true },
   { title:"Facts", text:"What facts do you know for sure?", reflection:true },
@@ -136,55 +102,26 @@ const steps = [
   { title:"Conclusion", text:"", reflection:false }
 ];
 
-// Start journey
+// Start Journey
 startButton.onclick = () => {
-  setAmbient(soundSelect.value);
   bgVideo.src = bgSelect.value; bgVideo.load();
   startButton.style.display="none";
-  createRain(100); // start rain
   renderStep();
 };
-bgSelect.onchange = ()=>{ bgVideo.src=bgSelect.value; bgVideo.load(); };
-soundSelect.onchange = ()=>{ setAmbient(soundSelect.value); };
 
-// Set ambient audio
-function setAmbient(key){
-  const option = ambientOptions[key];
-  ambientAudio.src = option.url;
-  ambientAudio.volume = 0.5;
-  ambientAudio.play();
-  if(option.thunder){
-    thunderAudio.src = "https://orangefreesounds.com/wp-content/uploads/2022/02/Thunder-sound.mp3";
-    thunderAudio.volume = 0.7;
-    setInterval(()=>{ thunderAudio.play(); }, 15000 + Math.random()*10000);
-  }
-}
-
-// Rain animation
-function createRain(count){
-  for(let i=0;i<count;i++){
-    const drop=document.createElement("div");
-    drop.className="drop";
-    drop.style.left=Math.random()*100+"%";
-    drop.style.animationDuration=(0.5+Math.random()*0.5)+"s";
-    drop.style.animationDelay=Math.random()*5+"s";
-    rainContainer.appendChild(drop);
-  }
-}
-
-// Render steps
+// Render Step
 function renderStep(){
   clearInterval(breathingInterval);
   const step = steps[currentStep];
   container.innerHTML=`<h1>${step.title}</h1><p>${step.text}</p>`;
 
   if(step.reflection){
-    const textarea=document.createElement("textarea"); textarea.placeholder="Type here...";
+    const textarea = document.createElement("textarea"); textarea.placeholder="Type here...";
     container.appendChild(textarea);
-    const nextBtn=document.createElement("button"); nextBtn.innerText="Next";
-    nextBtn.onclick=()=>{ 
+    const nextBtn = document.createElement("button"); nextBtn.innerText="Next";
+    nextBtn.onclick = () => {
       if(textarea.value.trim()===""){ alert("Please enter a response."); return; }
-      responses.push({step:step.title,input:textarea.value});
+      responses.push({step:step.title, input:textarea.value});
       renderRandomGame(textarea.value);
     };
     container.appendChild(nextBtn);
@@ -195,156 +132,70 @@ function renderStep(){
   }
 }
 
-// ----- Randomized Game Selector -----
+// Breathing
+function startBreathingExercise(){
+  const pattern = breathingSelect.value;
+  const circle = document.createElement("div");
+  circle.className="breathing-circle"; circle.innerText="Breathe";
+  container.appendChild(circle);
+  let inhale=4000, hold=7000, exhale=8000;
+  if(pattern==="box"){ inhale=4000; hold=4000; exhale=4000; }
+  let step = 0;
+  breathingInterval = setInterval(()=>{
+    if(step===0){ circle.innerText="Inhale"; circle.classList.add("expanding"); step=1; }
+    else if(step===1){ circle.innerText="Hold"; step=2; }
+    else{ circle.innerText="Exhale"; circle.classList.remove("expanding"); step=0; }
+  }, inhale + hold + exhale);
+  const nextBtn = document.createElement("button"); nextBtn.innerText="Next";
+  nextBtn.onclick = ()=>{ clearInterval(breathingInterval); nextStep(); };
+  container.appendChild(nextBtn);
+}
+
+// Next Step
+function nextStep(){ currentStep++; if(currentStep<steps.length) renderStep(); else showConclusion(); }
+
+// Random Game
 function renderRandomGame(userInput){
-  const games = [renderWordInsightGame, renderToneAnalyzerGame, renderMemoryGame, renderClickGame];
+  const games = [renderScrabbleGame, renderFocusGame];
   const gameFunc = games[Math.floor(Math.random()*games.length)];
   gameFunc(userInput);
 }
 
-// ----- Word Insight Game -----
-function renderWordInsightGame(userInput){
-  container.innerHTML=`<h1>🧠 Word Insight Challenge 🧠</h1>
-  <p>Arrange the keywords from your response in order:</p>`;
-
-  const gameDiv=document.createElement("div"); gameDiv.className="game-area"; container.appendChild(gameDiv);
-  const keywords = userInput.split(/\s+/).filter(w=>w.length>3).slice(0,5);
-  if(keywords.length===0) keywords.push("focus","mind","calm");
-  const shuffled = keywords.sort(()=>Math.random()-0.5);
-
-  const inputDiv=document.createElement("div"); inputDiv.style.display="flex"; inputDiv.style.flexWrap="wrap"; inputDiv.style.justifyContent="center"; inputDiv.style.gap="10px";
-  const selectedWords=[];
-  shuffled.forEach(word=>{
-    const btn=document.createElement("button"); btn.innerText=word; btn.dataset.word=word;
-    btn.onclick=()=>{
-      btn.disabled=true;
-      selectedWords.push(btn.dataset.word);
-      selectedDiv.innerText="Selected: "+selectedWords.join(", ");
-      if(selectedWords.length===keywords.length){
-        const score = selectedWords.filter((w,i)=>w===keywords[i]).length;
-        selectedDiv.innerHTML+=`<p>✅ You got <strong>${score}/${keywords.length}</strong> correct!</p>`;
-        const continueBtn=document.createElement("button"); continueBtn.innerText="Continue"; continueBtn.onclick=nextStep;
-        container.appendChild(continueBtn);
-      }
-    };
-    inputDiv.appendChild(btn);
-  });
-  gameDiv.appendChild(inputDiv);
-  const selectedDiv=document.createElement("div"); selectedDiv.style.marginTop="15px"; container.appendChild(selectedDiv);
+// --- Scrabble Game ---
+function renderScrabbleGame(userInput){
+  container.innerHTML=`<h1>🅂🅂🅁🄰🄱🄱🄻🄴 Challenge 🅂🅂🅁🄰🄱🄱🄻🄴</h1>`;
+  alert("Scrabble mini-game coming soon!");
+  nextStep();
 }
 
-// ----- Tone Analyzer Game -----
-function renderToneAnalyzerGame(userInput){
-  container.innerHTML=`<h1>🧘 Mindfulness Insight 🧘</h1>
-  <p>Analyzing your thoughts for personalized feedback...</p>`;
-  const gameDiv=document.createElement("div"); gameDiv.className="game-area"; container.appendChild(gameDiv);
-
-  const calm=["calm","peace","relax","serene","happy","joy"];
-  const stressed=["stress","anxious","tired","deadline","worry"];
-  const motivated=["goal","focus","plan","action","success"];
-  const text=userInput.toLowerCase();
-  let score=0;
-  calm.forEach(w=>{if(text.includes(w)) score+=2;});
-  stressed.forEach(w=>{if(text.includes(w)) score-=2;});
-  motivated.forEach(w=>{if(text.includes(w)) score+=1;});
-
-  let tone="Neutral 🤔";
-  if(score>=3) tone="Calm & Positive 😊";
-  else if(score<=-2) tone="Stressed 😟";
-  else if(score>0) tone="Motivated 💪";
-
-  gameDiv.innerHTML=`<p>Your mindfulness insight: <strong>${tone}</strong></p>`;
-  const advice=document.createElement("p"); advice.style.marginTop="10px";
-  if(tone.includes("Calm")) advice.innerText="You're mindful! Keep focusing on positive thoughts.";
-  else if(tone.includes("Stressed")) advice.innerText="Breathe deeply and focus on what you can control.";
-  else if(tone.includes("Motivated")) advice.innerText="Channel motivation wisely. Balance action with reflection.";
-  else advice.innerText="Observe your thoughts and feelings carefully.";
-  gameDiv.appendChild(advice);
-  const continueBtn=document.createElement("button"); continueBtn.innerText="Continue"; continueBtn.onclick=nextStep;
-  container.appendChild(continueBtn);
+// --- Focus Game ---
+function renderFocusGame(userInput){
+  container.innerHTML=`<h1>🎯 Focus Game 🎯</h1>`;
+  alert("Focus mini-game coming soon!");
+  nextStep();
 }
 
-// ----- Memory Game -----
-function renderMemoryGame(userInput){
-  container.innerHTML=`<h1>🧩 Memory Challenge 🧩</h1><p>Try to remember this sequence of symbols:</p>`;
-  const gameDiv=document.createElement("div"); gameDiv.className="game-area"; container.appendChild(gameDiv);
-  const sequence=["🔵","🟢","🟡"]; let userSeq=[];
-  gameDiv.innerHTML=`<p>Remember this sequence: ${sequence.join(" ")}</p>`;
-  setTimeout(()=>{
-    gameDiv.innerHTML="<p>Now click them in order:</p>";
-    sequence.forEach(sym=>{
-      const btn=document.createElement("button"); btn.innerText=sym;
-      btn.onclick=()=>{ 
-        userSeq.push(sym); 
-        if(userSeq.length===sequence.length){ 
-          alert("Great memory!"); 
-          nextStep(); 
-        } 
-      };
-      gameDiv.appendChild(btn);
-    });
-  },2000);
-}
-
-// ----- Click Game -----
-function renderClickGame(userInput){
-  container.innerHTML=`<h1>🎯 Fun Click Game 🎯</h1><p>Click as fast as you can!</p>`;
-  const gameDiv=document.createElement("div"); gameDiv.className="game-area"; container.appendChild(gameDiv);
-  let clicks=0;
-  const btn=document.createElement("button"); btn.innerText="Click me!";
-  const counter=document.createElement("p"); counter.innerText="Clicks: 0";
-  btn.onclick=()=>{ clicks++; counter.innerText="Clicks: "+clicks; };
-  gameDiv.appendChild(btn); gameDiv.appendChild(counter);
-  setTimeout(nextStep,10000);
-}
-
-// ----- Breathing Exercise -----
-function startBreathingExercise(){
-  const pattern = breathingSelect.value;
-  const circle = document.createElement("div");
-  circle.className = "breathing-circle";
-  circle.innerText = "Breathe";
-  container.appendChild(circle);
-
-  let inhale=4000, hold=7000, exhale=8000;
-  if(pattern==="box"){ inhale=4000; hold=4000; exhale=4000; }
-
-  let step = 0; // 0=inhale, 1=hold, 2=exhale
-  breathingInterval = setInterval(()=>{
-    if(step===0){ 
-      circle.innerText="Inhale"; 
-      circle.classList.add("expanding");
-      step=1;
-    } else if(step===1){ 
-      circle.innerText="Hold"; 
-      step=2;
-    } else { 
-      circle.innerText="Exhale"; 
-      circle.classList.remove("expanding");
-      step=0;
-    }
-  }, inhale + hold + exhale);
-
-  const nextBtn = document.createElement("button");
-  nextBtn.innerText = "Next";
-  nextBtn.onclick = () => {
-    clearInterval(breathingInterval);
-    nextStep();
-  };
-  container.appendChild(nextBtn);
-}
-
-// ----- Next Step -----
-function nextStep(){ currentStep++; if(currentStep<steps.length) renderStep(); else showConclusion(); }
-
-// ----- Conclusion -----
+// --- Conclusion + Post-Journey Games ---
 function showConclusion(){
   container.innerHTML=`<h1>🎉 Congratulations! 🎉</h1>`;
   const summary=document.createElement("div"); summary.className="summary";
   summary.innerHTML="🌈 Your Reflection Journey 🌈<br><br>"+responses.map(r=>`<strong>${r.step}:</strong> ${r.input}`).join("<br>")+
     `<br><br>💖 Amazing! You've explored multiple dynamic games and mindfulness exercises. Keep growing your awareness! 🌟`;
   container.appendChild(summary);
+
+  const hub = document.createElement("div"); hub.style.marginTop="20px";
+  hub.innerHTML=`<h2>🎮 Play More Games! 🎮</h2>`; container.appendChild(hub);
+
+  const boardBtn = document.createElement("button"); boardBtn.innerText="Board Games"; boardBtn.onclick=playBoardGames; hub.appendChild(boardBtn);
+  const basketballBtn = document.createElement("button"); basketballBtn.innerText="Basketball Focus"; basketballBtn.onclick=playBasketball; hub.appendChild(basketballBtn);
+  const poolBtn = document.createElement("button"); poolBtn.innerText="Pool Game"; poolBtn.onclick=playPool; hub.appendChild(poolBtn);
 }
+
+// --- Post-Journey Games Placeholders ---
+function playBoardGames(){ alert("Tic-Tac-Toe / Board game coming soon!"); }
+function playBasketball(){ alert("Basketball focus game coming soon!"); }
+function playPool(){ alert("Pool game coming soon!"); }
+
 </script>
 </body>
 </html>
