@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌿 Calm Thinking Journey 🌿</title>
+<title>🌿 Calm Thinking Interactive Journey 🌿</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
 <style>
 body, html {
@@ -31,6 +31,7 @@ button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(74,144,226,0.4)
 .breathing-circle.expanding { transform:scale(1.8); background:radial-gradient(circle,#fed6e3,#fcb7d2);}
 @keyframes fadeBounce {0%{opacity:0;transform:translateY(-20px);}50%{opacity:1;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);}}
 select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8ef; font-size:1rem; cursor:pointer; }
+.game-area { margin:15px 0; padding:15px; background:rgba(240,248,255,0.95); border-radius:12px; width:100%; text-align:center; }
 </style>
 </head>
 <body>
@@ -59,6 +60,13 @@ select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8
     <option value="https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3">Birds & Stream</option>
   </select>
 
+  <!-- Breathing pattern selector -->
+  <label for="breathingSelect">Choose Breathing Exercise:</label>
+  <select id="breathingSelect">
+    <option value="478">4-7-8 Breathing</option>
+    <option value="box">Box Breathing</option>
+  </select>
+
   <button id="startButton">Start</button>
 </div>
 
@@ -70,6 +78,7 @@ const ambientAudio = document.getElementById("ambientAudio");
 const startButton = document.getElementById("startButton");
 const bgSelect = document.getElementById("bgSelect");
 const soundSelect = document.getElementById("soundSelect");
+const breathingSelect = document.getElementById("breathingSelect");
 const container = document.getElementById("mainContainer");
 
 let currentStep = 0;
@@ -81,13 +90,12 @@ const steps = [
   { title:"Facts", text:"What facts do you know for sure?", reflection:true },
   { title:"Assumptions", text:"What assumptions are you making?", reflection:true },
   { title:"Control", text:"What can you control?", reflection:true },
-  { title:"Breathing", text:"Follow the 4-7-8 breathing pattern", reflection:false, breathing:true },
+  { title:"Breathing", text:"Time to relax with a breathing exercise.", reflection:false, breathing:true },
   { title:"Next Step", text:"What is one small step you can take?", reflection:true },
-  { title:"Brain Game", text:"🧠 Brain Game", reflection:false },
-  { title:"Mood", text:"How are you feeling now?", reflection:false },
   { title:"Conclusion", text:"", reflection:false }
 ];
 
+// Start journey
 startButton.onclick = () => {
   bgVideo.src = bgSelect.value; bgVideo.load();
   ambientAudio.src = soundSelect.value; ambientAudio.volume=0.4; ambientAudio.play();
@@ -97,8 +105,9 @@ startButton.onclick = () => {
 bgSelect.onchange = ()=>{ bgVideo.src=bgSelect.value; bgVideo.load(); };
 soundSelect.onchange = ()=>{ ambientAudio.src=soundSelect.value; ambientAudio.play(); };
 
+// Render steps
 function renderStep(){
-  clearInterval(breathingInterval); // stop any previous breathing loops
+  clearInterval(breathingInterval);
   const step = steps[currentStep];
   container.innerHTML=`<h1>${step.title}</h1><p>${step.text}</p>`;
 
@@ -106,60 +115,74 @@ function renderStep(){
     const textarea=document.createElement("textarea"); textarea.placeholder="Type here...";
     container.appendChild(textarea);
     const nextBtn=document.createElement("button"); nextBtn.innerText="Next";
-    nextBtn.onclick=()=>{ 
+    nextBtn.onclick=()=>{
       if(textarea.value.trim()===""){ alert("Please enter a response."); return; }
-      responses.push({step:step.title,input:textarea.value}); nextStep();
+      responses.push({step:step.title,input:textarea.value});
+      renderInteractiveGame(textarea.value); // show mini game after each user input
     };
     container.appendChild(nextBtn);
   } else if(step.breathing){
-    const circle=document.createElement("div"); circle.className="breathing-circle"; circle.innerText="Breathe";
-    container.appendChild(circle);
-
-    // 4-7-8 breathing cycle in seconds
-    const inhale=4000, hold=7000, exhale=8000;
-    let phase=0; // 0=in,1=hold,2=out
-
-    breathingInterval = setInterval(()=>{
-      if(phase===0){ circle.classList.add("expanding"); phase=1;
-      } else if(phase===1){ phase=2; // hold
-      } else if(phase===2){ circle.classList.remove("expanding"); phase=0; } }, 1000);
-    
-    // animate phases with correct timing
-    const cycle=()=>{
-      circle.classList.add("expanding");
-      setTimeout(()=>{ /* hold */ setTimeout(()=>{ circle.classList.remove("expanding"); setTimeout(cycle,0); },exhale); },inhale+hold);
-    };
-    cycle();
-
-    const nextBtn=document.createElement("button"); nextBtn.innerText="Next";
-    nextBtn.onclick=nextStep;
-    container.appendChild(nextBtn);
-
-  } else if(step.title==="Brain Game"){
-    const question=document.createElement("p"); question.innerText="What is the capital of France?";
-    container.appendChild(question);
-    ["Paris","London","Rome","Berlin"].forEach(opt=>{
-      const btn=document.createElement("button");
-      btn.innerText=opt;
-      btn.onclick=()=>{ if(opt==="Paris"){ alert("Correct!"); nextStep(); } else alert("Try again!"); };
-      container.appendChild(btn);
-    });
-  } else if(step.title==="Mood"){
-    ["Calm","Neutral","Stressed","Thoughtful"].forEach(mood=>{
-      const btn=document.createElement("button");
-      btn.innerText=mood;
-      btn.onclick=()=>{ document.body.style.background=getMoodGradient(mood); nextStep(); };
-      container.appendChild(btn);
-    });
+    startBreathingExercise();
   } else if(step.title==="Conclusion"){
-    const summary=document.createElement("div"); summary.className="summary";
-    summary.innerText="🌈 Your Reflection Journey 🌈\n\n"+responses.map(r=>`${r.step}: ${r.input}`).join("\n");
-    container.appendChild(summary);
+    showConclusion();
   }
 }
 
-function nextStep(){ currentStep++; if(currentStep<steps.length) renderStep(); }
+// Mini interactive game (personalized and fun)
+function renderInteractiveGame(userInput){
+  container.innerHTML=`<h1>🎯 Fun Moment!</h1><p>Let's play a quick interactive game based on your response: "${userInput}"</p>`;
+  const gameDiv=document.createElement("div"); gameDiv.className="game-area"; container.appendChild(gameDiv);
 
+  // Example interactive: click counter
+  let clicks=0;
+  const btn=document.createElement("button"); btn.innerText="Click me!";
+  const counter=document.createElement("p"); counter.innerText="Clicks: 0";
+  btn.onclick=()=>{ clicks++; counter.innerText="Clicks: "+clicks; };
+  gameDiv.appendChild(btn); gameDiv.appendChild(counter);
+
+  const continueBtn=document.createElement("button"); continueBtn.innerText="Continue";
+  continueBtn.onclick=()=>{ nextStep(); };
+  container.appendChild(continueBtn);
+}
+
+// Breathing exercise
+function startBreathingExercise(){
+  const pattern = breathingSelect.value;
+  const circle=document.createElement("div"); circle.className="breathing-circle"; circle.innerText="Breathe";
+  container.appendChild(circle);
+
+  let inhale=4000, hold=7000, exhale=8000;
+  if(pattern==="box"){ inhale=4000; hold=4000; exhale=4000; }
+
+  const cycle=()=>{
+    circle.classList.add("expanding"); // inhale
+    setTimeout(()=>{
+      setTimeout(()=>{
+        circle.classList.remove("expanding"); // exhale
+        setTimeout(cycle,0);
+      },exhale); // hold duration
+    },inhale+hold);
+  };
+  cycle();
+
+  const nextBtn=document.createElement("button"); nextBtn.innerText="Next";
+  nextBtn.onclick=nextStep;
+  container.appendChild(nextBtn);
+}
+
+// Move to next step
+function nextStep(){ currentStep++; if(currentStep<steps.length) renderStep(); else showConclusion(); }
+
+// Show personalized conclusion
+function showConclusion(){
+  container.innerHTML=`<h1>🎉 Congratulations! 🎉</h1>`;
+  const summary=document.createElement("div"); summary.className="summary";
+  summary.innerHTML="🌈 Your Reflection Journey 🌈<br><br>"+responses.map(r=>`<strong>${r.step}:</strong> ${r.input}`).join("<br>")+
+    `<br><br>💖 Amazing! You've taken mindful steps, reflected thoughtfully, and explored interactive exercises. Keep going, every small effort counts! 🌟`;
+  container.appendChild(summary);
+}
+
+// Mood gradient (optional)
 function getMoodGradient(mood){
   const gradients={
     Calm:"linear-gradient(135deg,#a8edea,#fed6e3)",
