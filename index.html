@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌿 Calm Thinking Interactive Journey 🌿</title>
+<title>🌿 Calm Thinking + 8-Ball Pool 🌿</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
 <style>
 body, html { margin:0; padding:0; width:100%; height:100%; font-family:'Nunito',sans-serif; display:flex; justify-content:center; align-items:center; background:#000; overflow:hidden; }
@@ -12,7 +12,7 @@ video#bgVideo { position:fixed; top:0; left:0; width:100%; height:100%; object-f
 .drop { position:absolute; width:2px; height:15px; background:rgba(255,255,255,0.3); bottom:100%; animation-name:fall; animation-timing-function: linear; }
 @keyframes fall { to { transform: translateY(110vh); opacity:0; } }
 
-.container { position:relative; z-index:1; max-width:720px; width:90%; background:rgba(255,255,255,0.25); backdrop-filter: blur(10px); padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.4); display:flex; flex-direction:column; align-items:center; text-align:center; transition:all 0.5s; color:#000; }
+.container { position:relative; z-index:1; max-width:800px; width:90%; background:rgba(255,255,255,0.25); backdrop-filter: blur(10px); padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.4); display:flex; flex-direction:column; align-items:center; text-align:center; transition:all 0.5s; color:#000; }
 h1 { font-size:2rem; margin-bottom:15px; opacity:0; animation:fadeBounce 1.5s forwards; }
 p { line-height:1.6; font-size:1.1rem; color:#000; }
 textarea { width:100%; height:120px; margin:15px 0; padding:12px; border-radius:10px; border:2px solid #a0d8ef; font-family:'Nunito'; font-size:1rem; resize:vertical; background:rgba(255,255,255,0.9); color:#000; }
@@ -69,6 +69,7 @@ canvas { background:green; border-radius:12px; margin-top:15px; }
 <audio id="thunderAudio"></audio>
 
 <script>
+// --- Variables ---
 const bgVideo = document.getElementById("bgVideo");
 const ambientAudio = document.getElementById("ambientAudio");
 const thunderAudio = document.getElementById("thunderAudio");
@@ -91,7 +92,7 @@ const ambientOptions = {
   birdsstream: { url:"https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3", thunder:false }
 };
 
-// Reflection Steps with Questions
+// Reflection Steps
 const steps = [
   {title:"Focus", text:"What’s on your mind right now?", reflection:true},
   {title:"Facts", text:"What facts do you know for sure?", reflection:true},
@@ -102,18 +103,18 @@ const steps = [
   {title:"Conclusion", text:"", reflection:false}
 ];
 
-// Start Journey
+// --- Start Journey ---
 startButton.onclick = () => {
   setAmbient(soundSelect.value);
   bgVideo.src = bgSelect.value; bgVideo.load();
   startButton.style.display="none";
-  createRain(100); // start rain
+  createRain(100); // rain
   renderStep();
 };
 bgSelect.onchange = ()=>{ bgVideo.src=bgSelect.value; bgVideo.load(); };
 soundSelect.onchange = ()=>{ setAmbient(soundSelect.value); };
 
-// Set Ambient Audio
+// Ambient Audio
 function setAmbient(key){
   const option = ambientOptions[key];
   ambientAudio.src = option.url;
@@ -126,7 +127,7 @@ function setAmbient(key){
   }
 }
 
-// Rain Animation
+// Rain
 function createRain(count){
   for(let i=0;i<count;i++){
     const drop=document.createElement("div");
@@ -138,18 +139,17 @@ function createRain(count){
   }
 }
 
-// Render Steps
+// --- Render Step ---
 function renderStep(){
   clearInterval(breathingInterval);
   if(currentStep>=steps.length){ showConclusion(); return; }
   const step = steps[currentStep];
   container.innerHTML=`<h1>${step.title}</h1><p>${step.text}</p>`;
-
   if(step.reflection){
     const textarea=document.createElement("textarea"); textarea.placeholder="Type here..."; container.appendChild(textarea);
     const nextBtn=document.createElement("button"); nextBtn.innerText="Next";
     nextBtn.onclick=()=>{ 
-      if(textarea.value.trim()===""){ alert("Please enter a response."); return; }
+      if(textarea.value.trim()===""){ alert("Enter a response"); return; }
       responses.push({step:step.title,input:textarea.value});
       renderRandomGame(textarea.value);
     };
@@ -159,51 +159,39 @@ function renderStep(){
   } else { currentStep++; renderStep(); }
 }
 
-// ----- Breathing Exercise -----
+// --- Breathing Exercise ---
 function startBreathingExercise(){
-  const pattern=breathingSelect.value;
-  const circle=document.createElement("div"); circle.className="breathing-circle"; circle.innerText="Breathe";
+  const pattern = breathingSelect.value;
+  const circle = document.createElement("div"); circle.className="breathing-circle"; circle.innerText="Breathe";
   container.appendChild(circle);
   let inhale=4000, hold=7000, exhale=8000;
   if(pattern==="box"){ inhale=4000; hold=4000; exhale=4000; }
-  const cycle=()=>{
-    circle.classList.add("expanding");
-    setTimeout(()=>{ circle.classList.remove("expanding"); setTimeout(cycle,0); },exhale);
-  };
-  cycle();
-  const nextBtn=document.createElement("button"); nextBtn.innerText="Next"; nextBtn.onclick=()=>{ clearInterval(breathingInterval); currentStep++; renderStep(); };
+  let step=0;
+  breathingInterval = setInterval(()=>{
+    if(step===0){ circle.innerText="Inhale"; circle.classList.add("expanding"); step=1; }
+    else if(step===1){ circle.innerText="Hold"; step=2; }
+    else { circle.innerText="Exhale"; circle.classList.remove("expanding"); step=0; }
+  }, 1000);
+  const nextBtn=document.createElement("button"); nextBtn.innerText="Next"; 
+  nextBtn.onclick=()=>{ clearInterval(breathingInterval); currentStep++; renderStep(); };
   container.appendChild(nextBtn);
 }
 
-// ----- Random Mini-Games -----
-function renderRandomGame(userInput){
+// --- Mini-Games ---
+function renderRandomGame(input){
   const games = [renderScrabbleGame, renderFocusGame];
   const gameFunc = games[Math.floor(Math.random()*games.length)];
-  gameFunc(userInput);
+  gameFunc(input);
 }
+function renderScrabbleGame(input){ container.innerHTML=`<h1>Scrabble Challenge</h1><div class="game-area"><p>Arrange letters here (placeholder)</p></div><button onclick="currentStep++; renderStep();">Continue</button>`; }
+function renderFocusGame(input){ container.innerHTML=`<h1>Focus Game</h1><div class="game-area"><p>Focus game placeholder</p></div><button onclick="currentStep++; renderStep();">Continue</button>`; }
 
-// ----- Scrabble Game -----
-function renderScrabbleGame(userInput){
-  container.innerHTML=`<h1>🅂🅂🅁🄰🄱🄱🄻🄴 Challenge</h1>`;
-  const gameDiv=document.createElement("div"); gameDiv.className="game-area"; gameDiv.innerHTML="<p>Arrange letters here (placeholder)</p>"; container.appendChild(gameDiv);
-  const continueBtn=document.createElement("button"); continueBtn.innerText="Continue"; continueBtn.onclick=()=>{ currentStep++; renderStep(); };
-  container.appendChild(continueBtn);
-}
-
-// ----- Focus Game -----
-function renderFocusGame(userInput){
-  container.innerHTML=`<h1>🎯 Focus Game</h1>`;
-  const gameDiv=document.createElement("div"); gameDiv.className="game-area"; gameDiv.innerHTML="<p>Focus game placeholder</p>"; container.appendChild(gameDiv);
-  const continueBtn=document.createElement("button"); continueBtn.innerText="Continue"; continueBtn.onclick=()=>{ currentStep++; renderStep(); };
-  container.appendChild(continueBtn);
-}
-
-// ----- Conclusion and Post-Journey Games -----
+// --- Conclusion & Game Hub ---
 function showConclusion(){
   container.innerHTML=`<h1>🎉 Congratulations! 🎉</h1>`;
-  const summary=document.createElement("div"); summary.className="summary";
-  summary.innerHTML="🌈 Your Reflection Journey 🌈<br><br>"+responses.map(r=>`<strong>${r.step}:</strong> ${r.input}`).join("<br>")+
-    `<br><br>💖 Amazing! Explore more games below! 🌟`;
+  const summary=document.createElement("div");
+  summary.innerHTML="🌈 Your Reflection Journey 🌈<br>"+responses.map(r=>`<strong>${r.step}:</strong> ${r.input}`).join("<br>")+
+    "<br><br>💖 Explore games below!";
   container.appendChild(summary);
 
   const hub=document.createElement("div");
@@ -214,15 +202,62 @@ function showConclusion(){
   container.appendChild(hub);
 }
 
-// --- Board Games Placeholder ---
+// --- Game Hub Placeholders ---
 function playBoardGames(){ alert("Board games coming soon!"); }
+function playBasketball(){ alert("Basketball game coming soon!"); }
 
-// --- Basketball Focus Placeholder ---
-function playBasketball(){ alert("Basketball focus game coming soon!"); }
+// --- 8-Ball Pool ---
+function playPool(){
+  container.innerHTML=`<h1>🎱 8-Ball Pool 🎱</h1><canvas id="poolCanvas" width="700" height="350"></canvas>`;
+  const canvas=document.getElementById("poolCanvas");
+  const ctx=canvas.getContext("2d");
 
-// --- 8-Ball Pool Placeholder ---
-function playPool(){ alert("8-ball pool coming soon!"); }
+  // Table & Balls
+  const BALL_RADIUS=12;
+  let balls = [];
+  const colors=["yellow","blue","red","purple","orange","green","maroon","black","yellow","blue","red","purple","orange","green","maroon"];
+  for(let i=0;i<16;i++){ balls.push({x:0,y:0,vx:0,vy:0,color:colors[i],pocketed:false}); }
+  let startX=canvas.width*0.7, startY=canvas.height/2;
+  let idx=1;
+  for(let r=0;r<5;r++){
+    for(let c=0;c<=r;c++){
+      balls[idx].x=startX+r*BALL_RADIUS*2; balls[idx].y=startY-(r*BALL_RADIUS)+c*BALL_RADIUS*2; idx++; if(idx>=balls.length) break;
+    }
+  }
+  balls[0].x=canvas.width*0.3; balls[0].y=canvas.height/2;
 
+  let aiming=false, aimStart={x:0,y:0};
+  canvas.onmousedown=e=>{ aiming=true; aimStart={x:e.offsetX,y:e.offsetY}; };
+  canvas.onmouseup=e=>{
+    if(!aiming) return; aiming=false;
+    const dx=aimStart.x-e.offsetX; const dy=aimStart.y-e.offsetY;
+    balls[0].vx=dx/5; balls[0].vy=dy/5;
+  };
+
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle="green"; ctx.fillRect(0,0,canvas.width,canvas.height);
+    balls.forEach(b=>{
+      if(b.pocketed) return;
+      ctx.beginPath(); ctx.arc(b.x,b.y,BALL_RADIUS,0,Math.PI*2);
+      ctx.fillStyle=b.color; ctx.fill(); ctx.strokeStyle="black"; ctx.stroke();
+    });
+  }
+
+  function update(){
+    balls.forEach(b=>{
+      if(b.pocketed) return;
+      b.x+=b.vx; b.y+=b.vy;
+      b.vx*=0.98; b.vy*=0.98;
+      if(b.x<BALL_RADIUS || b.x>canvas.width-BALL_RADIUS) b.vx*=-1;
+      if(b.y<BALL_RADIUS || b.y>canvas.height-BALL_RADIUS) b.vy*=-1;
+      if(Math.random()<0.001) b.pocketed=true; // simple pocket simulation
+    });
+  }
+
+  function loop(){ update(); draw(); requestAnimationFrame(loop); }
+  loop();
+}
 </script>
 </body>
 </html>
