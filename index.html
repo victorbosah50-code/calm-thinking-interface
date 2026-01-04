@@ -8,8 +8,8 @@
 <style>
 html,body{margin:0;padding:0;height:100%;font-family:'Nunito',sans-serif;background:#000;overflow-y:auto;}
 #bgVideo{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:-3;opacity:0.6;}
-.rain{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:-2;overflow:hidden;}
-.drop{position:absolute;width:2px;height:18px;background:rgba(255,255,255,0.35);top:-20px;animation-name:fall;animation-timing-function:linear;animation-iteration-count:infinite;}
+.rain-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:-2;overflow:hidden;}
+.drop{position:absolute;width:2px;height:15px;background:rgba(255,255,255,0.3);bottom:100%;animation-name:fall;animation-timing-function:linear;animation-iteration-count:infinite;}
 @keyframes fall{to{transform:translateY(110vh);opacity:0;}}
 .container{max-width:900px;margin:40px auto;padding:36px;background:rgba(255,255,255,.25);backdrop-filter:blur(14px);border-radius:24px;color:#000;text-align:center;}
 img{width:100%;max-height:280px;object-fit:cover;border-radius:18px;margin:16px 0;}
@@ -24,7 +24,7 @@ button{padding:12px 28px;margin:14px;border:none;border-radius:18px;background:#
 <body>
 
 <video autoplay muted loop id="bgVideo" src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/forest.mp4"></video>
-<div class="rain" id="rain"></div>
+<div class="rain-container" id="rain"></div>
 
 <div class="container" id="app">
   <h1>🌿 Calm Thinking Interactive Journey</h1>
@@ -45,21 +45,24 @@ button{padding:12px 28px;margin:14px;border:none;border-radius:18px;background:#
 const app=document.getElementById("app");
 const ambience=document.getElementById("ambience");
 const bgVideo=document.getElementById("bgVideo");
-const rain=document.getElementById("rain");
+const rainContainer=document.getElementById("rain");
 const voiceSelect=document.getElementById("voiceSelect");
 const synth=window.speechSynthesis;
 
 let step=0,responses=[],selectedVoice='none',flow=[],mood='Neutral';
 
-/* ---------- RAIN ---------- */
-for(let i=0;i<150;i++){
-  const drop=document.createElement("div");
-  drop.className="drop";
-  drop.style.left=Math.random()*100+"%";
-  drop.style.animationDuration=(0.5+Math.random()*1.2)+"s";
-  drop.style.animationDelay=(Math.random()*5)+"s";
-  rain.appendChild(drop);
+/* ---------- FIXED ORIGINAL RAIN ---------- */
+function createRain(count){
+  for(let i=0;i<count;i++){
+    const drop=document.createElement("div");
+    drop.className="drop";
+    drop.style.left=Math.random()*100+"%";
+    drop.style.animationDuration=(0.5+Math.random()*0.5)+"s";
+    drop.style.animationDelay=Math.random()*5+"s";
+    rainContainer.appendChild(drop);
+  }
 }
+createRain(100); // properly working rain
 
 /* ---------- RANDOMIZED QUESTION SETS ---------- */
 const questionSets=[
