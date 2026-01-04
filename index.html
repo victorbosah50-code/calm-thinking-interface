@@ -1,125 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌟 Calm Thinking Interface 🌟</title>
+<meta charset="UTF‑8">
+<meta name="viewport" content="width=device‑width, initial‑scale=1.0">
+<title>🌿 Calm Thinking Interface 🌿</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  /* ===== Global Styles ===== */
-  body, html {
-    margin: 0; padding: 0;
-    width: 100%; height: 100%;
-    font-family: 'Nunito', sans-serif;
-    overflow: hidden;
-    display: flex; justify-content: center; align-items: center;
-    background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
-    transition: background 1s ease;
-  }
 
-  /* ===== Particle Canvas ===== */
-  #particleCanvas {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
-  }
+/* == Background video */
+#bgVideo {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: -2;
+  opacity: 0.5;
+}
+body {
+  margin: 0; padding: 0;
+  width: 100%; height: 100%;
+  font-family: 'Nunito', sans-serif;
+  overflow: hidden;
+  background: #000;
+}
 
-  /* ===== Container ===== */
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 650px;
-    width: 90%;
-    background: rgba(255,255,255,0.88);
-    padding: 35px;
-    border-radius: 16px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    text-align: center;
-    overflow: hidden;
-  }
+/* == Particle overlay */
+#particleCanvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z‑index: -1;
+  pointer-events: none;
+}
 
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 20px;
-    opacity: 0;
-    animation: fadeBounce 1.5s forwards;
-  }
+/* == UI container */
+.container {
+  position: relative;
+  z‑index: 1;
+  max-width: 700px;
+  width: 90%;
+  background: rgba(255,255,255,0.88);
+  padding: 30px 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  text-align: center;
+}
 
-  p { line-height: 1.6; font-size: 1.1rem; }
+h1 {
+  font-size: 2rem;
+  margin-bottom: 22px;
+  opacity: 0;
+  animation: fadeBounce 1.5s forwards;
+}
+p { line-height: 1.6; font-size: 1.1rem; }
 
-  textarea {
-    width: 100%;
-    height: 100px;
-    margin-top: 20px;
-    font-size: 1rem;
-    padding: 12px;
-    resize: none;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    transition: box-shadow 0.3s;
-  }
+textarea {
+  width: 100%;
+  height: 100px;
+  margin-top: 20px;
+  font-size: 1rem;
+  padding: 12px;
+  resize: none;
+  border-radius: 8px;
+  border: 1px solid #bbb;
+  transition: box-shadow 0.3s;
+}
+textarea:focus {
+  outline: none;
+  box-shadow: 0 0 12px #4a90e2;
+}
 
-  textarea:focus {
-    outline: none;
-    box-shadow: 0 0 10px #4a90e2;
-  }
+button {
+  margin-top: 18px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  background-color: #4a90e2;
+  color: white;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+button:hover {
+  transform: scale(1.07);
+  box-shadow: 0 4px 15px rgba(74,144,226,0.4);
+}
 
-  button {
-    margin-top: 20px;
-    padding: 12px 20px;
-    font-size: 1rem;
-    cursor: pointer;
-    border: none;
-    border-radius: 8px;
-    background-color: #4a90e2;
-    color: white;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
+.footer { font-size: 0.8rem; color: #444; margin-top: 25px; }
 
-  button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(74,144,226,0.4);
-  }
+.summary {
+  background-color: rgba(255,255,255,0.96);
+  padding: 28px;
+  border-radius: 16px;
+  margin-top: 25px;
+  white-space: pre-wrap;
+  font-size: 1rem;
+  line-height: 1.7;
+  opacity: 0;
+  transition: opacity 1s;
+}
 
-  .footer {
-    font-size: 0.8rem; color: #555;
-    margin-top: 25px;
-  }
-
-  .summary {
-    background-color: rgba(238,245,249,0.95); 
-    padding: 25px; 
-    border-radius: 16px; 
-    margin-top: 25px; 
-    white-space: pre-wrap; 
-    font-size: 1.05rem;
-    line-height: 1.7;
-    opacity: 0;
-  }
-
-  /* ===== Animations ===== */
-  @keyframes fadeBounce {
-    0% { opacity: 0; transform: translateY(-20px);}
-    50% { opacity: 1; transform: translateY(10px);}
-    100% { opacity: 1; transform: translateY(0);}
-  }
-
+@keyframes fadeBounce {
+  0% { opacity: 0; transform: translateY(-20px);}
+  50% { opacity: 1; transform: translateY(8px);}
+  100% { opacity: 1; transform: translateY(0);}
+}
 </style>
 </head>
 <body>
 
+<!-- -->  
+<video autoplay muted loop id="bgVideo">
+<!-- Replace the source URL below with a free CC0 nature video link before deployment -->
+<source src="https://cdn.pixabay.com/videvo_files/video/free/2019/04/30/large_watermarked/190430_B_123_nature_lake_preview.mp4" type="video/mp4">
+</video>
+
 <canvas id="particleCanvas"></canvas>
 
 <div class="container">
-  <h1 id="title">🌟 Hello, Brilliant Mind! 🌟</h1>
-  <p id="prompt">Take a deep breath, smile, and get ready for a calm reflection journey. 🌸</p>
-  <textarea id="input" placeholder="Type here..."></textarea>
-  <button onclick="nextStep()">Let’s Begin</button>
+  <h1 id="title">🌿 Embrace Calm & Clarity 🌿</h1>
+  <p id="prompt">Take a deep breath… you’re entering a peaceful reflection space. Ready? 😊</p>
+  <textarea id="input" placeholder="Begin typing..."></textarea>
+  <button onclick="nextStep()">Next</button>
+  
+  <button id="backBtn" onclick="goBack()" style="display:none; margin-left:10px;">⬅️ Back</button>
+  <button id="restartBtn" onclick="restartReflection()" style="display:none;">🔄 Restart</button>
+
   <div class="footer">
     This tool supports reflection only. No data is saved or tracked.
   </div>
 </div>
 
 <script>
-// ===== Particle Engine =====
+// ===== Particle Overlay =====
 const canvas = document.getElementById('particleCanvas');
 const ctx = canvas.getContext('2d');
 let particles = [];
@@ -133,13 +146,13 @@ resizeCanvas();
 
 function initParticles() {
   particles = [];
-  for (let i=0; i<120; i++) {
+  for (let i=0; i<100; i++) {
     particles.push({
       x: Math.random()*canvas.width,
       y: Math.random()*canvas.height,
-      radius: Math.random()*3+1,
-      speedX: (Math.random()-0.5)*0.2,
-      speedY: (Math.random()-0.5)*0.2
+      r: Math.random()*2+1,
+      dx: (Math.random()-0.5)*0.3,
+      dy: (Math.random()-0.5)*0.3
     });
   }
 }
@@ -149,21 +162,20 @@ function drawParticles() {
   ctx.clearRect(0,0,canvas.width,canvas.height);
   for (let p of particles) {
     ctx.beginPath();
-    ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
-    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fillStyle = "rgba(255,255,255,0.3)";
     ctx.fill();
-    p.x += p.speedX;
-    p.y += p.speedY;
-    if(p.x < 0) p.x = canvas.width;
-    if(p.x > canvas.width) p.x = 0;
-    if(p.y < 0) p.y = canvas.height;
-    if(p.y > canvas.height) p.y = 0;
+    p.x += p.dx; p.y += p.dy;
+    if(p.x<0) p.x=canvas.width;
+    if(p.x>canvas.width) p.x=0;
+    if(p.y<0) p.y=canvas.height;
+    if(p.y>canvas.height) p.y=0;
   }
   requestAnimationFrame(drawParticles);
 }
 drawParticles();
 
-// ===== User Interaction =====
+// ===== Reflection Logic =====
 let current = 0;
 const responses = [];
 
@@ -175,85 +187,100 @@ const moodColors = {
 };
 
 const steps = [
-  { title:"Introduction", text:"Take a moment to breathe, smile, and get ready for a calm reflection.", reflection:false },
-  { title:"Focus", text:"What situation or decision is currently on your mind?", reflection:true, followup:"You’ve identified this focus. Let’s explore it." },
-  { title:"Facts", text:"What facts do you know for certain right now?", reflection:true, followup:"Noting facts clarifies reality separate from assumptions." },
-  { title:"Assumptions", text:"What are you assuming might be true?", reflection:true, followup:"Reflecting on assumptions can highlight uncertainties." },
-  { title:"Control", text:"Which parts of this situation are within your control? Which are not?", reflection:true, followup:"Focusing on control areas can reduce stress." },
-  { title:"Time", text:"If no action were taken for 24 hours, what would realistically change?", reflection:true, followup:"Considering time helps perspective and patience." },
-  { title:"Next Step", text:"What is one small, non-urgent step you could take — or nothing at all?", reflection:true, followup:"Even a tiny step is progress." },
-  { title:"Mood Selection", text:"Before we conclude, how are you feeling now? (Calm, Neutral, Stressed, Thoughtful)", reflection:false },
+  { title:"Intro", text:"Take a moment to breathe and smile before we begin.", reflection:false },
+  { title:"Focus", text:"What’s on your mind right now?", reflection:true, followup:"Got it — let’s reflect more." },
+  { title:"Facts", text:"What facts do you know for sure about it?", reflection:true, followup:"Facts ground your thinking." },
+  { title:"Assumptions", text:"What might you be assuming?", reflection:true, followup:"Assumptions can be reframed." },
+  { title:"Control", text:"Which parts are in your control?", reflection:true, followup:"Focus where you can influence." },
+  { title:"Time", text:"If 24 hours passed with no action, what would change?", reflection:true, followup:"Time brings perspective." },
+  { title:"Next Step", text:"One small non-urgent step you could take?", reflection:true, followup:"Small steps carry peace." },
+  { title:"Mood", text:"How are you feeling now? (Calm, Neutral, Stressed, Thoughtful)", reflection:false },
   { title:"Conclusion", text:"", reflection:false }
 ];
 
 function renderStep() {
   const step = steps[current];
-  document.getElementById("title").innerText = step.title === "Introduction" ? "🌟 Hello, Brilliant Mind! 🌟" : step.title;
+  document.getElementById("title").innerText = step.title==="Intro" ? "🌿 Embrace Calm & Clarity 🌿" : step.title;
   document.getElementById("prompt").innerText = step.text;
   const inputArea = document.getElementById("input");
-  if(step.title === "Conclusion") {
+  const backBtn = document.getElementById("backBtn");
+  const restartBtn = document.getElementById("restartBtn");
+
+  if(step.title==="Conclusion") {
     inputArea.style.display="none";
-    document.querySelector("button").style.display="none";
+    document.querySelector("button[onclick='nextStep()']").style.display="none";
+    backBtn.style.display="none";
+    restartBtn.style.display="block";
     showSummary();
     return;
-  } else {
-    inputArea.style.display="block";
   }
+  
+  inputArea.style.display="block";
+  document.querySelector("button[onclick='nextStep()']").style.display="inline-block";
+  restartBtn.style.display="none";
+  backBtn.style.display = current>0 ? "inline-block" : "none";
+
   inputArea.value="";
-  inputArea.placeholder = step.title==="Mood Selection"?"Type Calm, Neutral, Stressed, or Thoughtful":"Type here...";
+  inputArea.placeholder = step.title==="Mood"? "Calm, Neutral, Stressed, Thoughtful":"Type here...";
 }
 
 function nextStep() {
   const step = steps[current];
   const userInput = document.getElementById("input").value.trim();
-  if(step.reflection && userInput==="") { alert("Please type something before continuing."); return; }
+  if(step.reflection && userInput==="") { alert("Type something to continue."); return; }
   if(step.reflection) responses.push({step:step.title,input:userInput});
-  if(step.title==="Mood Selection") {
-    const gradient = moodColors[userInput] || moodColors["Neutral"];
-    document.body.style.background = gradient;
+  if(step.title==="Mood") {
+    document.body.style.background = moodColors[userInput] || moodColors["Neutral"];
   }
   if(step.reflection) {
     document.getElementById("prompt").innerText = step.followup;
     document.getElementById("input").value="";
-    document.querySelector("button").disabled = true;
-    setTimeout(()=>{ document.querySelector("button").disabled=false; current++; renderStep(); }, 4000);
+    document.querySelector("button[onclick='nextStep()']").disabled=true;
+    setTimeout(()=>{ document.querySelector("button[onclick='nextStep()']").disabled=false; current++; renderStep(); },2500);
   } else { current++; renderStep(); }
 }
 
-// ===== Word-by-word conclusion animation =====
-function showSummary() {
-  const container = document.querySelector(".container");
-  const summaryDiv = document.createElement("div");
-  summaryDiv.className="summary";
-  container.appendChild(summaryDiv);
+function goBack() {
+  if(current>0) { current--; responses.pop(); renderStep(); }
+}
 
-  const lines = [
-    "🌈 Your Reflection Journey 🌈",
-    "",
-    ...responses.map(r=>`${r.step}: ${r.input}`),
-    "",
-    "💖 Take a deep breath, smile, and feel proud of yourself! 💖",
-    "You’ve taken time to reflect, notice what you can control, and plan a tiny step forward.",
-    "Imagine gentle waves rocking a little boat — that’s your mind now.",
-    "Even the smallest mindful action sends ripples of joy and calm.",
-    "Remember: You are amazing, and the world is brighter because of your thoughtful heart. 🌸😊"
+function restartReflection() {
+  current=0; responses.length=0;
+  document.querySelector(".summary")?.remove();
+  renderStep();
+}
+
+function showSummary() {
+  const container=document.querySelector(".container");
+  const summary=document.createElement("div");
+  summary.className="summary";
+  container.appendChild(summary);
+
+  const lines=[
+    "🌈 Your Reflection Journey 🌈", "",
+    ...responses.map(r=>`${r.step}: ${r.input}`), "",
+    "💖 Breathe… smile… and feel peaceful! 💖",
+    "You took the time to reflect, to see what you can control,",
+    "and to find a gentle next step forward.",
+    "You are calm, you are capable, and peace follows you.",
+    "Thank you for being thoughtful — the world shines brighter with you. 🌸😊"
   ];
 
   let i=0;
-  function showNextLine() {
-    if(i<lines.length){
-      summaryDiv.innerText += lines[i]+"\n";
-      summaryDiv.style.opacity=1;
+  function animateLine() {
+    if(i<lines.length) {
+      summary.innerText += lines[i]+"\n";
+      summary.style.opacity=1;
       i++;
-      setTimeout(showNextLine, 600);
+      setTimeout(animateLine, 500);
     }
   }
-  showNextLine();
+  animateLine();
 }
 
-// Initial render
+// Render initial step
 renderStep();
-</script>
 
+</script>
 </body>
 </html>
