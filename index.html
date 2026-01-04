@@ -110,6 +110,7 @@ button{
 const app=document.getElementById("app");
 const ambience=document.getElementById("ambience");
 const rain=document.getElementById("rain");
+const synth=window.speechSynthesis;
 
 let step=0;
 let responses=[];
@@ -143,6 +144,16 @@ const images=[
   "https://images.unsplash.com/photo-1501785888041-af3ef285b470"
 ];
 
+/* ---------- VOICE ---------- */
+function speak(text){
+  if(!synth) return;
+  synth.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.rate=0.9;
+  u.pitch=1;
+  synth.speak(u);
+}
+
 /* ---------- START ---------- */
 startBtn.onclick=()=>{
   ambience.volume=.45;
@@ -156,6 +167,8 @@ function renderStep(){
 
   if(flow[step]==="BREATH"){ breathing(); return; }
 
+  speak(flow[step]);
+
   app.innerHTML=`
     <h2>${flow[step]}</h2>
     <img src="${images[step]}" alt="Calm nature">
@@ -167,44 +180,36 @@ function renderStep(){
     const text=app.querySelector("textarea").value.trim();
     if(!text){alert("Even a few words are enough.");return;}
     responses.push(text);
-    brainGame(step);
+
+    /* ---------- Insert brain/trivia game after every 2 responses ---------- */
+    if(responses.length % 2 === 0){
+      triviaGame();
+    } else {
+      brainGame(step);
+    }
   };
 }
 
 /* ---------- THERAPEUTIC BRAIN GAMES ---------- */
 function brainGame(i){
   const games=[
-    {
-      title:"Thought Unloading",
-      task:"Write three thoughts you want to temporarily set down."
-    },
-    {
-      title:"Emotional Reframe",
-      task:"Rewrite one sentence you wrote, but with compassion."
-    },
-    {
-      title:"Release Practice",
-      task:"List what you cannot control. Imagine placing it aside."
-    },
-    {
-      title:"Focus Narrowing",
-      task:"Choose ONE small thing you can influence today."
-    },
-    {},
-    {
-      title:"Self-Care Planning",
-      task:"Write one gentle action you will do for yourself."
-    }
+    "Write three thoughts you want to gently set aside.",
+    "Rewrite one sentence you wrote with kindness.",
+    "Name one thing you are carrying that is not yours to carry.",
+    "Choose one small focus that feels manageable.",
+    "",
+    "Name one gentle action you will take today."
   ];
 
-  const g=games[i];
-  if(!g.title){step++;renderStep();return;}
+  if(!games[i]){step++;renderStep();return;}
+
+  speak(games[i]);
 
   app.innerHTML=`
     <div class="card">
-      <h3>🧠 ${g.title}</h3>
-      <p>${g.task}</p>
-      <textarea placeholder="This space is just for you."></textarea>
+      <h3>🧠 Therapeutic Focus</h3>
+      <p>${games[i]}</p>
+      <textarea></textarea>
       <button>Continue</button>
     </div>
   `;
@@ -215,9 +220,43 @@ function brainGame(i){
   };
 }
 
+/* ---------- TRIVIA / MICRO-GAMES ---------- */
+function triviaGame(){
+  const questions=[
+    {q:"Which of these is a calming practice?","a":["Meditation","Scrolling social media","Rushing tasks"],"c":"Meditation"},
+    {q:"Which sense is most often used for grounding?","a":["Sight","Taste","Touch"],"c":"Touch"},
+    {q:"Which of these is a healthy mental habit?","a":["Ignoring feelings","Labeling emotions","Suppressing thoughts"],"c":"Labeling emotions"}
+  ];
+  const game=questions[Math.floor(Math.random()*questions.length)];
+
+  let options="";
+  game.a.forEach(opt=>{
+    options+=`<button>${opt}</button>`;
+  });
+
+  app.innerHTML=`
+    <div class="card">
+      <h3>🧩 Mindfulness Trivia</h3>
+      <p>${game.q}</p>
+      ${options}
+    </div>
+  `;
+
+  const btns=app.querySelectorAll("button");
+  btns.forEach(b=>{
+    b.onclick=()=>{
+      alert(b.textContent===game.c ? "✅ Correct! Well done." : "⚠️ That's okay, just reflect on it.");
+      step++;
+      renderStep();
+    };
+  });
+}
+
 /* ---------- BREATHING ---------- */
 function breathing(){
   let p=0;
+  speak("Follow the breath. Inhale. Hold. Exhale.");
+
   app.innerHTML=`
     <h2>🌌 Guided Breathing</h2>
     <p class="small">Follow the rhythm. Nothing else to do.</p>
@@ -241,31 +280,32 @@ function breathing(){
 
 /* ---------- CONCLUSION ---------- */
 function conclude(){
+  speak("You showed up for yourself today.");
+
   app.innerHTML=`
     <h2>🌱 Session Complete</h2>
-    <p>You took time to listen to yourself. That is meaningful.</p>
 
     <div class="card">
       <h3>📖 Word of the Day</h3>
-      <p><strong>Gentleness</strong><br>Allowing yourself softness without guilt.</p>
+      <p><strong>Gentleness</strong><br>Allowing softness without guilt.</p>
     </div>
 
     <div class="card">
       <h3>💬 Quote of the Day</h3>
-      <p><em>"You do not have to be harsh to grow."</em></p>
+      <p><em>You do not have to be harsh to grow.</em></p>
     </div>
 
     <div class="card">
       <h3>🗣️ Idiom of the Day</h3>
-      <p><strong>One step at a time</strong><br>Progress comes from presence, not pressure.</p>
+      <p><strong>One step at a time</strong><br>Progress happens through presence.</p>
     </div>
 
     <div class="card">
       <h3>📜 Parable of the Day</h3>
-      <p>A traveler rested beneath a tree and realized the journey felt lighter when he stopped rushing.</p>
+      <p>A traveler rested beneath a tree and found the journey lighter.</p>
     </div>
 
-    <p class="small">Carry this calm with you. You can return anytime.</p>
+    <p class="small">Return anytime. This space remembers you.</p>
   `;
 }
 </script>
