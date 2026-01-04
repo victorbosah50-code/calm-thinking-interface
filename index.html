@@ -3,302 +3,273 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌿 Calm Thinking Interactive Journey 🌿</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
-<link rel="icon" href="https://source.unsplash.com/40x40/?nature" id="favicon">
-<style>
-body, html { margin:0; padding:0; width:100%; height:100%; font-family:'Nunito',sans-serif; display:flex; justify-content:center; align-items:center; background:#000; overflow:hidden; }
-video#bgVideo { position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1; opacity:0.6; }
-.rain-container { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
-.drop { position:absolute; width:2px; height:15px; background:rgba(255,255,255,0.3); bottom:100%; animation-name:fall; animation-timing-function: linear; }
-@keyframes fall { to { transform: translateY(110vh); opacity:0; } }
+<title>🌿 Calm Thinking</title>
 
-.container { position:relative; z-index:1; max-width:900px; width:90%; background:rgba(255,255,255,0.25); backdrop-filter: blur(10px); padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.4); display:flex; flex-direction:column; align-items:center; text-align:center; transition:all 0.5s; color:#000; }
-h1 { font-size:2rem; margin-bottom:15px; opacity:0; animation:fadeBounce 1.5s forwards; }
-p { line-height:1.6; font-size:1.1rem; color:#000; }
-textarea { width:100%; height:120px; margin:15px 0; padding:12px; border-radius:10px; border:2px solid #a0d8ef; font-family:'Nunito'; font-size:1rem; resize:vertical; background:rgba(255,255,255,0.9); color:#000; }
-button { padding:12px 24px; margin:10px; font-size:1rem; border:none; border-radius:10px; background:#4a90e2; color:#fff; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; }
-button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(74,144,226,0.4); }
-.breathing-circle { width:180px; height:180px; border-radius:50%; background:radial-gradient(circle,#a8edea,#89dceb); display:flex; align-items:center; justify-content:center; color:black; font-weight:600; font-size:1.5rem; margin:20px auto; cursor:pointer; transition:all 1s linear; }
-.breathing-circle.expanding { transform:scale(1.8); background:radial-gradient(circle,#fed6e3,#fcb7d2);}
-select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8ef; font-size:1rem; cursor:pointer; }
-.game-area { margin:15px 0; padding:15px; background:rgba(255,255,255,0.2); border-radius:12px; width:100%; text-align:center; color:#000; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);}
-canvas { background:green; border-radius:12px; margin-top:15px; }
-.summary { background:rgba(255,255,255,0.3); backdrop-filter:blur(8px); padding:25px; border-radius:16px; margin-top:15px; white-space:pre-wrap; font-size:1rem; line-height:1.6; color:#000; }
-@keyframes fadeBounce {0%{opacity:0;transform:translateY(-20px);}50%{opacity:1;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);} }
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<link id="favicon" rel="icon" href="https://source.unsplash.com/32x32/?nature">
+
+<style>
+html,body{
+  margin:0;height:100%;font-family:'Nunito',sans-serif;
+  display:flex;justify-content:center;align-items:center;
+  background:black;overflow:hidden;
+}
+video{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  object-fit:cover;z-index:-2;opacity:.6;
+}
+.container{
+  width:90%;max-width:850px;
+  background:rgba(255,255,255,.25);
+  backdrop-filter:blur(10px);
+  padding:30px;border-radius:18px;
+  text-align:center;color:black;
+}
+button{
+  padding:12px 22px;border:none;border-radius:10px;
+  background:#4a90e2;color:white;font-size:1rem;
+  cursor:pointer;margin:10px;
+}
+button:hover{transform:scale(1.05)}
+textarea{
+  width:100%;height:120px;
+  border-radius:10px;padding:12px;
+  border:2px solid #a0d8ef;font-size:1rem;
+}
+.breathing{
+  width:180px;height:180px;border-radius:50%;
+  margin:20px auto;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;font-weight:bold;
+  background:radial-gradient(circle,#a8edea,#89dceb);
+  transition:1s;
+}
+.expand{transform:scale(1.8)}
+canvas{background:#145214;border-radius:12px;margin-top:15px}
+.game-box{
+  background:rgba(255,255,255,.2);
+  border-radius:12px;padding:15px;margin-top:15px;
+}
 </style>
 </head>
+
 <body>
 
-<video autoplay muted loop id="bgVideo">
-  <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
+<video id="bgVideo" autoplay muted loop>
+  <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4">
 </video>
 
-<div class="rain-container" id="rain"></div>
-
-<div class="container" id="mainContainer">
-  <h1>🌿 Welcome to Calm Thinking 🌿</h1>
-  <p>Take a deep breath and prepare for a reflective journey. Press "Start" to begin!</p>
-
-  <label for="bgSelect">Choose Background:</label>
-  <select id="bgSelect">
-    <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4">Flowers</option>
-    <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/river.mp4">River</option>
-    <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/forest.mp4">Forest</option>
-  </select>
-
-  <label for="soundSelect">Choose Ambient Sound:</label>
-  <select id="soundSelect">
-    <option value="rainforest">Rainforest (Birds + Rain)</option>
-    <option value="rainstorm">Storm & Thunder</option>
-    <option value="gentlerain">Gentle Rain</option>
-    <option value="birdsstream">Birds & Stream</option>
-  </select>
-
-  <label for="breathingSelect">Choose Breathing Exercise:</label>
-  <select id="breathingSelect">
-    <option value="478">4-7-8 Breathing</option>
-    <option value="box">Box Breathing</option>
-  </select>
-
-  <button id="startButton">Start</button>
+<div class="container" id="app">
+  <h1>🌿 Calm Thinking 🌿</h1>
+  <p>Press start to begin your mindful journey</p>
+  <button id="startBtn">Start</button>
 </div>
 
-<audio id="ambientAudio" loop></audio>
-<audio id="thunderAudio"></audio>
+<audio id="ambient" loop></audio>
 
 <script>
+/* -------------------- CORE STATE -------------------- */
+const app = document.getElementById("app");
 const bgVideo = document.getElementById("bgVideo");
-const ambientAudio = document.getElementById("ambientAudio");
-const thunderAudio = document.getElementById("thunderAudio");
-const startButton = document.getElementById("startButton");
-const bgSelect = document.getElementById("bgSelect");
-const soundSelect = document.getElementById("soundSelect");
-const breathingSelect = document.getElementById("breathingSelect");
-const container = document.getElementById("mainContainer");
-const rainContainer = document.getElementById("rain");
-const favicon=document.getElementById("favicon");
+const ambient = document.getElementById("ambient");
+const favicon = document.getElementById("favicon");
 
-let currentStep=0;
-let responses=[];
-let breathingInterval;
+let step = 0;
+let responses = [];
+let breatheTimer = null;
 
-// Ambient sounds
-const ambientOptions = {
-  rainforest:{url:"https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3",thunder:false},
-  rainstorm:{url:"https://www.orangefreesounds.com/wp-content/uploads/2022/02/Thunderstorm-sound.mp3",thunder:true},
-  gentlerain:{url:"https://bigsoundbank.com/UPLOAD/mp3/0055.mp3",thunder:false},
-  birdsstream:{url:"https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3",thunder:false}
-};
-
-// Reflection steps
-const steps=[
-  {title:"Focus", text:"What’s on your mind right now?", reflection:true},
-  {title:"Facts", text:"What facts do you know for sure?", reflection:true},
-  {title:"Assumptions", text:"What assumptions are you making?", reflection:true},
-  {title:"Control", text:"What can you control in this situation?", reflection:true},
-  {title:"Breathing", text:"Time to relax with a breathing exercise.", reflection:false, breathing:true},
-  {title:"Next Step", text:"What is one small step you can take?", reflection:true},
-  {title:"Conclusion", text:"", reflection:false}
+/* -------------------- STEPS -------------------- */
+const steps = [
+  "What’s on your mind right now?",
+  "What facts do you know for sure?",
+  "What assumptions are you making?",
+  "What can you control?",
+  "BREATH",
+  "What is one small next step?"
 ];
 
-// --- Start Journey ---
-startButton.onclick = ()=>{
-  setAmbient(soundSelect.value);
-  bgVideo.src=bgSelect.value; bgVideo.load();
-  startButton.style.display="none";
-  createRain(100);
+/* -------------------- START BUTTON (FIXED) -------------------- */
+document.getElementById("startBtn").onclick = () => {
+  ambient.src = "https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3";
+  ambient.volume = .5;
+  ambient.play();
+
   renderStep();
 };
-bgSelect.onchange=()=>{ bgVideo.src=bgSelect.value; bgVideo.load(); };
-soundSelect.onchange=()=>{ setAmbient(soundSelect.value); };
 
-function setAmbient(key){
-  const option=ambientOptions[key];
-  ambientAudio.src=option.url; ambientAudio.volume=0.5; ambientAudio.play();
-  if(option.thunder){
-    thunderAudio.src="https://orangefreesounds.com/wp-content/uploads/2022/02/Thunder-sound.mp3";
-    thunderAudio.volume=0.7;
-    setInterval(()=>{ thunderAudio.play(); },15000+Math.random()*10000);
-  }
-}
-
-function createRain(count){
-  for(let i=0;i<count;i++){
-    const drop=document.createElement("div");
-    drop.className="drop";
-    drop.style.left=Math.random()*100+"%";
-    drop.style.animationDuration=(0.5+Math.random()*0.5)+"s";
-    drop.style.animationDelay=Math.random()*5+"s";
-    rainContainer.appendChild(drop);
-  }
-}
-
-// --- Render Step ---
+/* -------------------- RENDER STEPS -------------------- */
 function renderStep(){
-  clearInterval(breathingInterval);
-  if(currentStep>=steps.length){ showConclusion(); return; }
-  const step=steps[currentStep];
+  clearInterval(breatheTimer);
 
-  // Update tab with live nature image
-  document.title=step.title+" 🌿 Calm Thinking";
-  favicon.href=`https://source.unsplash.com/40x40/?nature,${currentStep}`;
+  favicon.href = `https://source.unsplash.com/32x32/?nature,${step}`;
+  document.title = `🌿 ${steps[step]}`;
 
-  container.innerHTML=`<h1>${step.title}</h1><p>${step.text}</p>`;
+  if(steps[step] === "BREATH"){
+    renderBreathing();
+    return;
+  }
 
-  if(step.reflection){
-    const textarea=document.createElement("textarea");
-    textarea.placeholder="Type here..."; container.appendChild(textarea);
-    const nextBtn=document.createElement("button"); nextBtn.innerText="Next";
-    nextBtn.onclick=()=>{
-      if(textarea.value.trim()===""){ alert("Enter a response"); return; }
-      responses.push({step:step.title,input:textarea.value});
-      renderBrainGame(textarea.value);
-    };
-    container.appendChild(nextBtn);
+  app.innerHTML = `
+    <h1>${steps[step]}</h1>
+    <textarea placeholder="Type your thoughts..."></textarea>
+    <button>Next</button>
+  `;
 
-  } else if(step.breathing){
-    startBreathingExercise();
-  } else{ currentStep++; renderStep(); }
-}
-
-// --- Breathing ---
-function startBreathingExercise(){
-  const pattern=breathingSelect.value;
-  const circle=document.createElement("div"); circle.className="breathing-circle"; circle.innerText="Breathe";
-  container.appendChild(circle);
-
-  let inhale=4000, hold=7000, exhale=8000;
-  if(pattern==="box"){ inhale=4000; hold=4000; exhale=4000; }
-
-  let phase=0;
-  breathingInterval=setInterval(()=>{
-    if(phase===0){ circle.innerText="Inhale"; circle.classList.add("expanding"); phase=1; }
-    else if(phase===1){ circle.innerText="Hold"; phase=2; }
-    else{ circle.innerText="Exhale"; circle.classList.remove("expanding"); phase=0; }
-  },1000);
-
-  const nextBtn=document.createElement("button"); nextBtn.innerText="Next";
-  nextBtn.onclick=()=>{
-    clearInterval(breathingInterval); currentStep++; renderStep();
+  app.querySelector("button").onclick = () => {
+    const txt = app.querySelector("textarea").value.trim();
+    if(!txt) return alert("Please type something");
+    responses.push(txt);
+    renderBrainGame(txt);
   };
-  container.appendChild(nextBtn);
 }
 
-// --- Brain Game (new) ---
-function renderBrainGame(input){
-  container.innerHTML=`<h1>🧠 Brain Challenge</h1>
-  <div class="game-area">
-    <p>Find all unique letters from your response: "${input}"</p>
-    <div id="letters"></div>
-  </div>`;
-  const lettersDiv=document.getElementById("letters");
-  const letters=[...new Set(input.replace(/[^a-zA-Z]/g,"").toUpperCase().split(""))];
-  let found=[];
+/* -------------------- BREATHING (FIXED) -------------------- */
+function renderBreathing(){
+  app.innerHTML = `
+    <h1>🫁 Breathing</h1>
+    <div class="breathing" id="circle">Inhale</div>
+    <button>Next</button>
+  `;
+
+  const circle = document.getElementById("circle");
+  let phase = 0;
+
+  breatheTimer = setInterval(()=>{
+    if(phase===0){circle.textContent="Inhale";circle.classList.add("expand")}
+    if(phase===1){circle.textContent="Hold"}
+    if(phase===2){circle.textContent="Exhale";circle.classList.remove("expand")}
+    phase = (phase+1)%3;
+  },2000);
+
+  app.querySelector("button").onclick = ()=>{
+    clearInterval(breatheTimer);
+    step++;
+    renderStep();
+  };
+}
+
+/* -------------------- BRAIN GAME (NEW) -------------------- */
+function renderBrainGame(text){
+  const letters = [...new Set(text.replace(/[^a-z]/gi,"").toUpperCase())];
+
+  app.innerHTML = `
+    <h1>🧠 Focus Game</h1>
+    <div class="game-box">
+      <p>Click all unique letters from your thought</p>
+      <div id="letters"></div>
+    </div>
+  `;
+
+  const box = document.getElementById("letters");
+  let found = 0;
+
   letters.forEach(l=>{
-    const btn=document.createElement("button"); btn.innerText=l;
-    btn.onclick=()=>{
-      btn.disabled=true; found.push(l);
-      if(found.length===letters.length){
-        const cont=document.createElement("button"); cont.innerText="Continue";
-        cont.onclick=()=>{ currentStep++; renderStep(); }; container.appendChild(cont);
+    const b = document.createElement("button");
+    b.textContent = l;
+    b.onclick = ()=>{
+      b.disabled=true;
+      found++;
+      if(found===letters.length){
+        step++;
+        renderStep();
       }
     };
-    lettersDiv.appendChild(btn);
+    box.appendChild(b);
   });
 }
 
-// --- Conclusion & Game Hub ---
-function showConclusion(){
-  container.innerHTML=`<h1>🎉 Congratulations! 🎉</h1>`;
-  const summary=document.createElement("div"); summary.className="summary";
-  summary.innerHTML="🌈 Your Reflection Journey 🌈<br>"+responses.map(r=>`<strong>${r.step}:</strong> ${r.input}`).join("<br>")+
-    "<br><br>💖 Explore games below!";
-  container.appendChild(summary);
-
-  const hub=document.createElement("div");
-  const boardBtn=document.createElement("button"); boardBtn.innerText="Board Games"; boardBtn.onclick=playBoardGames;
-  const basketballBtn=document.createElement("button"); basketballBtn.innerText="Basketball Focus"; basketballBtn.onclick=playBasketball;
-  const poolBtn=document.createElement("button"); poolBtn.innerText="8-Ball Pool"; poolBtn.onclick=playPool;
-  hub.appendChild(boardBtn); hub.appendChild(basketballBtn); hub.appendChild(poolBtn);
-  container.appendChild(hub);
+/* -------------------- CONCLUSION -------------------- */
+function renderConclusion(){
+  app.innerHTML = `
+    <h1>🎉 Well Done</h1>
+    <p>You completed the journey</p>
+    <button onclick="playPool()">🎱 8-Ball Pool</button>
+  `;
 }
 
-// --- Game Hub Placeholders ---
-function playBoardGames(){ alert("Board games coming soon!"); }
-function playBasketball(){ alert("Basketball game coming soon!"); }
-
-// --- Realistic 8-Ball Pool ---
+/* -------------------- POOL GAME (REALISTIC) -------------------- */
 function playPool(){
-  container.innerHTML=`<h1>🎱 8-Ball Pool</h1><canvas id="poolCanvas" width="600" height="300"></canvas>
-  <p>Click to hit cue ball. Pocket balls to score.</p>`;
-  const canvas=document.getElementById("poolCanvas");
-  const ctx=canvas.getContext("2d");
-  const radius=10;
-  const balls=[], pockets=[{x:10,y:10},{x:590,y:10},{x:10,y:290},{x:590,y:290},{x:300,y:10},{x:300,y:290}];
+  app.innerHTML = `
+    <h1>🎱 8-Ball Pool</h1>
+    <canvas id="pool" width="600" height="320"></canvas>
+    <p id="score">Score: 0</p>
+  `;
 
-  // Initialize balls
-  const colors=["yellow","blue","red","purple","orange","green","brown","black"];
-  for(let i=0;i<8;i++){ balls.push({x:50+i*25, y:150, dx:0, dy:0, color:colors[i], potted:false}); }
-  const cue={x:550, y:150, dx:0, dy:0, color:"white"};
+  const c = document.getElementById("pool");
+  const ctx = c.getContext("2d");
+  const scoreEl = document.getElementById("score");
 
-  let shooting=false, score=0;
+  const R = 10;
+  let score = 0;
 
-  canvas.onclick=(e)=>{
-    const rect=canvas.getBoundingClientRect();
-    const mx=e.clientX-rect.left;
-    const my=e.clientY-rect.top;
-    const angle=Math.atan2(my-cue.y, mx-cue.x);
-    const power=5;
-    cue.dx=Math.cos(angle)*power; cue.dy=Math.sin(angle)*power; shooting=true;
-  };
+  const pockets = [
+    {x:10,y:10},{x:300,y:10},{x:590,y:10},
+    {x:10,y:310},{x:300,y:310},{x:590,y:310}
+  ];
 
-  function dist(a,b){ return Math.hypot(a.x-b.x,a.y-b.y); }
-
-  function handleCollisions(){
-    for(let i=0;i<balls.length;i++){
-      if(balls[i].potted) continue;
-      // wall collisions
-      if(balls[i].x-radius<0 || balls[i].x+radius>canvas.width) balls[i].dx*=-1;
-      if(balls[i].y-radius<0 || balls[i].y+radius>canvas.height) balls[i].dy*=-1;
-      // pocket
-      for(const p of pockets){
-        if(dist(balls[i],p)<radius*2){ balls[i].potted=true; score++; }
-      }
-      // collision with cue
-      const dx=balls[i].x-cue.x, dy=balls[i].y-cue.y;
-      const d=Math.hypot(dx,dy);
-      if(d<radius*2){
-        const angle=Math.atan2(dy,dx);
-        const speed=Math.hypot(cue.dx,cue.dy);
-        balls[i].dx=Math.cos(angle)*speed; balls[i].dy=Math.sin(angle)*speed;
-        cue.dx*=0.7; cue.dy*=0.7;
-      }
-      // ball-ball collision
-      for(let j=i+1;j<balls.length;j++){
-        if(balls[j].potted) continue;
-        const dx=balls[j].x-balls[i].x, dy=balls[j].y-balls[i].y;
-        const d=Math.hypot(dx,dy);
-        if(d<radius*2){
-          const angle=Math.atan2(dy,dx);
-          const speed1=Math.hypot(balls[i].dx,balls[i].dy);
-          const speed2=Math.hypot(balls[j].dx,balls[j].dy);
-          balls[i].dx=Math.cos(angle)*speed2; balls[i].dy=Math.sin(angle)*speed2;
-          balls[j].dx=Math.cos(angle)*speed1; balls[j].dy=Math.sin(angle)*speed1;
-        }
-      }
-    }
-    // cue ball wall
-    if(cue.x-radius<0 || cue.x+radius>canvas.width) cue.dx*=-1;
-    if(cue.y-radius<0 || cue.y+radius>canvas.height) cue.dy*=-1;
+  const balls = [];
+  for(let i=0;i<8;i++){
+    balls.push({x:150+i*22,y:160,dx:0,dy:0,color:["yellow","blue","red","purple","orange","green","brown","black"][i],dead:false});
   }
 
-  function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    // pockets
+  const cue = {x:500,y:160,dx:0,dy:0};
+
+  c.onclick = e=>{
+    const r=c.getBoundingClientRect();
+    const a=Math.atan2(e.clientY-r.top-cue.y,e.clientX-r.left-cue.x);
+    cue.dx=Math.cos(a)*5; cue.dy=Math.sin(a)*5;
+  };
+
+  function collide(a,b){
+    const dx=b.x-a.x,dy=b.y-a.y;
+    const d=Math.hypot(dx,dy);
+    if(d<2*R){
+      const ang=Math.atan2(dy,dx);
+      a.dx=-Math.cos(ang);a.dy=-Math.sin(ang);
+      b.dx=Math.cos(ang);b.dy=Math.sin(ang);
+    }
+  }
+
+  function loop(){
+    ctx.clearRect(0,0,c.width,c.height);
+
     pockets.forEach(p=>{
-      ctx.beginPath(); ctx.arc(p.x,p.y,radius*1.5,0,Math.PI*2); ctx.fillStyle="black"; ctx.fill();
+      ctx.beginPath();ctx.arc(p.x,p.y,15,0,Math.PI*2);
+      ctx.fillStyle="black";ctx.fill();
     });
+
     balls.forEach(b=>{
-      if(!b.potted){ ctx.beginPath(); ctx.arc(b.x,b.y,radius,0,Math.PI*2); ctx.fillStyle=b.color; ctx.fill(); }
-      b.x+=b.dx; b.y+=b.dy; b.dx*=0.98; b.dy*=0.98
+      if(b.dead) return;
+      balls.forEach(o=>{if(b!==o && !o.dead) collide(b,o)});
+      b.x+=b.dx;b.y+=b.dy;b.dx*=.98;b.dy*=.98;
+
+      pockets.forEach(p=>{
+        if(Math.hypot(b.x-p.x,b.y-p.y)<15){
+          b.dead=true; score++; scoreEl.textContent="Score: "+score;
+        }
+      });
+
+      ctx.beginPath();
+      ctx.arc(b.x,b.y,R,0,Math.PI*2);
+      ctx.fillStyle=b.color;ctx.fill();
+    });
+
+    cue.x+=cue.dx;cue.y+=cue.dy;cue.dx*=.98;cue.dy*=.98;
+    ctx.beginPath();ctx.arc(cue.x,cue.y,R,0,Math.PI*2);
+    ctx.fillStyle="white";ctx.fill();
+
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+/* AUTO FINISH */
+const finishCheck = setInterval(()=>{
+  if(step>=steps.length){
+    clearInterval(finishCheck);
+    renderConclusion();
+  }
+},300);
+</script>
+</body>
+</html>
