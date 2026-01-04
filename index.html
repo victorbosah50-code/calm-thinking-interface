@@ -1,130 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Calm Thinking Interface</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #f5f6f7;
-      color: #222;
-      display: flex;
-      justify-content: center;
-      padding: 40px;
-    }
-
-    .container {
-      max-width: 600px;
-      background: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-
-    h1 {
-      font-size: 1.3rem;
-      margin-bottom: 10px;
-    }
-
-    p {
-      line-height: 1.5;
-    }
-
-    textarea {
-      width: 100%;
-      height: 120px;
-      margin-top: 15px;
-      font-size: 1rem;
-      padding: 10px;
-      resize: none;
-    }
-
-    button {
-      margin-top: 20px;
-      padding: 10px 16px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-
-    .footer {
-      font-size: 0.8rem;
-      color: #555;
-      margin-top: 30px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calm Thinking Interface</title>
+<style>
+  body {
+    font-family: system-ui, sans-serif;
+    margin: 0; padding: 0;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh;
+    background-color: #f0f4f8;
+    transition: background-color 0.5s;
+  }
+  .container {
+    max-width: 600px;
+    width: 90%;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  h1 { margin-bottom: 10px; font-size: 1.4rem; }
+  p { line-height: 1.5; }
+  textarea {
+    width: 100%;
+    height: 100px;
+    margin-top: 15px;
+    font-size: 1rem;
+    padding: 10px;
+    resize: none;
+  }
+  button {
+    margin-top: 20px;
+    padding: 10px 16px;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    background-color: #4a90e2;
+    color: white;
+  }
+  .footer { font-size: 0.8rem; color: #555; margin-top: 25px; }
+  .summary { background-color: #eef5f9; padding: 15px; border-radius: 8px; margin-top: 20px; }
+</style>
 </head>
-
 <body>
-  <div class="container">
-    <h1 id="title"></h1>
-    <p id="prompt"></p>
-    <textarea id="input"></textarea>
-    <button onclick="nextStep()">Continue</button>
-    <div class="footer">
-      This tool supports reflection only. No data is saved.
-    </div>
+<div class="container">
+  <h1 id="title">Welcome</h1>
+  <p id="prompt">This is a calm thinking space. Take one slow breath before continuing.</p>
+  <textarea id="input" placeholder="Type here..."></textarea>
+  <button onclick="nextStep()">Continue</button>
+  <div class="footer">
+    This tool supports reflection only. No data is saved or tracked.
   </div>
+</div>
 
-  <script>
-    const steps = [
-      {
-        title: "Welcome",
-        text: "This is a calm thinking space. Take one slow breath before continuing.",
-      },
-      {
-        title: "Focus",
-        text: "What situation or decision is currently on your mind?",
-      },
-      {
-        title: "Facts",
-        text: "What facts do you know for certain right now?",
-      },
-      {
-        title: "Assumptions",
-        text: "What are you assuming might be true?",
-      },
-      {
-        title: "Control",
-        text: "Which parts of this situation are within your control? Which are not?",
-      },
-      {
-        title: "Time",
-        text: "If no action were taken for 24 hours, what would realistically change?",
-      },
-      {
-        title: "Next Step",
-        text: "What is one small, non-urgent step that could help — or nothing at all?",
-      },
-      {
-        title: "Complete",
-        text: "This session is complete. You do not need to solve everything right now.",
-      }
-    ];
+<script>
+// User state
+let current = 0;
+const responses = [];
 
-    let current = 0;
+// Mood template (UI color mapping)
+const moodColors = {
+  Calm: "#f0f4f8",
+  Neutral: "#ffffff",
+  Stressed: "#fff0f0",
+  Thoughtful: "#f9f8f6"
+};
 
-    function render() {
-      document.getElementById("title").innerText = steps[current].title;
-      document.getElementById("prompt").innerText = steps[current].text;
-      document.getElementById("input").value = "";
-      document.getElementById("input").style.display =
-        current === 0 || current === steps.length - 1 ? "none" : "block";
-    }
+// Steps with reflection prompts
+const steps = [
+  { 
+    title: "Welcome",
+    text: "This is a calm thinking space. Take one slow breath before continuing.",
+    reflection: false
+  },
+  {
+    title: "Focus",
+    text: "What situation or decision is currently on your mind?",
+    reflection: true,
+    followup: "You’ve identified this as the current focus. Let’s explore it."
+  },
+  {
+    title: "Facts",
+    text: "What facts do you know for certain right now?",
+    reflection: true,
+    followup: "Noting facts helps clarify reality separate from assumptions."
+  },
+  {
+    title: "Assumptions",
+    text: "What are you assuming might be true?",
+    reflection: true,
+    followup: "Reflecting on assumptions can highlight uncertainties."
+  },
+  {
+    title: "Control",
+    text: "Which parts of this situation are within your control? Which are not?",
+    reflection: true,
+    followup: "Focusing on control areas can reduce stress."
+  },
+  {
+    title: "Time",
+    text: "If no action were taken for 24 hours, what would realistically change?",
+    reflection: true,
+    followup: "Considering time helps perspective and patience."
+  },
+  {
+    title: "Next Step",
+    text: "What is one small, non-urgent step you could take — or nothing at all?",
+    reflection: true,
+    followup: "Even a tiny step is progress."
+  },
+  {
+    title: "Mood Selection",
+    text: "Before we conclude, how are you feeling now? (Calm, Neutral, Stressed, Thoughtful)",
+    reflection: false
+  },
+  {
+    title: "Conclusion",
+    text: "",
+    reflection: false
+  }
+];
 
-    function nextStep() {
-      document.querySelector("button").disabled = true;
-      setTimeout(() => {
-        current++;
-        if (current < steps.length) {
-          render();
-          document.querySelector("button").disabled = false;
-        }
-      }, 5000); // forced pause (5 seconds)
-    }
+// Initial render
+renderStep();
 
-    render();
-  </script>
+// Render function
+function renderStep() {
+  const step = steps[current];
+  document.getElementById("title").innerText = step.title;
+  document.getElementById("prompt").innerText = step.text;
+  const inputArea = document.getElementById("input");
+
+  if (step.title === "Conclusion") {
+    inputArea.style.display = "none";
+    showSummary();
+    document.querySelector("button").style.display = "none";
+    return;
+  } else {
+    inputArea.style.display = "block";
+  }
+
+  // Clear input
+  inputArea.value = "";
+
+  // Mood step special
+  if(step.title === "Mood Selection") {
+    inputArea.placeholder = "Type Calm, Neutral, Stressed, or Thoughtful";
+  } else {
+    inputArea.placeholder = "Type here...";
+  }
+}
+
+// Next step logic
+function nextStep() {
+  const step = steps[current];
+  const userInput = document.getElementById("input").value.trim();
+
+  // Ensure input for steps that require it
+  if(step.title !== "Welcome" && step.title !== "Mood Selection" && userInput === "") {
+    alert("Please type something before continuing.");
+    return;
+  }
+
+  // Save response if applicable
+  if(step.reflection) responses.push({ step: step.title, input: userInput });
+
+  // Mood template handling
+  if(step.title === "Mood Selection") {
+    const mood = moodColors[userInput] ? userInput : "Neutral";
+    document.body.style.backgroundColor = moodColors[mood];
+  }
+
+  // Acknowledge user input with follow-up (reflection)
+  if(step.reflection) {
+    document.getElementById("prompt").innerText = step.followup;
+    document.getElementById("input").value = "";
+    document.querySelector("button").disabled = true;
+
+    setTimeout(() => {
+      document.querySelector("button").disabled = false;
+      current++;
+      renderStep();
+    }, 4000); // 4-second reflection pause
+  } else {
+    current++;
+    renderStep();
+  }
+}
+
+// Generate conclusion summary
+function showSummary() {
+  const container = document.querySelector(".container");
+  const summaryDiv = document.createElement("div");
+  summaryDiv.className = "summary";
+
+  let summaryText = "Session Summary:\n\n";
+  responses.forEach(r => {
+    summaryText += `**${r.step}:** ${r.input}\n`;
+  });
+  summaryText += "\nTakeaway: You clarified your thoughts, reflected on assumptions, focused on what you can control, and identified at least one small next step. Remember, progress comes from small, intentional actions.";
+
+  summaryDiv.innerText = summaryText;
+  container.appendChild(summaryDiv);
+}
+</script>
 </body>
 </html>
