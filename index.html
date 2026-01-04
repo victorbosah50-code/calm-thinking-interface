@@ -2,258 +2,275 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<title>Calm Thinking – A Therapeutic Space</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌿 Calm Thinking Interactive Journey 🌿</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
-body, html {
-  margin:0; padding:0; width:100%; height:100%; font-family:'Nunito',sans-serif;
-  display:flex; justify-content:center; align-items:center; background:#000; overflow:hidden;
+html,body{
+  margin:0;
+  height:100%;
+  font-family:'Nunito',sans-serif;
+  background:#000;
+  overflow:hidden;
 }
-video#bgVideo {
-  position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1; opacity:0.6;
+#background{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(to top,#0c2f3f,#000);
+  z-index:-3;
+}
+.rain{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-2;
+}
+.drop{
+  position:absolute;
+  width:2px;
+  height:18px;
+  background:rgba(255,255,255,0.35);
+  animation:fall linear infinite;
+}
+@keyframes fall{
+  to{transform:translateY(110vh);}
 }
 
-/* Rain */
-.rain-container { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
-.drop { position:absolute; width:2px; height:15px; background:rgba(255,255,255,0.3); bottom:100%; animation-name:fall; animation-timing-function:linear; }
-@keyframes fall { to { transform: translateY(110vh); opacity:0; } }
-
-.container {
-  position:relative; z-index:1; max-width:720px; width:90%;
-  background:rgba(255,255,255,0.25);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.4);
-  display:flex; flex-direction:column; align-items:center; text-align:center; transition:all 0.5s;
+.container{
+  max-width:850px;
+  margin:40px auto;
+  padding:32px;
+  background:rgba(255,255,255,0.28);
+  backdrop-filter:blur(14px);
+  border-radius:22px;
   color:#000;
+  text-align:center;
 }
-h1 { font-size:2rem; margin-bottom:15px; opacity:0; animation:fadeBounce 1.5s forwards;}
-p { line-height:1.6; font-size:1.1rem; color:#000; }
-textarea { width:100%; height:120px; margin:15px 0; padding:12px; border-radius:10px; border:2px solid #a0d8ef; font-family:'Nunito'; font-size:1rem; resize:vertical; background:rgba(255,255,255,0.9); color:#000; }
-button { padding:12px 24px; margin:10px; font-size:1rem; border:none; border-radius:10px; background:#4a90e2; color:#fff; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; }
-button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(74,144,226,0.4); }
-.summary { 
-  background:rgba(255,255,255,0.3); 
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding:25px; border-radius:16px; margin-top:15px; white-space:pre-wrap; font-size:1rem; line-height:1.6; color:#000; 
+h1,h2{margin-bottom:12px}
+p{line-height:1.7;font-size:1.05rem}
+
+textarea{
+  width:100%;
+  height:120px;
+  padding:14px;
+  border-radius:14px;
+  border:2px solid #7fd3e8;
+  font-size:1rem;
+  font-family:Nunito;
 }
-.breathing-circle { width:180px; height:180px; border-radius:50%; background:radial-gradient(circle,#a8edea,#89dceb);
-  display:flex; align-items:center; justify-content:center; color:black; font-weight:600; font-size:1.5rem; margin:20px auto; cursor:pointer;
-  transition:all 1s linear;
+button{
+  padding:12px 26px;
+  margin:10px;
+  border:none;
+  border-radius:18px;
+  background:#4a90e2;
+  color:#fff;
+  font-size:1rem;
+  cursor:pointer;
 }
-.breathing-circle.expanding { transform:scale(1.8); background:radial-gradient(circle,#fed6e3,#fcb7d2);}
-@keyframes fadeBounce {0%{opacity:0;transform:translateY(-20px);}50%{opacity:1;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);} }
-select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8ef; font-size:1rem; cursor:pointer; }
-.game-area { margin:15px 0; padding:15px; background:rgba(255,255,255,0.2); border-radius:12px; width:100%; text-align:center; color:#000; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);}
-#focus-target { position:absolute; width:60px; height:60px; background:#ff6b6b; border-radius:50%; cursor:pointer; }
-canvas { background:rgba(255,255,255,0.2); border-radius:12px; margin-top:15px; }
+.card{
+  background:rgba(255,255,255,0.35);
+  padding:22px;
+  border-radius:20px;
+  margin-top:18px;
+}
+.breath{
+  width:190px;
+  height:190px;
+  border-radius:50%;
+  background:radial-gradient(circle,#b3e5fc,#81d4fa);
+  margin:22px auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.4rem;
+  font-weight:700;
+  transition:2.5s;
+}
+.expand{transform:scale(1.75)}
+.small{font-size:.95rem;opacity:.85}
 </style>
 </head>
+
 <body>
 
-<video autoplay muted loop id="bgVideo">
-  <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
-</video>
+<div id="background"></div>
+<div class="rain" id="rain"></div>
 
-<div class="rain-container" id="rain"></div>
-
-<div class="container" id="mainContainer">
-  <h1 id="title">🌿 Welcome to Calm Thinking 🌿</h1>
-  <p id="prompt">Take a deep breath and get ready for a peaceful reflection journey. Press "Start" to begin! 😊</p>
-
-  <label for="bgSelect">Choose Background:</label>
-  <select id="bgSelect">
-    <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4">Flowers</option>
-    <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/river.mp4">River</option>
-    <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/forest.mp4">Forest</option>
-  </select>
-
-  <label for="soundSelect">Choose Ambient Sound:</label>
-  <select id="soundSelect">
-    <option value="rainforest">Rainforest (Birds + Rain)</option>
-    <option value="rainstorm">Storm & Thunder</option>
-    <option value="gentlerain">Gentle Rain</option>
-    <option value="birdsstream">Birds & Stream</option>
-  </select>
-
-  <label for="breathingSelect">Choose Breathing Exercise:</label>
-  <select id="breathingSelect">
-    <option value="478">4-7-8 Breathing</option>
-    <option value="box">Box Breathing</option>
-  </select>
-
-  <button id="startButton">Start</button>
+<div class="container" id="app">
+  <h1>🌿 Calm Thinking</h1>
+  <p>A quiet, supportive space to slow down and reconnect with yourself.</p>
+  <button id="startBtn">Begin Session</button>
 </div>
 
-<audio id="ambientAudio" loop></audio>
-<audio id="thunderAudio"></audio>
+<audio id="ambience" loop src="https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3"></audio>
 
 <script>
-const bgVideo = document.getElementById("bgVideo");
-const ambientAudio = document.getElementById("ambientAudio");
-const thunderAudio = document.getElementById("thunderAudio");
-const startButton = document.getElementById("startButton");
-const bgSelect = document.getElementById("bgSelect");
-const soundSelect = document.getElementById("soundSelect");
-const breathingSelect = document.getElementById("breathingSelect");
-const container = document.getElementById("mainContainer");
-const rainContainer = document.getElementById("rain");
+/* ---------- SETUP ---------- */
+const app = document.getElementById("app");
+const ambience = document.getElementById("ambience");
+const rain = document.getElementById("rain");
 
-let currentStep = 0;
-const responses = [];
-let breathingInterval;
+let step = 0;
+const reflections = [];
 
-// Ambient options
-const ambientOptions = {
-  rainforest: { url:"https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3", thunder:false },
-  rainstorm: { url:"https://www.orangefreesounds.com/wp-content/uploads/2022/02/Thunderstorm-sound.mp3", thunder:true },
-  gentlerain: { url:"https://bigsoundbank.com/UPLOAD/mp3/0055.mp3", thunder:false },
-  birdsstream: { url:"https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3", thunder:false }
-};
+/* ---------- RAIN ---------- */
+for(let i=0;i<140;i++){
+  const d=document.createElement("div");
+  d.className="drop";
+  d.style.left=Math.random()*100+"%";
+  d.style.animationDuration=(0.7+Math.random()*0.8)+"s";
+  d.style.animationDelay=Math.random()*6+"s";
+  rain.appendChild(d);
+}
 
-// Steps
-const steps = [
-  { title:"Focus", text:"What’s on your mind right now?", reflection:true },
-  { title:"Facts", text:"What facts do you know for sure?", reflection:true },
-  { title:"Assumptions", text:"What assumptions are you making?", reflection:true },
-  { title:"Control", text:"What can you control?", reflection:true },
-  { title:"Breathing", text:"Time to relax with a breathing exercise.", reflection:false, breathing:true },
-  { title:"Next Step", text:"What is one small step you can take?", reflection:true },
-  { title:"Conclusion", text:"", reflection:false }
+/* ---------- QUESTIONS ---------- */
+const flow = [
+  "What has been occupying your thoughts lately?",
+  "What feels emotionally heavy right now?",
+  "What part of this situation is outside your control?",
+  "What part is still within your control?",
+  "BREATH",
+  "What is one kind thing you can offer yourself today?"
 ];
 
-// --- Start Journey ---
-startButton.onclick = () => {
-  setAmbient(soundSelect.value);
-  bgVideo.src = bgSelect.value; bgVideo.load();
-  startButton.style.display="none";
-  createRain(100);
+/* ---------- START ---------- */
+startBtn.onclick = () => {
+  ambience.volume = 0.45;
+  ambience.play();
   renderStep();
 };
-bgSelect.onchange = ()=>{ bgVideo.src=bgSelect.value; bgVideo.load(); };
-soundSelect.onchange = ()=>{ setAmbient(soundSelect.value); };
 
-// --- Ambient ---
-function setAmbient(key){
-  const option = ambientOptions[key];
-  ambientAudio.src = option.url;
-  ambientAudio.volume = 0.5;
-  ambientAudio.play();
-  if(option.thunder){
-    thunderAudio.src = "https://orangefreesounds.com/wp-content/uploads/2022/02/Thunder-sound.mp3";
-    thunderAudio.volume = 0.7;
-    setInterval(()=>{ thunderAudio.play(); }, 15000 + Math.random()*10000);
-  }
+/* ---------- TONE ---------- */
+function analyzeTone(text){
+  const t=text.toLowerCase();
+  if(/overwhelmed|anxious|stressed|tired/.test(t)) return "stressed";
+  if(/trying|learning|hope|healing/.test(t)) return "healing";
+  if(/calm|okay|peace/.test(t)) return "calm";
+  return "reflective";
 }
 
-// --- Rain ---
-function createRain(count){
-  for(let i=0;i<count;i++){
-    const drop=document.createElement("div");
-    drop.className="drop";
-    drop.style.left=Math.random()*100+"%";
-    drop.style.animationDuration=(0.5+Math.random()*0.5)+"s";
-    drop.style.animationDelay=Math.random()*5+"s";
-    rainContainer.appendChild(drop);
-  }
-}
-
-// --- Render Steps ---
+/* ---------- FLOW ---------- */
 function renderStep(){
-  clearInterval(breathingInterval);
-  const step = steps[currentStep];
-  container.innerHTML=`<h1>${step.title}</h1><p>${step.text}</p>`;
-
-  if(step.reflection){
-    const textarea=document.createElement("textarea"); textarea.placeholder="Type here...";
-    container.appendChild(textarea);
-    const nextBtn=document.createElement("button"); nextBtn.innerText="Next";
-    nextBtn.onclick=()=>{ 
-      if(textarea.value.trim()===""){ alert("Please enter a response."); return; }
-      responses.push({step:step.title,input:textarea.value});
-      renderRandomGame(textarea.value);
-    };
-    container.appendChild(nextBtn);
-  } else if(step.breathing){
-    startBreathingExercise();
-  } else if(step.title==="Conclusion"){
-    showConclusion();
+  if(step >= flow.length){
+    conclusion();
+    return;
   }
+
+  if(flow[step] === "BREATH"){
+    breathing();
+    return;
+  }
+
+  app.innerHTML = `
+    <h2>${flow[step]}</h2>
+    <textarea placeholder="There is no right or wrong answer. Just be honest."></textarea>
+    <button>Continue</button>
+  `;
+
+  app.querySelector("button").onclick = () => {
+    const text = app.querySelector("textarea").value.trim();
+    if(!text){
+      alert("Take your time. Even a few words are enough.");
+      return;
+    }
+    const tone = analyzeTone(text);
+    reflections.push({q:flow[step],text,tone});
+    therapeuticReflection(tone);
+  };
 }
 
-// --- Random Game Selector ---
-function renderRandomGame(userInput){
-  const games = [renderScrabbleGame, renderFocusGame];
-  const gameFunc = games[Math.floor(Math.random()*games.length)];
-  gameFunc(userInput);
+/* ---------- THERAPEUTIC EXERCISE ---------- */
+function therapeuticReflection(tone){
+  let prompt = "";
+  if(tone==="stressed"){
+    prompt="Gently rewrite one sentence from your response as if you were comforting a close friend.";
+  }else if(tone==="healing"){
+    prompt="Notice the effort you're making. What does that say about your resilience?";
+  }else if(tone==="calm"){
+    prompt="Pause and name what feels stable or supportive in this moment.";
+  }else{
+    prompt="Observe your thoughts without changing them. What do you notice?";
+  }
+
+  app.innerHTML = `
+    <div class="card">
+      <h3>🧠 Gentle Reflection</h3>
+      <p>${prompt}</p>
+      <textarea placeholder="Write softly. No pressure."></textarea>
+      <button>Continue</button>
+    </div>
+  `;
+
+  app.querySelector("button").onclick = () => {
+    step++;
+    renderStep();
+  };
 }
 
-// --- Breathing ---
-function startBreathingExercise(){
-  const pattern = breathingSelect.value;
-  const circle = document.createElement("div");
-  circle.className = "breathing-circle";
-  circle.innerText = "Breathe";
-  container.appendChild(circle);
+/* ---------- BREATHING ---------- */
+function breathing(){
+  let phase=0;
+  app.innerHTML = `
+    <h2>🌌 Guided Breathing</h2>
+    <p class="small">Follow the rhythm. Nothing else to do.</p>
+    <div class="breath" id="breath">Inhale</div>
+    <button>Continue</button>
+  `;
+  const b=document.getElementById("breath");
+  const timer=setInterval(()=>{
+    if(phase===0){b.textContent="Inhale";b.classList.add("expand")}
+    if(phase===1){b.textContent="Hold"}
+    if(phase===2){b.textContent="Exhale";b.classList.remove("expand")}
+    phase=(phase+1)%3;
+  },2200);
 
-  let inhale=4000, hold=7000, exhale=8000;
-  if(pattern==="box"){ inhale=4000; hold=4000; exhale=4000; }
-
-  let step = 0; 
-  breathingInterval = setInterval(()=>{
-    if(step===0){ circle.innerText="Inhale"; circle.classList.add("expanding"); step=1; }
-    else if(step===1){ circle.innerText="Hold"; step=2; }
-    else{ circle.innerText="Exhale"; circle.classList.remove("expanding"); step=0; }
-  }, inhale + hold + exhale);
-
-  const nextBtn = document.createElement("button");
-  nextBtn.innerText = "Next";
-  nextBtn.onclick = () => { clearInterval(breathingInterval); nextStep(); };
-  container.appendChild(nextBtn);
+  app.querySelector("button").onclick=()=>{
+    clearInterval(timer);
+    step++;
+    renderStep();
+  };
 }
 
-// --- Next Step ---
-function nextStep(){ currentStep++; if(currentStep<steps.length) renderStep(); else showConclusion(); }
+/* ---------- CONCLUSION ---------- */
+function conclusion(){
+  const quotes=[
+    "You don’t have to control your thoughts. You just have to stop letting them control you.",
+    "Healing is not linear. Be patient with yourself.",
+    "Small steps taken gently still move you forward."
+  ];
+  const words=[
+    {w:"Gentleness",m:"The quality of being kind, calm, and tender with yourself."},
+    {w:"Resilience",m:"The ability to recover and continue, even when things feel heavy."},
+    {w:"Presence",m:"Being fully here, without judging the moment."}
+  ];
+  const q=quotes[Math.floor(Math.random()*quotes.length)];
+  const wd=words[Math.floor(Math.random()*words.length)];
 
-// --- Conclusion ---
-function showConclusion(){
-  container.innerHTML=`<h1>🎉 Congratulations! 🎉</h1>`;
-  const summary=document.createElement("div"); summary.className="summary";
-  summary.innerHTML="🌈 Your Reflection Journey 🌈<br><br>"+responses.map(r=>`<strong>${r.step}:</strong> ${r.input}`).join("<br>")+
-    `<br><br>💖 Amazing! You've explored multiple dynamic games and mindfulness exercises. Keep growing your awareness! 🌟`;
-  container.appendChild(summary);
+  app.innerHTML = `
+    <h2>🌱 Session Complete</h2>
+    <p>You showed up for yourself today. That matters.</p>
 
-  // --- Post-Journey Game Hub ---
-  const hub = document.createElement("div"); hub.style.marginTop="20px";
-  hub.innerHTML = `<h2>🎮 Play More Games! 🎮</h2>`;
-  container.appendChild(hub);
+    <div class="card">
+      <h3>💬 Quote of the Day</h3>
+      <p><em>${q}</em></p>
+    </div>
 
-  const boardBtn = document.createElement("button"); boardBtn.innerText="Board Games";
-  boardBtn.onclick = playBoardGames; hub.appendChild(boardBtn);
+    <div class="card">
+      <h3>📖 Word of the Day</h3>
+      <p><strong>${wd.w}</strong><br>${wd.m}</p>
+    </div>
 
-  const basketballBtn = document.createElement("button"); basketballBtn.innerText="Basketball Focus Game";
-  basketballBtn.onclick = playBasketball; hub.appendChild(basketballBtn);
+    <div class="card">
+      <h3>♟️ Board Games (Optional)</h3>
+      <p>When you're ready for light mental engagement, board games can help gently refocus your mind.</p>
+      <p class="small">(Coming soon – always optional, never required.)</p>
+    </div>
 
-  const poolBtn = document.createElement("button"); poolBtn.innerText="Pool Game";
-  poolBtn.onclick = playPool; hub.appendChild(poolBtn);
+    <p class="small">Take a deep breath before returning to your day. You're doing the best you can.</p>
+  `;
 }
-
-// --- Scrabble ---
-function renderScrabbleGame(userInput){
-  container.innerHTML=`<h1>🅂🅂🅁🄰🄱🄱🄻🄴 Challenge 🅂🅂🅁🄰🄱🄱🄻🄴</h1>`;
-}
-
-// --- Focus Game ---
-function renderFocusGame(){
-  container.innerHTML=`<h1>🎯 Focus Game 🎯</h1>`;
-}
-
-// --- Post-Journey Games ---
-function playBoardGames(){ alert("Board game hub coming soon!"); }
-function playBasketball(){ alert("Basketball focus game coming soon!"); }
-function playPool(){ alert("Pool game hub coming soon!"); }
 </script>
 </body>
 </html>
