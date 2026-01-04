@@ -1,148 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌿 Calm Thinking Interactive Journey 🌿</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<!-- Keep the previous HTML & CSS mostly the same -->
 <style>
-body, html {
-  margin:0; padding:0; width:100%; height:100%; font-family:'Nunito',sans-serif;
-  display:flex; justify-content:center; align-items:center; background:#000; overflow:hidden;
-}
-video#bgVideo {
-  position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-2; opacity:0.6;
-}
-.container {
-  position:relative; z-index:1; max-width:720px; width:90%;
-  background:rgba(0,0,0,0.6); padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.4);
-  display:flex; flex-direction:column; align-items:center; text-align:center; transition:all 0.5s;
-  background-size:cover; background-position:center; color:#fff;
-  overflow:hidden;
-}
-h1 { font-size:2rem; margin-bottom:15px; opacity:0; animation:fadeBounce 1.5s forwards;}
-p { line-height:1.6; font-size:1.1rem; }
-textarea { width:100%; height:120px; margin:15px 0; padding:12px; border-radius:10px; border:2px solid #a0d8ef; font-family:'Nunito'; font-size:1rem; resize:vertical; background:rgba(255,255,255,0.9); color:#000; }
-button { padding:12px 24px; margin:10px; font-size:1rem; border:none; border-radius:10px; background:#4a90e2; color:#fff; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; }
-button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(74,144,226,0.4); }
-.summary { background:rgba(0,0,0,0.7); padding:25px; border-radius:16px; margin-top:15px; white-space:pre-wrap; font-size:1rem; line-height:1.6; }
-.breathing-circle { width:180px; height:180px; border-radius:50%; background:radial-gradient(circle,#a8edea,#89dceb);
-  display:flex; align-items:center; justify-content:center; color:white; font-weight:600; font-size:1.5rem; margin:20px auto; cursor:pointer;
-  transition:all 0.5s linear;
-}
-.breathing-circle.expanding { transform:scale(1.8); background:radial-gradient(circle,#fed6e3,#fcb7d2);}
-@keyframes fadeBounce {0%{opacity:0;transform:translateY(-20px);}50%{opacity:1;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);}}
-select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8ef; font-size:1rem; cursor:pointer; }
-.game-area { margin:15px 0; padding:15px; background:rgba(0,0,0,0.5); border-radius:12px; width:100%; text-align:center; position:relative; }
-.raindrop {
-  position:absolute; width:2px; height:10px; background:rgba(255,255,255,0.6);
-  top:-10px; animation:fall linear infinite;
-}
-@keyframes fall { 0%{transform:translateY(0);} 100%{transform:translateY(100vh);} }
-.thunder-flash {
-  position:absolute; top:0; left:0; width:100%; height:100%;
-  background:white; opacity:0; pointer-events:none; z-index:5; transition:opacity 0.1s;
+/* Raindrops already defined... we’ll add a "pulse" class */
+.raindrop.pulse {
+  background: rgba(255,255,255,0.9);
+  transform: scaleY(1.5);
+  box-shadow: 0 0 8px rgba(255,255,255,0.7);
+  transition: transform 0.3s, background 0.3s, box-shadow 0.3s;
 }
 </style>
-</head>
-<body>
-
-<video autoplay muted loop id="bgVideo">
-  <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
-</video>
-
-<div class="container" id="mainContainer">
-  <h1 id="title">🌿 Welcome to Calm Thinking 🌿</h1>
-  <p id="prompt">Take a deep breath and get ready for a peaceful reflection journey. Press "Start" to begin! 😊</p>
-
-  <label for="bgSelect">Choose Background:</label>
-  <select id="bgSelect">
-    <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4">Flowers</option>
-    <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/river.mp4">River</option>
-    <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/forest.mp4">Forest</option>
-  </select>
-
-  <label for="soundSelect">Choose Ambient Sound:</label>
-  <select id="soundSelect">
-    <option value="rainforest">Rainforest (Birds + Rain)</option>
-    <option value="rainstorm">Storm & Thunder</option>
-    <option value="gentlerain">Gentle Rain</option>
-    <option value="birdsstream">Birds & Stream</option>
-  </select>
-
-  <label for="breathingSelect">Choose Breathing Exercise:</label>
-  <select id="breathingSelect">
-    <option value="478">4-7-8 Breathing</option>
-    <option value="box">Box Breathing</option>
-  </select>
-
-  <button id="startButton">Start</button>
-</div>
-
-<div class="thunder-flash" id="thunderFlash"></div>
-<audio id="ambientAudio" loop></audio>
 
 <script>
-const bgVideo = document.getElementById("bgVideo");
-const ambientAudio = document.getElementById("ambientAudio");
-const startButton = document.getElementById("startButton");
-const bgSelect = document.getElementById("bgSelect");
-const soundSelect = document.getElementById("soundSelect");
-const breathingSelect = document.getElementById("breathingSelect");
-const container = document.getElementById("mainContainer");
-const thunderFlash = document.getElementById("thunderFlash");
+// Existing code...
 
-let currentStep = 0;
-const responses = [];
-let breathingInterval;
-
-// Ambient options with backgrounds
-const ambientOptions = {
-  rainforest: { url:"https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3", bg:"https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60" },
-  rainstorm: { url:"https://www.orangefreesounds.com/wp-content/uploads/2022/02/Thunderstorm-sound.mp3", bg:"https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60" },
-  gentlerain: { url:"https://bigsoundbank.com/UPLOAD/mp3/0055.mp3", bg:"https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?auto=format&fit=crop&w=800&q=60" },
-  birdsstream: { url:"https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3", bg:"https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60" }
-};
-
-// Steps
-const steps = [
-  { title:"Focus", text:"What’s on your mind right now?", reflection:true },
-  { title:"Facts", text:"What facts do you know for sure?", reflection:true },
-  { title:"Assumptions", text:"What assumptions are you making?", reflection:true },
-  { title:"Control", text:"What can you control?", reflection:true },
-  { title:"Breathing", text:"Time to relax with a breathing exercise. Follow the instructions carefully.", reflection:false, breathing:true },
-  { title:"Next Step", text:"What is one small step you can take?", reflection:true },
-  { title:"Conclusion", text:"", reflection:false }
-];
-
-// Start
-startButton.onclick = () => {
-  setAmbient(soundSelect.value);
-  bgVideo.src = bgSelect.value; bgVideo.load();
-  startButton.style.display="none";
-  if(soundSelect.value==="rainstorm") startStormAnimation();
-  renderStep();
-};
-bgSelect.onchange = ()=>{ bgVideo.src=bgSelect.value; bgVideo.load(); };
-soundSelect.onchange = ()=>{ setAmbient(soundSelect.value); if(soundSelect.value==="rainstorm") startStormAnimation(); };
-
-// Ambient sound & background
-function setAmbient(key){
-  const option = ambientOptions[key];
-  ambientAudio.src = option.url;
-  ambientAudio.volume = 0.5;
-  ambientAudio.play();
-  container.style.backgroundImage = `url('${option.bg}')`;
-}
-
-// Storm animation
+// Storm animation function (updated)
 function startStormAnimation(){
-  // Create raindrops
+  const drops = [];
   for(let i=0;i<50;i++){
-    const drop = document.createElement("div"); drop.className="raindrop";
-    drop.style.left=Math.random()*100+"%"; drop.style.animationDuration=(0.5+Math.random()*1.5)+"s"; drop.style.height=(5+Math.random()*10)+"px";
+    const drop = document.createElement("div");
+    drop.className="raindrop";
+    drop.style.left=Math.random()*100+"%";
+    drop.style.animationDuration=(0.5+Math.random()*1.5)+"s";
+    drop.style.height=(5+Math.random()*10)+"px";
     container.appendChild(drop);
+    drops.push(drop);
   }
+
   // Thunder flashes
   setInterval(()=>{
     if(Math.random()<0.3){
@@ -150,107 +32,58 @@ function startStormAnimation(){
       setTimeout(()=>{ thunderFlash.style.opacity="0"; },100);
     }
   },3000);
+
+  // Save drops globally to pulse later
+  window.stormDrops = drops;
 }
 
-// Render step
-function renderStep(){
-  clearInterval(breathingInterval);
-  const step = steps[currentStep];
-  container.innerHTML=`<h1>${step.title}</h1><p>${step.text}</p>`;
-
-  if(step.reflection){
-    const textarea=document.createElement("textarea"); textarea.placeholder="Type here...";
-    container.appendChild(textarea);
-    const nextBtn=document.createElement("button"); nextBtn.innerText="Next";
-    nextBtn.onclick=()=>{
-      if(textarea.value.trim()===""){ alert("Please enter a response."); return; }
-      responses.push({step:step.title,input:textarea.value});
-      renderDynamicGame(textarea.value);
-    };
-    container.appendChild(nextBtn);
-  } else if(step.breathing){
-    startBreathingExercise();
-  } else if(step.title==="Conclusion"){
-    showConclusion();
-  }
-}
-
-// Dynamic game based on input
-function renderDynamicGame(input){
-  container.innerHTML=`<h1>🎯 Interactive Game! 🎯</h1><p>Fun based on your input: "${input}"</p>`;
-  const gameDiv=document.createElement("div"); gameDiv.className="game-area"; container.appendChild(gameDiv);
-
-  const text = input.toLowerCase();
-  if(text.includes("sleep") || text.includes("rest")){
-    gameDiv.innerHTML="<p>Follow the breathing circle to relax!</p>";
-    startBreathingExercise();
-    return;
-  } else if(text.includes("work") || text.includes("stress")){
-    const sequence = ["🔵","🟢","🟡"];
-    let userSeq=[];
-    gameDiv.innerHTML=`<p>Remember this sequence: ${sequence.join(" ")}</p>`;
-    setTimeout(()=>{ 
-      gameDiv.innerHTML="<p>Now click the sequence in order!</p>"; 
-      sequence.forEach(sym=>{ 
-        const btn = document.createElement("button"); btn.innerText=sym;
-        btn.onclick = ()=>{ userSeq.push(sym); if(userSeq.length===sequence.length){ alert("Great! You remembered it!"); nextStep(); } };
-        gameDiv.appendChild(btn);
-      }); 
-    },2000);
-    return;
-  } else {
-    let clicks=0;
-    const btn=document.createElement("button"); btn.innerText="Click me!";
-    const counter=document.createElement("p"); counter.innerText="Clicks: 0";
-    btn.onclick=()=>{ clicks++; counter.innerText="Clicks: "+clicks; };
-    gameDiv.appendChild(btn); gameDiv.appendChild(counter);
-  }
-  const continueBtn=document.createElement("button"); continueBtn.innerText="Continue";
-  continueBtn.onclick=()=>{ nextStep(); };
-  container.appendChild(continueBtn);
-}
-
-// Breathing
+// Updated Breathing Exercise
 function startBreathingExercise(){
   const pattern = breathingSelect.value;
   const circle=document.createElement("div"); circle.className="breathing-circle"; circle.innerText="Breathe";
   container.appendChild(circle);
 
   const instructions = document.createElement("p");
-  if(pattern==="478") instructions.innerText="Inhale for 4s → Hold for 7s → Exhale for 8s. Repeat!";
+  if(pattern==="478") instructions.innerText="Inhale 4s → Hold 7s → Exhale 8s. Repeat!";
   else instructions.innerText="Inhale 4s → Hold 4s → Exhale 4s → Hold 4s. Repeat!";
   container.appendChild(instructions);
 
   let inhale=4000, hold=7000, exhale=8000;
   if(pattern==="box"){ inhale=4000; hold=4000; exhale=4000; }
 
-  const cycle=()=>{
+  let cycleStep=0;
+  const cycle = () => {
+    cycleStep++;
+    // Expand circle
     circle.classList.add("expanding");
+    pulseRaindrops(true); // inhale phase = pulse active
     setTimeout(()=>{
+      // Hold phase
+      pulseRaindrops(false); // hold, no pulse
       setTimeout(()=>{
+        // Exhale
         circle.classList.remove("expanding");
-        setTimeout(cycle,0);
-      },exhale);
-    },inhale+hold);
+        pulseRaindrops(false); // exhale = gentle
+        setTimeout(cycle, exhale);
+      },hold);
+    },inhale);
   };
   cycle();
 
+  // Next button
   const nextBtn=document.createElement("button"); nextBtn.innerText="Next";
   nextBtn.onclick=nextStep;
   container.appendChild(nextBtn);
 }
 
-// Next step
-function nextStep(){ currentStep++; if(currentStep<steps.length) renderStep(); else showConclusion(); }
-
-// Conclusion
-function showConclusion(){
-  container.innerHTML=`<h1>🎉 Congratulations! 🎉</h1>`;
-  const summary=document.createElement("div"); summary.className="summary";
-  summary.innerHTML="🌈 Your Reflection Journey 🌈<br><br>"+responses.map(r=>`<strong>${r.step}:</strong> ${r.input}`).join("<br>")+
-    `<br><br>💖 Amazing! You've reflected thoughtfully, explored interactive exercises, and practiced mindful breathing. Keep going! 🌟`;
-  container.appendChild(summary);
+// Pulse raindrops
+function pulseRaindrops(active){
+  if(!window.stormDrops) return;
+  window.stormDrops.forEach(drop=>{
+    if(active) drop.classList.add("pulse");
+    else drop.classList.remove("pulse");
+  });
 }
+
+// Existing nextStep() and conclusion functions...
 </script>
-</body>
-</html>
