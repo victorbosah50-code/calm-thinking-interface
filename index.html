@@ -14,16 +14,20 @@ video#bgVideo {
   position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1; opacity:0.6;
 }
 .container {
-  position:relative; z-index:1; max-width:720px; width:90%; background:rgba(255,255,255,0.9);
-  padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.2);
+  position:relative; z-index:1; max-width:720px; width:90%;
+  background:rgba(0,0,0,0.6); /* semi-transparent dark for text readability */
+  padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.4);
   display:flex; flex-direction:column; align-items:center; text-align:center; transition:all 0.5s;
+  background-size:cover;
+  background-position:center;
+  color:#fff;
 }
 h1 { font-size:2rem; margin-bottom:15px; opacity:0; animation:fadeBounce 1.5s forwards;}
 p { line-height:1.6; font-size:1.1rem; }
-textarea { width:100%; height:120px; margin:15px 0; padding:12px; border-radius:10px; border:2px solid #a0d8ef; font-family:'Nunito'; font-size:1rem; resize:vertical; }
+textarea { width:100%; height:120px; margin:15px 0; padding:12px; border-radius:10px; border:2px solid #a0d8ef; font-family:'Nunito'; font-size:1rem; resize:vertical; background:rgba(255,255,255,0.9); color:#000; }
 button { padding:12px 24px; margin:10px; font-size:1rem; border:none; border-radius:10px; background:#4a90e2; color:#fff; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; }
 button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(74,144,226,0.4); }
-.summary { background:rgba(255,255,255,0.96); padding:25px; border-radius:16px; margin-top:15px; white-space:pre-wrap; font-size:1rem; line-height:1.6; opacity:1; }
+.summary { background:rgba(0,0,0,0.7); padding:25px; border-radius:16px; margin-top:15px; white-space:pre-wrap; font-size:1rem; line-height:1.6; }
 .breathing-circle { width:180px; height:180px; border-radius:50%; background:radial-gradient(circle,#a8edea,#89dceb);
   display:flex; align-items:center; justify-content:center; color:white; font-weight:600; font-size:1.5rem; margin:20px auto; cursor:pointer;
   transition:all 0.5s linear;
@@ -31,7 +35,7 @@ button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(74,144,226,0.4)
 .breathing-circle.expanding { transform:scale(1.8); background:radial-gradient(circle,#fed6e3,#fcb7d2);}
 @keyframes fadeBounce {0%{opacity:0;transform:translateY(-20px);}50%{opacity:1;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);}}
 select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8ef; font-size:1rem; cursor:pointer; }
-.game-area { margin:15px 0; padding:15px; background:rgba(240,248,255,0.95); border-radius:12px; width:100%; text-align:center; }
+.game-area { margin:15px 0; padding:15px; background:rgba(0,0,0,0.5); border-radius:12px; width:100%; text-align:center; }
 </style>
 </head>
 <body>
@@ -55,9 +59,10 @@ select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8
   <!-- Ambient sound selector -->
   <label for="soundSelect">Choose Ambient Sound:</label>
   <select id="soundSelect">
-    <option value="https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3">Rainforest</option>
-    <option value="https://bigsoundbank.com/UPLOAD/mp3/0055.mp3">Gentle Rain</option>
-    <option value="https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3">Birds & Stream</option>
+    <option value="rainforest">Rainforest (Birds + Rain)</option>
+    <option value="rainstorm">Storm & Thunder</option>
+    <option value="gentlerain">Gentle Rain</option>
+    <option value="birdsstream">Birds & Stream</option>
   </select>
 
   <!-- Breathing pattern selector -->
@@ -85,6 +90,26 @@ let currentStep = 0;
 const responses = [];
 let breathingInterval;
 
+// Map ambient sounds to audio URLs and matching container backgrounds
+const ambientOptions = {
+  rainforest: {
+    url:"https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3",
+    bg:"https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60"
+  },
+  rainstorm: {
+    url:"https://www.orangefreesounds.com/wp-content/uploads/2022/02/Thunderstorm-sound.mp3",
+    bg:"https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60"
+  },
+  gentlerain: {
+    url:"https://bigsoundbank.com/UPLOAD/mp3/0055.mp3",
+    bg:"https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?auto=format&fit=crop&w=800&q=60"
+  },
+  birdsstream: {
+    url:"https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3",
+    bg:"https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60"
+  }
+};
+
 const steps = [
   { title:"Focus", text:"What’s on your mind right now?", reflection:true },
   { title:"Facts", text:"What facts do you know for sure?", reflection:true },
@@ -97,13 +122,23 @@ const steps = [
 
 // Start journey
 startButton.onclick = () => {
+  setAmbient(soundSelect.value);
   bgVideo.src = bgSelect.value; bgVideo.load();
-  ambientAudio.src = soundSelect.value; ambientAudio.volume=0.4; ambientAudio.play();
   startButton.style.display="none";
   renderStep();
 };
+
 bgSelect.onchange = ()=>{ bgVideo.src=bgSelect.value; bgVideo.load(); };
-soundSelect.onchange = ()=>{ ambientAudio.src=soundSelect.value; ambientAudio.play(); };
+soundSelect.onchange = ()=>{ setAmbient(soundSelect.value); };
+
+// Set ambient audio + container background
+function setAmbient(key){
+  const option = ambientOptions[key];
+  ambientAudio.src = option.url;
+  ambientAudio.volume = 0.5;
+  ambientAudio.play();
+  container.style.backgroundImage = `url('${option.bg}')`;
+}
 
 // Render steps
 function renderStep(){
@@ -118,7 +153,7 @@ function renderStep(){
     nextBtn.onclick=()=>{
       if(textarea.value.trim()===""){ alert("Please enter a response."); return; }
       responses.push({step:step.title,input:textarea.value});
-      renderInteractiveGame(textarea.value); // show mini game after each user input
+      renderInteractiveGame(textarea.value); // show interactive mini-game
     };
     container.appendChild(nextBtn);
   } else if(step.breathing){
@@ -128,12 +163,11 @@ function renderStep(){
   }
 }
 
-// Mini interactive game (personalized and fun)
+// Mini interactive game (example: click challenge)
 function renderInteractiveGame(userInput){
-  container.innerHTML=`<h1>🎯 Fun Moment!</h1><p>Let's play a quick interactive game based on your response: "${userInput}"</p>`;
+  container.innerHTML=`<h1>🎯 Fun Moment!</h1><p>Interactive fun based on: "${userInput}"</p>`;
   const gameDiv=document.createElement("div"); gameDiv.className="game-area"; container.appendChild(gameDiv);
 
-  // Example interactive: click counter
   let clicks=0;
   const btn=document.createElement("button"); btn.innerText="Click me!";
   const counter=document.createElement("p"); counter.innerText="Clicks: 0";
@@ -160,7 +194,7 @@ function startBreathingExercise(){
       setTimeout(()=>{
         circle.classList.remove("expanding"); // exhale
         setTimeout(cycle,0);
-      },exhale); // hold duration
+      },exhale); // hold
     },inhale+hold);
   };
   cycle();
@@ -180,17 +214,6 @@ function showConclusion(){
   summary.innerHTML="🌈 Your Reflection Journey 🌈<br><br>"+responses.map(r=>`<strong>${r.step}:</strong> ${r.input}`).join("<br>")+
     `<br><br>💖 Amazing! You've taken mindful steps, reflected thoughtfully, and explored interactive exercises. Keep going, every small effort counts! 🌟`;
   container.appendChild(summary);
-}
-
-// Mood gradient (optional)
-function getMoodGradient(mood){
-  const gradients={
-    Calm:"linear-gradient(135deg,#a8edea,#fed6e3)",
-    Neutral:"linear-gradient(135deg,#f0f4f8,#d9e2ec)",
-    Stressed:"linear-gradient(135deg,#ff9a9e,#fecfef)",
-    Thoughtful:"linear-gradient(135deg,#cfd9df,#e2ebf0)"
-  };
-  return gradients[mood]||gradients["Neutral"];
 }
 </script>
 </body>
