@@ -10,13 +10,13 @@
     margin: 0; padding: 0;
     display: flex; justify-content: center; align-items: center;
     min-height: 100vh;
-    background-color: #f0f4f8;
-    transition: background-color 0.5s;
+    background: linear-gradient(135deg, #f0f4f8, #d9e2ec); /* Default gradient */
+    transition: background 1s ease;
   }
   .container {
     max-width: 600px;
     width: 90%;
-    background: white;
+    background: rgba(255,255,255,0.85); /* Semi-transparent to show background */
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -42,7 +42,7 @@
     color: white;
   }
   .footer { font-size: 0.8rem; color: #555; margin-top: 25px; }
-  .summary { background-color: #eef5f9; padding: 15px; border-radius: 8px; margin-top: 20px; }
+  .summary { background-color: rgba(238,245,249,0.9); padding: 15px; border-radius: 8px; margin-top: 20px; white-space: pre-wrap; }
 </style>
 </head>
 <body>
@@ -61,67 +61,25 @@
 let current = 0;
 const responses = [];
 
-// Mood template (UI color mapping)
+// Mood template (gradient mapping)
 const moodColors = {
-  Calm: "#f0f4f8",
-  Neutral: "#ffffff",
-  Stressed: "#fff0f0",
-  Thoughtful: "#f9f8f6"
+  Calm: "linear-gradient(135deg, #a8edea, #fed6e3)",
+  Neutral: "linear-gradient(135deg, #f0f4f8, #d9e2ec)",
+  Stressed: "linear-gradient(135deg, #ff9a9e, #fecfef)",
+  Thoughtful: "linear-gradient(135deg, #cfd9df, #e2ebf0)"
 };
 
 // Steps with reflection prompts
 const steps = [
-  { 
-    title: "Welcome",
-    text: "This is a calm thinking space. Take one slow breath before continuing.",
-    reflection: false
-  },
-  {
-    title: "Focus",
-    text: "What situation or decision is currently on your mind?",
-    reflection: true,
-    followup: "You’ve identified this as the current focus. Let’s explore it."
-  },
-  {
-    title: "Facts",
-    text: "What facts do you know for certain right now?",
-    reflection: true,
-    followup: "Noting facts helps clarify reality separate from assumptions."
-  },
-  {
-    title: "Assumptions",
-    text: "What are you assuming might be true?",
-    reflection: true,
-    followup: "Reflecting on assumptions can highlight uncertainties."
-  },
-  {
-    title: "Control",
-    text: "Which parts of this situation are within your control? Which are not?",
-    reflection: true,
-    followup: "Focusing on control areas can reduce stress."
-  },
-  {
-    title: "Time",
-    text: "If no action were taken for 24 hours, what would realistically change?",
-    reflection: true,
-    followup: "Considering time helps perspective and patience."
-  },
-  {
-    title: "Next Step",
-    text: "What is one small, non-urgent step you could take — or nothing at all?",
-    reflection: true,
-    followup: "Even a tiny step is progress."
-  },
-  {
-    title: "Mood Selection",
-    text: "Before we conclude, how are you feeling now? (Calm, Neutral, Stressed, Thoughtful)",
-    reflection: false
-  },
-  {
-    title: "Conclusion",
-    text: "",
-    reflection: false
-  }
+  { title: "Welcome", text: "This is a calm thinking space. Take one slow breath before continuing.", reflection: false },
+  { title: "Focus", text: "What situation or decision is currently on your mind?", reflection: true, followup: "You’ve identified this as the current focus. Let’s explore it." },
+  { title: "Facts", text: "What facts do you know for certain right now?", reflection: true, followup: "Noting facts helps clarify reality separate from assumptions." },
+  { title: "Assumptions", text: "What are you assuming might be true?", reflection: true, followup: "Reflecting on assumptions can highlight uncertainties." },
+  { title: "Control", text: "Which parts of this situation are within your control? Which are not?", reflection: true, followup: "Focusing on control areas can reduce stress." },
+  { title: "Time", text: "If no action were taken for 24 hours, what would realistically change?", reflection: true, followup: "Considering time helps perspective and patience." },
+  { title: "Next Step", text: "What is one small, non-urgent step you could take — or nothing at all?", reflection: true, followup: "Even a tiny step is progress." },
+  { title: "Mood Selection", text: "Before we conclude, how are you feeling now? (Calm, Neutral, Stressed, Thoughtful)", reflection: false },
+  { title: "Conclusion", text: "", reflection: false }
 ];
 
 // Initial render
@@ -134,24 +92,17 @@ function renderStep() {
   document.getElementById("prompt").innerText = step.text;
   const inputArea = document.getElementById("input");
 
-  if (step.title === "Conclusion") {
+  if(step.title === "Conclusion") {
     inputArea.style.display = "none";
-    showSummary();
     document.querySelector("button").style.display = "none";
+    showSummary();
     return;
   } else {
     inputArea.style.display = "block";
   }
 
-  // Clear input
   inputArea.value = "";
-
-  // Mood step special
-  if(step.title === "Mood Selection") {
-    inputArea.placeholder = "Type Calm, Neutral, Stressed, or Thoughtful";
-  } else {
-    inputArea.placeholder = "Type here...";
-  }
+  inputArea.placeholder = step.title === "Mood Selection" ? "Type Calm, Neutral, Stressed, or Thoughtful" : "Type here...";
 }
 
 // Next step logic
@@ -159,22 +110,20 @@ function nextStep() {
   const step = steps[current];
   const userInput = document.getElementById("input").value.trim();
 
-  // Ensure input for steps that require it
-  if(step.title !== "Welcome" && step.title !== "Mood Selection" && userInput === "") {
+  if(step.reflection && userInput === "") {
     alert("Please type something before continuing.");
     return;
   }
 
-  // Save response if applicable
   if(step.reflection) responses.push({ step: step.title, input: userInput });
 
-  // Mood template handling
+  // Mood handling
   if(step.title === "Mood Selection") {
-    const mood = moodColors[userInput] ? userInput : "Neutral";
-    document.body.style.backgroundColor = moodColors[mood];
+    const gradient = moodColors[userInput] || moodColors["Neutral"];
+    document.body.style.background = gradient;
   }
 
-  // Acknowledge user input with follow-up (reflection)
+  // Reflection acknowledgment
   if(step.reflection) {
     document.getElementById("prompt").innerText = step.followup;
     document.getElementById("input").value = "";
@@ -184,14 +133,14 @@ function nextStep() {
       document.querySelector("button").disabled = false;
       current++;
       renderStep();
-    }, 4000); // 4-second reflection pause
+    }, 4000); // 4-second pause
   } else {
     current++;
     renderStep();
   }
 }
 
-// Generate conclusion summary
+// Show conclusion summary
 function showSummary() {
   const container = document.querySelector(".container");
   const summaryDiv = document.createElement("div");
@@ -199,9 +148,10 @@ function showSummary() {
 
   let summaryText = "Session Summary:\n\n";
   responses.forEach(r => {
-    summaryText += `**${r.step}:** ${r.input}\n`;
+    summaryText += `${r.step}: ${r.input}\n`;
   });
-  summaryText += "\nTakeaway: You clarified your thoughts, reflected on assumptions, focused on what you can control, and identified at least one small next step. Remember, progress comes from small, intentional actions.";
+
+  summaryText += "\nTakeaway: You clarified your thoughts, reflected on assumptions, focused on what you can control, and identified at least one small next step. Progress comes from small, intentional actions.";
 
   summaryDiv.innerText = summaryText;
   container.appendChild(summaryDiv);
