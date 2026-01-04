@@ -8,84 +8,53 @@
 
 <style>
 html,body{
-  margin:0;
-  height:100%;
+  margin:0;height:100%;
   font-family:'Nunito',sans-serif;
-  background:#000;
-  overflow:hidden;
+  background:#000;overflow:hidden;
 }
 #background{
-  position:fixed;
-  inset:0;
+  position:fixed;inset:0;
   background:linear-gradient(to top,#0c2f3f,#000);
   z-index:-3;
 }
-.rain{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:-2;
-}
+.rain{position:fixed;inset:0;pointer-events:none;z-index:-2}
 .drop{
-  position:absolute;
-  width:2px;
-  height:18px;
-  background:rgba(255,255,255,0.35);
+  position:absolute;width:2px;height:18px;
+  background:rgba(255,255,255,.35);
   animation:fall linear infinite;
 }
-@keyframes fall{
-  to{transform:translateY(110vh);}
-}
+@keyframes fall{to{transform:translateY(110vh)}}
 
 .container{
-  max-width:850px;
-  margin:40px auto;
-  padding:32px;
-  background:rgba(255,255,255,0.28);
+  max-width:850px;margin:40px auto;
+  padding:32px;background:rgba(255,255,255,.28);
   backdrop-filter:blur(14px);
-  border-radius:22px;
-  color:#000;
+  border-radius:22px;color:#000;
   text-align:center;
 }
-h1,h2{margin-bottom:12px}
-p{line-height:1.7;font-size:1.05rem}
-
 textarea{
-  width:100%;
-  height:120px;
-  padding:14px;
-  border-radius:14px;
+  width:100%;height:120px;
+  padding:14px;border-radius:14px;
   border:2px solid #7fd3e8;
-  font-size:1rem;
-  font-family:Nunito;
+  font-family:Nunito;font-size:1rem;
 }
 button{
-  padding:12px 26px;
-  margin:10px;
-  border:none;
-  border-radius:18px;
-  background:#4a90e2;
-  color:#fff;
-  font-size:1rem;
-  cursor:pointer;
+  padding:12px 26px;margin:10px;
+  border:none;border-radius:18px;
+  background:#4a90e2;color:#fff;
+  font-size:1rem;cursor:pointer;
 }
 .card{
-  background:rgba(255,255,255,0.35);
-  padding:22px;
-  border-radius:20px;
+  background:rgba(255,255,255,.35);
+  padding:22px;border-radius:20px;
   margin-top:18px;
 }
 .breath{
-  width:190px;
-  height:190px;
-  border-radius:50%;
+  width:190px;height:190px;border-radius:50%;
   background:radial-gradient(circle,#b3e5fc,#81d4fa);
   margin:22px auto;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:1.4rem;
-  font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;font-weight:700;
   transition:2.5s;
 }
 .expand{transform:scale(1.75)}
@@ -100,110 +69,84 @@ button{
 
 <div class="container" id="app">
   <h1>🌿 Calm Thinking</h1>
-  <p>A quiet, supportive space to slow down and reconnect with yourself.</p>
+  <p>A quiet, supportive space to slow down and reconnect.</p>
   <button id="startBtn">Begin Session</button>
 </div>
 
 <audio id="ambience" loop src="https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3"></audio>
 
 <script>
-/* ---------- SETUP ---------- */
-const app = document.getElementById("app");
-const ambience = document.getElementById("ambience");
-const rain = document.getElementById("rain");
+const app=document.getElementById("app");
+const ambience=document.getElementById("ambience");
+const rain=document.getElementById("rain");
 
-let step = 0;
-const reflections = [];
+let step=0;
 
 /* ---------- RAIN ---------- */
 for(let i=0;i<140;i++){
   const d=document.createElement("div");
   d.className="drop";
   d.style.left=Math.random()*100+"%";
-  d.style.animationDuration=(0.7+Math.random()*0.8)+"s";
+  d.style.animationDuration=(0.7+Math.random())+"s";
   d.style.animationDelay=Math.random()*6+"s";
   rain.appendChild(d);
 }
 
-/* ---------- QUESTIONS ---------- */
-const flow = [
-  "What has been occupying your thoughts lately?",
-  "What feels emotionally heavy right now?",
-  "What part of this situation is outside your control?",
-  "What part is still within your control?",
-  "BREATH",
-  "What is one kind thing you can offer yourself today?"
+/* ---------- FLOW ---------- */
+const flow=[
+ "What has been occupying your thoughts lately?",
+ "What feels emotionally heavy right now?",
+ "What part of this situation is outside your control?",
+ "What part is still within your control?",
+ "BREATH",
+ "What is one kind thing you can offer yourself today?"
 ];
 
-/* ---------- START ---------- */
-startBtn.onclick = () => {
-  ambience.volume = 0.45;
+startBtn.onclick=()=>{
+  ambience.volume=.45;
   ambience.play();
   renderStep();
 };
 
-/* ---------- TONE ---------- */
-function analyzeTone(text){
-  const t=text.toLowerCase();
-  if(/overwhelmed|anxious|stressed|tired/.test(t)) return "stressed";
-  if(/trying|learning|hope|healing/.test(t)) return "healing";
-  if(/calm|okay|peace/.test(t)) return "calm";
-  return "reflective";
-}
-
-/* ---------- FLOW ---------- */
 function renderStep(){
-  if(step >= flow.length){
-    conclusion();
-    return;
-  }
+  if(step>=flow.length){ conclusion(); return; }
 
-  if(flow[step] === "BREATH"){
-    breathing();
-    return;
-  }
+  if(flow[step]==="BREATH"){ breathing(); return; }
 
-  app.innerHTML = `
+  app.innerHTML=`
     <h2>${flow[step]}</h2>
-    <textarea placeholder="There is no right or wrong answer. Just be honest."></textarea>
+    <textarea placeholder="Write freely. No judgment."></textarea>
     <button>Continue</button>
   `;
 
-  app.querySelector("button").onclick = () => {
-    const text = app.querySelector("textarea").value.trim();
-    if(!text){
-      alert("Take your time. Even a few words are enough.");
-      return;
-    }
-    const tone = analyzeTone(text);
-    reflections.push({q:flow[step],text,tone});
-    therapeuticReflection(tone);
+  app.querySelector("button").onclick=()=>{
+    const text=app.querySelector("textarea").value.trim();
+    if(!text){alert("Even a few words are enough.");return;}
+    therapeuticExercise(step);
   };
 }
 
-/* ---------- THERAPEUTIC EXERCISE ---------- */
-function therapeuticReflection(tone){
-  let prompt = "";
-  if(tone==="stressed"){
-    prompt="Gently rewrite one sentence from your response as if you were comforting a close friend.";
-  }else if(tone==="healing"){
-    prompt="Notice the effort you're making. What does that say about your resilience?";
-  }else if(tone==="calm"){
-    prompt="Pause and name what feels stable or supportive in this moment.";
-  }else{
-    prompt="Observe your thoughts without changing them. What do you notice?";
-  }
+/* ---------- THERAPEUTIC BRAINSTORMING ---------- */
+function therapeuticExercise(i){
+  const prompts=[
+    "Gently unload your thoughts. Write anything that comes to mind without organizing it.",
+    "Rewrite one thought in a kinder, softer way — as if supporting a friend.",
+    "List what you cannot control, then mentally place it aside.",
+    "Name one small focus that would bring steadiness right now.",
+    "",
+    "Brainstorm small ways to care for yourself in the next 24 hours."
+  ];
 
-  app.innerHTML = `
+  app.innerHTML=`
     <div class="card">
-      <h3>🧠 Gentle Reflection</h3>
-      <p>${prompt}</p>
-      <textarea placeholder="Write softly. No pressure."></textarea>
+      <h3>🧠 Therapeutic Focus</h3>
+      <p>${prompts[i]}</p>
+      <textarea placeholder="There is no right or wrong response."></textarea>
       <button>Continue</button>
     </div>
   `;
 
-  app.querySelector("button").onclick = () => {
+  app.querySelector("button").onclick=()=>{
     step++;
     renderStep();
   };
@@ -212,14 +155,14 @@ function therapeuticReflection(tone){
 /* ---------- BREATHING ---------- */
 function breathing(){
   let phase=0;
-  app.innerHTML = `
+  app.innerHTML=`
     <h2>🌌 Guided Breathing</h2>
     <p class="small">Follow the rhythm. Nothing else to do.</p>
-    <div class="breath" id="breath">Inhale</div>
+    <div class="breath" id="b">Inhale</div>
     <button>Continue</button>
   `;
-  const b=document.getElementById("breath");
-  const timer=setInterval(()=>{
+  const b=document.getElementById("b");
+  const t=setInterval(()=>{
     if(phase===0){b.textContent="Inhale";b.classList.add("expand")}
     if(phase===1){b.textContent="Hold"}
     if(phase===2){b.textContent="Exhale";b.classList.remove("expand")}
@@ -227,7 +170,7 @@ function breathing(){
   },2200);
 
   app.querySelector("button").onclick=()=>{
-    clearInterval(timer);
+    clearInterval(t);
     step++;
     renderStep();
   };
@@ -236,21 +179,26 @@ function breathing(){
 /* ---------- CONCLUSION ---------- */
 function conclusion(){
   const quotes=[
-    "You don’t have to control your thoughts. You just have to stop letting them control you.",
-    "Healing is not linear. Be patient with yourself.",
-    "Small steps taken gently still move you forward."
+    "You don’t have to fight your thoughts. Let them pass like clouds.",
+    "Gentle progress is still progress.",
+    "Healing begins the moment you stop being harsh with yourself."
   ];
-  const words=[
-    {w:"Gentleness",m:"The quality of being kind, calm, and tender with yourself."},
-    {w:"Resilience",m:"The ability to recover and continue, even when things feel heavy."},
-    {w:"Presence",m:"Being fully here, without judging the moment."}
+  const idioms=[
+    {i:"Take it one step at a time",m:"Focus on the present moment instead of the whole journey."},
+    {i:"This too shall pass",m:"No feeling or situation lasts forever."}
   ];
-  const q=quotes[Math.floor(Math.random()*quotes.length)];
-  const wd=words[Math.floor(Math.random()*words.length)];
+  const parables=[
+    "A man complained the room was dark. Instead of cursing the darkness, he lit a candle.",
+    "A cracked pot still carried water — and along the path, flowers grew."
+  ];
 
-  app.innerHTML = `
+  const q=quotes[Math.floor(Math.random()*quotes.length)];
+  const id=idioms[Math.floor(Math.random()*idioms.length)];
+  const p=parables[Math.floor(Math.random()*parables.length)];
+
+  app.innerHTML=`
     <h2>🌱 Session Complete</h2>
-    <p>You showed up for yourself today. That matters.</p>
+    <p>You showed up for yourself today. That alone is meaningful.</p>
 
     <div class="card">
       <h3>💬 Quote of the Day</h3>
@@ -258,17 +206,16 @@ function conclusion(){
     </div>
 
     <div class="card">
-      <h3>📖 Word of the Day</h3>
-      <p><strong>${wd.w}</strong><br>${wd.m}</p>
+      <h3>🗣️ Idiom of the Day</h3>
+      <p><strong>${id.i}</strong><br>${id.m}</p>
     </div>
 
     <div class="card">
-      <h3>♟️ Board Games (Optional)</h3>
-      <p>When you're ready for light mental engagement, board games can help gently refocus your mind.</p>
-      <p class="small">(Coming soon – always optional, never required.)</p>
+      <h3>📜 Parable of the Day</h3>
+      <p>${p}</p>
     </div>
 
-    <p class="small">Take a deep breath before returning to your day. You're doing the best you can.</p>
+    <p class="small">Carry this calm with you. You can return anytime.</p>
   `;
 }
 </script>
