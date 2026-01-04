@@ -11,14 +11,13 @@ body, html {
   display:flex; justify-content:center; align-items:center; background:#000; overflow:hidden;
 }
 video#bgVideo {
-  position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-2; opacity:0.6;
+  position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1; opacity:0.6;
 }
 .container {
   position:relative; z-index:1; max-width:720px; width:90%;
   background:rgba(0,0,0,0.6); padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.4);
   display:flex; flex-direction:column; align-items:center; text-align:center; transition:all 0.5s;
   background-size:cover; background-position:center; color:#fff;
-  overflow:hidden;
 }
 h1 { font-size:2rem; margin-bottom:15px; opacity:0; animation:fadeBounce 1.5s forwards;}
 p { line-height:1.6; font-size:1.1rem; }
@@ -33,16 +32,7 @@ button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(74,144,226,0.4)
 .breathing-circle.expanding { transform:scale(1.8); background:radial-gradient(circle,#fed6e3,#fcb7d2);}
 @keyframes fadeBounce {0%{opacity:0;transform:translateY(-20px);}50%{opacity:1;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);}}
 select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8ef; font-size:1rem; cursor:pointer; }
-.game-area { margin:15px 0; padding:15px; background:rgba(0,0,0,0.5); border-radius:12px; width:100%; text-align:center; position:relative; }
-.raindrop {
-  position:absolute; width:2px; height:10px; background:rgba(255,255,255,0.6);
-  top:-10px; animation:fall linear infinite;
-}
-@keyframes fall { 0%{transform:translateY(0);} 100%{transform:translateY(100vh);} }
-.thunder-flash {
-  position:absolute; top:0; left:0; width:100%; height:100%;
-  background:white; opacity:0; pointer-events:none; z-index:5; transition:opacity 0.1s;
-}
+.game-area { margin:15px 0; padding:15px; background:rgba(0,0,0,0.5); border-radius:12px; width:100%; text-align:center; }
 </style>
 </head>
 <body>
@@ -79,7 +69,6 @@ select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8
   <button id="startButton">Start</button>
 </div>
 
-<div class="thunder-flash" id="thunderFlash"></div>
 <audio id="ambientAudio" loop></audio>
 
 <script>
@@ -90,13 +79,12 @@ const bgSelect = document.getElementById("bgSelect");
 const soundSelect = document.getElementById("soundSelect");
 const breathingSelect = document.getElementById("breathingSelect");
 const container = document.getElementById("mainContainer");
-const thunderFlash = document.getElementById("thunderFlash");
 
 let currentStep = 0;
 const responses = [];
 let breathingInterval;
 
-// Ambient options with backgrounds
+// Ambient options with matching backgrounds
 const ambientOptions = {
   rainforest: { url:"https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3", bg:"https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60" },
   rainstorm: { url:"https://www.orangefreesounds.com/wp-content/uploads/2022/02/Thunderstorm-sound.mp3", bg:"https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60" },
@@ -104,29 +92,27 @@ const ambientOptions = {
   birdsstream: { url:"https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3", bg:"https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60" }
 };
 
-// Steps
 const steps = [
   { title:"Focus", text:"What’s on your mind right now?", reflection:true },
   { title:"Facts", text:"What facts do you know for sure?", reflection:true },
   { title:"Assumptions", text:"What assumptions are you making?", reflection:true },
   { title:"Control", text:"What can you control?", reflection:true },
-  { title:"Breathing", text:"Time to relax with a breathing exercise. Follow the instructions carefully.", reflection:false, breathing:true },
+  { title:"Breathing", text:"Time to relax with a breathing exercise.", reflection:false, breathing:true },
   { title:"Next Step", text:"What is one small step you can take?", reflection:true },
   { title:"Conclusion", text:"", reflection:false }
 ];
 
-// Start
+// Start journey
 startButton.onclick = () => {
   setAmbient(soundSelect.value);
   bgVideo.src = bgSelect.value; bgVideo.load();
   startButton.style.display="none";
-  if(soundSelect.value==="rainstorm") startStormAnimation();
   renderStep();
 };
 bgSelect.onchange = ()=>{ bgVideo.src=bgSelect.value; bgVideo.load(); };
-soundSelect.onchange = ()=>{ setAmbient(soundSelect.value); if(soundSelect.value==="rainstorm") startStormAnimation(); };
+soundSelect.onchange = ()=>{ setAmbient(soundSelect.value); };
 
-// Ambient sound & background
+// Set ambient audio and container background
 function setAmbient(key){
   const option = ambientOptions[key];
   ambientAudio.src = option.url;
@@ -135,24 +121,7 @@ function setAmbient(key){
   container.style.backgroundImage = `url('${option.bg}')`;
 }
 
-// Storm animation
-function startStormAnimation(){
-  // Create raindrops
-  for(let i=0;i<50;i++){
-    const drop = document.createElement("div"); drop.className="raindrop";
-    drop.style.left=Math.random()*100+"%"; drop.style.animationDuration=(0.5+Math.random()*1.5)+"s"; drop.style.height=(5+Math.random()*10)+"px";
-    container.appendChild(drop);
-  }
-  // Thunder flashes
-  setInterval(()=>{
-    if(Math.random()<0.3){
-      thunderFlash.style.opacity="1";
-      setTimeout(()=>{ thunderFlash.style.opacity="0"; },100);
-    }
-  },3000);
-}
-
-// Render step
+// Render steps
 function renderStep(){
   clearInterval(breathingInterval);
   const step = steps[currentStep];
@@ -175,51 +144,47 @@ function renderStep(){
   }
 }
 
-// Dynamic game based on input
-function renderDynamicGame(input){
-  container.innerHTML=`<h1>🎯 Interactive Game! 🎯</h1><p>Fun based on your input: "${input}"</p>`;
+// Dynamic game based on user input
+function renderDynamicGame(userInput){
+  container.innerHTML=`<h1>🎯 Interactive Game! 🎯</h1><p>Fun based on your input: "${userInput}"</p>`;
   const gameDiv=document.createElement("div"); gameDiv.className="game-area"; container.appendChild(gameDiv);
 
-  const text = input.toLowerCase();
+  // Determine game type
+  const text = userInput.toLowerCase();
   if(text.includes("sleep") || text.includes("rest")){
     gameDiv.innerHTML="<p>Follow the breathing circle to relax!</p>";
     startBreathingExercise();
     return;
-  } else if(text.includes("work") || text.includes("stress")){
+  } else if(text.includes("work") || text.includes("stress") || text.includes("deadline")){
+    // memory challenge
     const sequence = ["🔵","🟢","🟡"];
     let userSeq=[];
     gameDiv.innerHTML=`<p>Remember this sequence: ${sequence.join(" ")}</p>`;
-    setTimeout(()=>{ 
-      gameDiv.innerHTML="<p>Now click the sequence in order!</p>"; 
-      sequence.forEach(sym=>{ 
-        const btn = document.createElement("button"); btn.innerText=sym;
-        btn.onclick = ()=>{ userSeq.push(sym); if(userSeq.length===sequence.length){ alert("Great! You remembered it!"); nextStep(); } };
-        gameDiv.appendChild(btn);
-      }); 
-    },2000);
+    setTimeout(()=>{ gameDiv.innerHTML="<p>Now click the sequence in order!</p>"; sequence.forEach(sym=>{ 
+      const btn = document.createElement("button"); btn.innerText=sym;
+      btn.onclick = ()=>{ userSeq.push(sym); if(userSeq.length===sequence.length){ alert("Great! You remembered it!"); nextStep(); } };
+      gameDiv.appendChild(btn);
+    }); },2000);
     return;
   } else {
+    // fun click game
     let clicks=0;
     const btn=document.createElement("button"); btn.innerText="Click me!";
     const counter=document.createElement("p"); counter.innerText="Clicks: 0";
     btn.onclick=()=>{ clicks++; counter.innerText="Clicks: "+clicks; };
     gameDiv.appendChild(btn); gameDiv.appendChild(counter);
   }
+
   const continueBtn=document.createElement("button"); continueBtn.innerText="Continue";
   continueBtn.onclick=()=>{ nextStep(); };
   container.appendChild(continueBtn);
 }
 
-// Breathing
+// Breathing exercise
 function startBreathingExercise(){
   const pattern = breathingSelect.value;
   const circle=document.createElement("div"); circle.className="breathing-circle"; circle.innerText="Breathe";
   container.appendChild(circle);
-
-  const instructions = document.createElement("p");
-  if(pattern==="478") instructions.innerText="Inhale for 4s → Hold for 7s → Exhale for 8s. Repeat!";
-  else instructions.innerText="Inhale 4s → Hold 4s → Exhale 4s → Hold 4s. Repeat!";
-  container.appendChild(instructions);
 
   let inhale=4000, hold=7000, exhale=8000;
   if(pattern==="box"){ inhale=4000; hold=4000; exhale=4000; }
@@ -248,7 +213,7 @@ function showConclusion(){
   container.innerHTML=`<h1>🎉 Congratulations! 🎉</h1>`;
   const summary=document.createElement("div"); summary.className="summary";
   summary.innerHTML="🌈 Your Reflection Journey 🌈<br><br>"+responses.map(r=>`<strong>${r.step}:</strong> ${r.input}`).join("<br>")+
-    `<br><br>💖 Amazing! You've reflected thoughtfully, explored interactive exercises, and practiced mindful breathing. Keep going! 🌟`;
+    `<br><br>💖 Amazing! You've reflected thoughtfully and explored interactive exercises. Keep going, every small effort counts! 🌟`;
   container.appendChild(summary);
 }
 </script>
