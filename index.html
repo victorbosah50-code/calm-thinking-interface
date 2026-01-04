@@ -89,12 +89,12 @@ const questionSets=[
   ]
 ];
 
-/* ---------- NATURE VIDEO OPTIONS ---------- */
-const bgOptions=[
-  "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/forest.mp4",
-  "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/river.mp4",
-  "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/sea.mp4",
-  "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/mountains.mp4"
+/* ---------- NATURE IMAGE OPTIONS ---------- */
+const natureImages=[
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1506744038136-45673834b3fb?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fc?auto=format&fit=crop&w=900&q=80",
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fd?auto=format&fit=crop&w=900&q=80"
 ];
 
 /* ---------- VOICE ---------- */
@@ -119,7 +119,6 @@ document.getElementById("startBtn").onclick=()=>{
   ambience.src="https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3";
   ambience.volume=.45;
   ambience.play();
-  bgVideo.src=bgOptions[Math.floor(Math.random()*bgOptions.length)];
   flow=questionSets[Math.floor(Math.random()*questionSets.length)];
   renderStep();
 };
@@ -129,7 +128,7 @@ function renderStep(){
   if(step>=flow.length){conclude(); return;}
   if(flow[step]==="BREATH"){breathing(); return;}
   
-  const userImg=bgOptions[Math.floor(Math.random()*bgOptions.length)];
+  const userImg=natureImages[Math.floor(Math.random()*natureImages.length)];
   app.innerHTML=`
     <h2>${flow[step]}</h2>
     <img src="${userImg}" alt="Calm Nature">
@@ -160,10 +159,10 @@ function analyzeMood(text){
 
 /* ---------- DYNAMIC BACKGROUND BASED ON MOOD ---------- */
 function dynamicBackground(mood){
-  if(mood==="Calm") bgVideo.src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/river.mp4";
-  else if(mood==="Stressed") bgVideo.src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/storm.mp4";
-  else if(mood==="Motivated") bgVideo.src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/mountains.mp4";
-  else bgVideo.src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/forest.mp4";
+  if(mood==="Calm") bgVideo.src=natureImages[0];
+  else if(mood==="Stressed") bgVideo.src="https://images.unsplash.com/photo-1506744038136-46273834b3fe?auto=format&fit=crop&w=900&q=80";
+  else if(mood==="Motivated") bgVideo.src=natureImages[2];
+  else bgVideo.src=natureImages[3];
 }
 
 /* ---------- BRAIN GAMES ---------- */
@@ -263,7 +262,7 @@ function conclude(){
     <div class="card"><h3>🗣️ Idiom of the Day</h3><p>${idiom}</p></div>
     <div class="card"><h3>📜 Parable of the Day</h3><p>${parable}</p></div>
     <div class="card"><h3>😂 Joke of the Day</h3><p>${joke}</p></div>
-    <div class="card"><h3>🔮 VR / 3D Mini-Meditation</h3><p>Imagine a calm world or open a 3D/VR meditation space here (placeholder for immersive experience).</p></div>
+    <div class="card"><h3>🔮 VR / 3D Mini-Meditation</h3><p>Imagine a calm world or open a 3D/VR meditation space here (placeholder).</p></div>
     <p class="small">Return anytime. This space remembers you.</p>
   `;
 }
