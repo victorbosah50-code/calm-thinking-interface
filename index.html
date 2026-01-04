@@ -15,24 +15,24 @@ video#bgVideo {
 }
 .container {
   position:relative; z-index:1; max-width:720px; width:90%;
-  background:rgba(0,0,0,0.6); padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.4);
+  background:rgba(255,255,255,0.85); padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.4);
   display:flex; flex-direction:column; align-items:center; text-align:center; transition:all 0.5s;
-  background-size:cover; background-position:center; color:#fff;
+  color:#000;
 }
 h1 { font-size:2rem; margin-bottom:15px; opacity:0; animation:fadeBounce 1.5s forwards;}
-p { line-height:1.6; font-size:1.1rem; }
+p { line-height:1.6; font-size:1.1rem; color:#000; }
 textarea { width:100%; height:120px; margin:15px 0; padding:12px; border-radius:10px; border:2px solid #a0d8ef; font-family:'Nunito'; font-size:1rem; resize:vertical; background:rgba(255,255,255,0.9); color:#000; }
 button { padding:12px 24px; margin:10px; font-size:1rem; border:none; border-radius:10px; background:#4a90e2; color:#fff; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; }
 button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(74,144,226,0.4); }
-.summary { background:rgba(0,0,0,0.7); padding:25px; border-radius:16px; margin-top:15px; white-space:pre-wrap; font-size:1rem; line-height:1.6; }
+.summary { background:rgba(255,255,255,0.9); padding:25px; border-radius:16px; margin-top:15px; white-space:pre-wrap; font-size:1rem; line-height:1.6; color:#000; }
 .breathing-circle { width:180px; height:180px; border-radius:50%; background:radial-gradient(circle,#a8edea,#89dceb);
-  display:flex; align-items:center; justify-content:center; color:white; font-weight:600; font-size:1.5rem; margin:20px auto; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; color:black; font-weight:600; font-size:1.5rem; margin:20px auto; cursor:pointer;
   transition:all 0.5s linear;
 }
 .breathing-circle.expanding { transform:scale(1.8); background:radial-gradient(circle,#fed6e3,#fcb7d2);}
 @keyframes fadeBounce {0%{opacity:0;transform:translateY(-20px);}50%{opacity:1;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);}}
 select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8ef; font-size:1rem; cursor:pointer; }
-.game-area { margin:15px 0; padding:15px; background:rgba(0,0,0,0.5); border-radius:12px; width:100%; text-align:center; }
+.game-area { margin:15px 0; padding:15px; background:rgba(255,255,255,0.7); border-radius:12px; width:100%; text-align:center; color:#000; }
 </style>
 </head>
 <body>
@@ -84,12 +84,12 @@ let currentStep = 0;
 const responses = [];
 let breathingInterval;
 
-// Ambient options with matching backgrounds
+// Ambient audio options
 const ambientOptions = {
-  rainforest: { url:"https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3", bg:"https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60" },
-  rainstorm: { url:"https://www.orangefreesounds.com/wp-content/uploads/2022/02/Thunderstorm-sound.mp3", bg:"https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60" },
-  gentlerain: { url:"https://bigsoundbank.com/UPLOAD/mp3/0055.mp3", bg:"https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d?auto=format&fit=crop&w=800&q=60" },
-  birdsstream: { url:"https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3", bg:"https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60" }
+  rainforest: "https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3",
+  rainstorm: "https://www.orangefreesounds.com/wp-content/uploads/2022/02/Thunderstorm-sound.mp3",
+  gentlerain: "https://bigsoundbank.com/UPLOAD/mp3/0055.mp3",
+  birdsstream: "https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3"
 };
 
 const steps = [
@@ -112,13 +112,11 @@ startButton.onclick = () => {
 bgSelect.onchange = ()=>{ bgVideo.src=bgSelect.value; bgVideo.load(); };
 soundSelect.onchange = ()=>{ setAmbient(soundSelect.value); };
 
-// Set ambient audio and container background
+// Set ambient audio
 function setAmbient(key){
-  const option = ambientOptions[key];
-  ambientAudio.src = option.url;
+  ambientAudio.src = ambientOptions[key];
   ambientAudio.volume = 0.5;
   ambientAudio.play();
-  container.style.backgroundImage = `url('${option.bg}')`;
 }
 
 // Render steps
@@ -131,7 +129,7 @@ function renderStep(){
     const textarea=document.createElement("textarea"); textarea.placeholder="Type here...";
     container.appendChild(textarea);
     const nextBtn=document.createElement("button"); nextBtn.innerText="Next";
-    nextBtn.onclick=()=>{
+    nextBtn.onclick=()=>{ 
       if(textarea.value.trim()===""){ alert("Please enter a response."); return; }
       responses.push({step:step.title,input:textarea.value});
       renderDynamicGame(textarea.value);
@@ -144,19 +142,17 @@ function renderStep(){
   }
 }
 
-// Dynamic game based on user input
+// Dynamic game
 function renderDynamicGame(userInput){
   container.innerHTML=`<h1>🎯 Interactive Game! 🎯</h1><p>Fun based on your input: "${userInput}"</p>`;
   const gameDiv=document.createElement("div"); gameDiv.className="game-area"; container.appendChild(gameDiv);
 
-  // Determine game type
   const text = userInput.toLowerCase();
   if(text.includes("sleep") || text.includes("rest")){
     gameDiv.innerHTML="<p>Follow the breathing circle to relax!</p>";
     startBreathingExercise();
     return;
   } else if(text.includes("work") || text.includes("stress") || text.includes("deadline")){
-    // memory challenge
     const sequence = ["🔵","🟢","🟡"];
     let userSeq=[];
     gameDiv.innerHTML=`<p>Remember this sequence: ${sequence.join(" ")}</p>`;
@@ -167,7 +163,6 @@ function renderDynamicGame(userInput){
     }); },2000);
     return;
   } else {
-    // fun click game
     let clicks=0;
     const btn=document.createElement("button"); btn.innerText="Click me!";
     const counter=document.createElement("p"); counter.innerText="Clicks: 0";
@@ -180,7 +175,7 @@ function renderDynamicGame(userInput){
   container.appendChild(continueBtn);
 }
 
-// Breathing exercise
+// Breathing
 function startBreathingExercise(){
   const pattern = breathingSelect.value;
   const circle=document.createElement("div"); circle.className="breathing-circle"; circle.innerText="Breathe";
@@ -191,12 +186,7 @@ function startBreathingExercise(){
 
   const cycle=()=>{
     circle.classList.add("expanding");
-    setTimeout(()=>{
-      setTimeout(()=>{
-        circle.classList.remove("expanding");
-        setTimeout(cycle,0);
-      },exhale);
-    },inhale+hold);
+    setTimeout(()=>{ setTimeout(()=>{ circle.classList.remove("expanding"); setTimeout(cycle,0); },exhale); },inhale+hold);
   };
   cycle();
 
