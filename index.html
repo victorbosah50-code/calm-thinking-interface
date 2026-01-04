@@ -15,7 +15,10 @@ video#bgVideo {
 }
 .container {
   position:relative; z-index:1; max-width:720px; width:90%;
-  background:rgba(255,255,255,0.85); padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.4);
+  background:rgba(255,255,255,0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.4);
   display:flex; flex-direction:column; align-items:center; text-align:center; transition:all 0.5s;
   color:#000;
 }
@@ -24,7 +27,12 @@ p { line-height:1.6; font-size:1.1rem; color:#000; }
 textarea { width:100%; height:120px; margin:15px 0; padding:12px; border-radius:10px; border:2px solid #a0d8ef; font-family:'Nunito'; font-size:1rem; resize:vertical; background:rgba(255,255,255,0.9); color:#000; }
 button { padding:12px 24px; margin:10px; font-size:1rem; border:none; border-radius:10px; background:#4a90e2; color:#fff; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; }
 button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(74,144,226,0.4); }
-.summary { background:rgba(255,255,255,0.9); padding:25px; border-radius:16px; margin-top:15px; white-space:pre-wrap; font-size:1rem; line-height:1.6; color:#000; }
+.summary { 
+  background:rgba(255,255,255,0.3); 
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding:25px; border-radius:16px; margin-top:15px; white-space:pre-wrap; font-size:1rem; line-height:1.6; color:#000; 
+}
 .breathing-circle { width:180px; height:180px; border-radius:50%; background:radial-gradient(circle,#a8edea,#89dceb);
   display:flex; align-items:center; justify-content:center; color:black; font-weight:600; font-size:1.5rem; margin:20px auto; cursor:pointer;
   transition:all 0.5s linear;
@@ -32,7 +40,12 @@ button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(74,144,226,0.4)
 .breathing-circle.expanding { transform:scale(1.8); background:radial-gradient(circle,#fed6e3,#fcb7d2);}
 @keyframes fadeBounce {0%{opacity:0;transform:translateY(-20px);}50%{opacity:1;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);}}
 select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8ef; font-size:1rem; cursor:pointer; }
-.game-area { margin:15px 0; padding:15px; background:rgba(255,255,255,0.7); border-radius:12px; width:100%; text-align:center; color:#000; }
+.game-area { 
+  margin:15px 0; padding:15px; background:rgba(255,255,255,0.2); 
+  border-radius:12px; width:100%; text-align:center; color:#000; 
+  backdrop-filter: blur(6px); 
+  -webkit-backdrop-filter: blur(6px);
+}
 </style>
 </head>
 <body>
@@ -132,7 +145,7 @@ function renderStep(){
     nextBtn.onclick=()=>{ 
       if(textarea.value.trim()===""){ alert("Please enter a response."); return; }
       responses.push({step:step.title,input:textarea.value});
-      renderDynamicGame(textarea.value);
+      renderWordInsightGame(textarea.value);
     };
     container.appendChild(nextBtn);
   } else if(step.breathing){
@@ -142,40 +155,109 @@ function renderStep(){
   }
 }
 
-// Dynamic game
-function renderDynamicGame(userInput){
-  container.innerHTML=`<h1>🎯 Interactive Game! 🎯</h1><p>Fun based on your input: "${userInput}"</p>`;
-  const gameDiv=document.createElement("div"); gameDiv.className="game-area"; container.appendChild(gameDiv);
+// ----- Advanced Word Insight Challenge -----
+function renderWordInsightGame(userInput){
+  container.innerHTML=`<h1>🧠 Word Insight Challenge 🧠</h1>
+  <p>Let's explore key ideas from your response: "${userInput}"</p>`;
+
+  const gameDiv = document.createElement("div");
+  gameDiv.className = "game-area";
+  container.appendChild(gameDiv);
+
+  // Extract keywords
+  const keywords = userInput.split(/\s+/).filter(w=>w.length>3).slice(0,5);
+  if(keywords.length===0) keywords.push("focus","mind","calm");
+
+  const shuffled = keywords.sort(()=>Math.random()-0.5);
+
+  gameDiv.innerHTML = `<p>Arrange these keywords in the order they appeared in your response:</p>`;
+  
+  const inputDiv = document.createElement("div");
+  inputDiv.style.display="flex";
+  inputDiv.style.flexWrap="wrap";
+  inputDiv.style.justifyContent="center";
+  inputDiv.style.gap="10px";
+  
+  shuffled.forEach(word=>{
+    const btn=document.createElement("button");
+    btn.innerText = word;
+    btn.dataset.word = word;
+    btn.onclick = ()=> selectWord(btn);
+    inputDiv.appendChild(btn);
+  });
+  gameDiv.appendChild(inputDiv);
+
+  const selectedDiv = document.createElement("div");
+  selectedDiv.style.marginTop="15px";
+  container.appendChild(selectedDiv);
+
+  let selectedWords=[];
+
+  function selectWord(btn){
+    btn.disabled=true;
+    selectedWords.push(btn.dataset.word);
+    selectedDiv.innerText="Selected: "+selectedWords.join(", ");
+
+    if(selectedWords.length===keywords.length){
+      // Score
+      const score = selectedWords.filter((w,i)=>w===keywords[i]).length;
+      const result = document.createElement("p");
+      result.innerHTML = `✅ You got <strong>${score}/${keywords.length}</strong> in correct order!`;
+      selectedDiv.appendChild(result);
+
+      const continueBtn = document.createElement("button");
+      continueBtn.innerText="Next: Mindfulness Insight";
+      continueBtn.onclick = ()=> renderToneAnalyzer(userInput);
+      container.appendChild(continueBtn);
+    }
+  }
+}
+
+// ----- Tone Analyzer & Mindfulness Insight -----
+function renderToneAnalyzer(userInput){
+  container.innerHTML=`<h1>🧘 Mindfulness Insight 🧘</h1>
+  <p>Analyzing your thoughts to give personalized feedback...</p>`;
+
+  const gameDiv = document.createElement("div");
+  gameDiv.className="game-area";
+  container.appendChild(gameDiv);
+
+  // Simple tone detection
+  const calmWords = ["calm","peace","relax","serene","happy","joy","mindful"];
+  const stressedWords = ["stress","anxious","tired","deadline","worry","frustrate"];
+  const motivatedWords = ["goal","focus","plan","action","achieve","work","success"];
 
   const text = userInput.toLowerCase();
-  if(text.includes("sleep") || text.includes("rest")){
-    gameDiv.innerHTML="<p>Follow the breathing circle to relax!</p>";
-    startBreathingExercise();
-    return;
-  } else if(text.includes("work") || text.includes("stress") || text.includes("deadline")){
-    const sequence = ["🔵","🟢","🟡"];
-    let userSeq=[];
-    gameDiv.innerHTML=`<p>Remember this sequence: ${sequence.join(" ")}</p>`;
-    setTimeout(()=>{ gameDiv.innerHTML="<p>Now click the sequence in order!</p>"; sequence.forEach(sym=>{ 
-      const btn = document.createElement("button"); btn.innerText=sym;
-      btn.onclick = ()=>{ userSeq.push(sym); if(userSeq.length===sequence.length){ alert("Great! You remembered it!"); nextStep(); } };
-      gameDiv.appendChild(btn);
-    }); },2000);
-    return;
-  } else {
-    let clicks=0;
-    const btn=document.createElement("button"); btn.innerText="Click me!";
-    const counter=document.createElement("p"); counter.innerText="Clicks: 0";
-    btn.onclick=()=>{ clicks++; counter.innerText="Clicks: "+clicks; };
-    gameDiv.appendChild(btn); gameDiv.appendChild(counter);
-  }
+  let tone = "neutral";
+  let score = 0;
 
-  const continueBtn=document.createElement("button"); continueBtn.innerText="Continue";
-  continueBtn.onclick=()=>{ nextStep(); };
+  calmWords.forEach(w=>{ if(text.includes(w)) score+=2; });
+  stressedWords.forEach(w=>{ if(text.includes(w)) score-=2; });
+  motivatedWords.forEach(w=>{ if(text.includes(w)) score+=1; });
+
+  if(score >= 3) tone="Calm & Positive 😊";
+  else if(score <= -2) tone="Stressed 😟";
+  else if(score > 0) tone="Motivated 💪";
+  else tone="Neutral 🤔";
+
+  // Display feedback
+  gameDiv.innerHTML = `<p>Your mindfulness insight: <strong>${tone}</strong></p>`;
+  
+  const advice = document.createElement("p");
+  advice.style.marginTop="10px";
+  if(tone.includes("Calm")) advice.innerText="You're in a mindful state! Keep focusing on positive thoughts and breathing.";
+  else if(tone.includes("Stressed")) advice.innerText="Take a deep breath. Focus on what you can control. Small steps help reduce stress.";
+  else if(tone.includes("Motivated")) advice.innerText="Channel your motivation wisely. Balance action with reflection.";
+  else advice.innerText="Try to be aware of your feelings and thoughts. Reflection helps clarity.";
+  gameDiv.appendChild(advice);
+
+  const continueBtn=document.createElement("button");
+  continueBtn.innerText="Next Step";
+  continueBtn.onclick=nextStep;
   container.appendChild(continueBtn);
 }
 
-// Breathing
+// ----- Breathing -----
 function startBreathingExercise(){
   const pattern = breathingSelect.value;
   const circle=document.createElement("div"); circle.className="breathing-circle"; circle.innerText="Breathe";
@@ -195,15 +277,15 @@ function startBreathingExercise(){
   container.appendChild(nextBtn);
 }
 
-// Next step
+// ----- Next Step -----
 function nextStep(){ currentStep++; if(currentStep<steps.length) renderStep(); else showConclusion(); }
 
-// Conclusion
+// ----- Conclusion -----
 function showConclusion(){
   container.innerHTML=`<h1>🎉 Congratulations! 🎉</h1>`;
   const summary=document.createElement("div"); summary.className="summary";
   summary.innerHTML="🌈 Your Reflection Journey 🌈<br><br>"+responses.map(r=>`<strong>${r.step}:</strong> ${r.input}`).join("<br>")+
-    `<br><br>💖 Amazing! You've reflected thoughtfully and explored interactive exercises. Keep going, every small effort counts! 🌟`;
+    `<br><br>💖 Amazing! You've reflected thoughtfully and explored advanced exercises. Keep growing your mindfulness! 🌟`;
   container.appendChild(summary);
 }
 </script>
