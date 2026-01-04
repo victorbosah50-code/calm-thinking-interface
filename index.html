@@ -164,13 +164,11 @@ function brainGame(i){
 
 /* ---------- ADAPTIVE MICRO-GAMES ---------- */
 function adaptiveMicroGame(lastTwoResponses){
-  // extract keywords dynamically
   const text=lastTwoResponses.join(" ");
   let keywords=text.match(/\b\w{4,}\b/g) || [];
   keywords=keywords.slice(0,5);
   if(keywords.length===0) keywords=["calm","focus","mind"];
 
-  // pick a micro-game
   const games=[triviaFromResponses,memoryFromResponses,patternFromResponses];
   const g=games[Math.floor(Math.random()*games.length)];
   g(keywords);
@@ -287,20 +285,31 @@ function breathing(){
   };
 }
 
-/* ---------- CONCLUSION ---------- */
+/* ---------- CONCLUSION (Fully Personalized) ---------- */
 function conclude(){
   speak("You showed up for yourself today.");
-
-  // dynamically generate Word, Quote, Idiom, Parable based on responses
   const userText=responses.join(" ").toLowerCase();
-  const word=(userText.match(/\b\w{5,}\b/)||["Presence"])[0];
-  const quote="Reflecting on yourself is the first step to growth.";
-  const idiom="Step by step: "+(userText.includes("step")?"Keep moving forward":"Patience brings clarity");
-  const parable="Like a tree bending in wind, you adjust and remain strong.";
+
+  // Word of the Day: longest meaningful word
+  const wordList=userText.match(/\b\w{5,}\b/g)||["Presence"];
+  const word=wordList.sort((a,b)=>b.length-a.length)[0];
+
+  // Quote dynamically from sentiment keywords
+  let quote="Reflecting on yourself brings clarity.";
+  if(userText.includes("stress")||userText.includes("worry")) quote="Even tension can become awareness with presence.";
+  else if(userText.includes("happy")||userText.includes("joy")) quote="Joy magnifies as you notice it deeply.";
+
+  // Idiom dynamically
+  let idiom="Step by step, progress is made.";
+  if(userText.includes("control")) idiom="Let go to grow.";
+
+  // Parable dynamically
+  let parable="A traveler paused under a tree and felt renewed.";
+  if(userText.includes("heavy")||userText.includes("burden")) parable="Even the heaviest load eases when shared with care.";
 
   app.innerHTML=`
     <h2>🌱 Session Complete</h2>
-    <div class="card"><h3>📖 Word of the Day</h3><p><strong>${word}</strong><br>Personalized insight based on your reflections.</p></div>
+    <div class="card"><h3>📖 Word of the Day</h3><p><strong>${word}</strong><br>Derived from your reflections.</p></div>
     <div class="card"><h3>💬 Quote of the Day</h3><p><em>${quote}</em></p></div>
     <div class="card"><h3>🗣️ Idiom of the Day</h3><p>${idiom}</p></div>
     <div class="card"><h3>📜 Parable of the Day</h3><p>${parable}</p></div>
