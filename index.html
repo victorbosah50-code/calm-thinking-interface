@@ -10,18 +10,24 @@
     margin: 0; padding: 0;
     display: flex; justify-content: center; align-items: center;
     min-height: 100vh;
-    background: linear-gradient(135deg, #f0f4f8, #d9e2ec); /* Default gradient */
+    background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
     transition: background 1s ease;
   }
   .container {
     max-width: 600px;
     width: 90%;
-    background: rgba(255,255,255,0.85); /* Semi-transparent to show background */
+    background: rgba(255,255,255,0.85);
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    text-align: center;
   }
-  h1 { margin-bottom: 10px; font-size: 1.4rem; }
+  h1 { 
+    margin-bottom: 15px; 
+    font-size: 1.6rem; 
+    opacity: 0;
+    animation: fadeBounce 1.5s forwards;
+  }
   p { line-height: 1.5; }
   textarea {
     width: 100%;
@@ -43,14 +49,21 @@
   }
   .footer { font-size: 0.8rem; color: #555; margin-top: 25px; }
   .summary { background-color: rgba(238,245,249,0.9); padding: 15px; border-radius: 8px; margin-top: 20px; white-space: pre-wrap; }
+
+  /* Intro text animation */
+  @keyframes fadeBounce {
+    0% { opacity: 0; transform: translateY(-20px);}
+    50% { opacity: 1; transform: translateY(10px);}
+    100% { opacity: 1; transform: translateY(0);}
+  }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1 id="title">Welcome</h1>
-  <p id="prompt">This is a calm thinking space. Take one slow breath before continuing.</p>
+  <h1 id="title">🌟 Hello, Brilliant Mind! 🌟</h1>
+  <p id="prompt">Let’s take a few joyful minutes to clear your thoughts and feel calm. Ready to start your reflection journey?</p>
   <textarea id="input" placeholder="Type here..."></textarea>
-  <button onclick="nextStep()">Continue</button>
+  <button onclick="nextStep()">Let’s Begin</button>
   <div class="footer">
     This tool supports reflection only. No data is saved or tracked.
   </div>
@@ -71,7 +84,7 @@ const moodColors = {
 
 // Steps with reflection prompts
 const steps = [
-  { title: "Welcome", text: "This is a calm thinking space. Take one slow breath before continuing.", reflection: false },
+  { title: "Introduction", text: "Take a moment to breathe, smile, and get ready for a calm reflection.", reflection: false },
   { title: "Focus", text: "What situation or decision is currently on your mind?", reflection: true, followup: "You’ve identified this as the current focus. Let’s explore it." },
   { title: "Facts", text: "What facts do you know for certain right now?", reflection: true, followup: "Noting facts helps clarify reality separate from assumptions." },
   { title: "Assumptions", text: "What are you assuming might be true?", reflection: true, followup: "Reflecting on assumptions can highlight uncertainties." },
@@ -88,7 +101,7 @@ renderStep();
 // Render function
 function renderStep() {
   const step = steps[current];
-  document.getElementById("title").innerText = step.title;
+  document.getElementById("title").innerText = step.title === "Introduction" ? "🌟 Hello, Brilliant Mind! 🌟" : step.title;
   document.getElementById("prompt").innerText = step.text;
   const inputArea = document.getElementById("input");
 
@@ -146,12 +159,12 @@ function showSummary() {
   const summaryDiv = document.createElement("div");
   summaryDiv.className = "summary";
 
-  let summaryText = "Session Summary:\n\n";
+  let summaryText = "🌈 Session Summary 🌈\n\n";
   responses.forEach(r => {
     summaryText += `${r.step}: ${r.input}\n`;
   });
 
-  summaryText += "\nTakeaway: You clarified your thoughts, reflected on assumptions, focused on what you can control, and identified at least one small next step. Progress comes from small, intentional actions.";
+  summaryText += "\nTakeaway: You reflected thoughtfully, clarified your assumptions, focused on what you can control, and identified at least one small next step. Remember: small intentional actions create big progress!";
 
   summaryDiv.innerText = summaryText;
   container.appendChild(summaryDiv);
