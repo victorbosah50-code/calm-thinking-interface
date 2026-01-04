@@ -2,69 +2,115 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Calm Thinking – Therapeutic Space</title>
+<title>Calm Thinking – Therapeutic Session</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-html,body{margin:0;height:100%;font-family:Nunito;background:#000;overflow:hidden}
-#bg{position:fixed;inset:0;z-index:-3;background:linear-gradient(to top,#0b2c3d,#000)}
+html,body{
+  margin:0;
+  min-height:100%;
+  font-family:'Nunito',sans-serif;
+  background:#000;
+}
+body{overflow-y:auto}
+
+#bg{
+  position:fixed;inset:0;
+  background:linear-gradient(to top,#0b2c3d,#000);
+  z-index:-3;
+}
+
 .rain{position:fixed;inset:0;pointer-events:none;z-index:-2}
-.drop{position:absolute;width:2px;height:18px;background:rgba(255,255,255,.35);animation:fall linear infinite}
-@keyframes fall{to{transform:translateY(110vh)}}
+.drop{
+  position:absolute;width:2px;height:18px;
+  background:rgba(255,255,255,.35);
+  animation:fall linear infinite;
+}
+@keyframes fall{to{transform:translateY(120vh)}}
 
 .container{
-  max-width:860px;margin:40px auto;
+  max-width:880px;
+  margin:40px auto;
+  padding:34px;
   background:rgba(255,255,255,.28);
   backdrop-filter:blur(14px);
-  padding:32px;border-radius:24px;
-  text-align:center;color:#000
+  border-radius:24px;
+  color:#000;
+  text-align:center;
 }
-img{width:100%;border-radius:18px;margin:12px 0}
+
+img{
+  width:100%;
+  max-height:260px;
+  object-fit:cover;
+  border-radius:18px;
+  margin:14px 0;
+}
+
 textarea{
-  width:100%;height:120px;padding:14px;
-  border-radius:14px;border:2px solid #7fd3e8;
-  font-family:Nunito;font-size:1rem
+  width:100%;
+  height:120px;
+  padding:14px;
+  border-radius:14px;
+  border:2px solid #7fd3e8;
+  font-family:Nunito;
+  font-size:1rem;
 }
+
 button{
-  padding:12px 28px;margin:10px;
-  border:none;border-radius:18px;
-  background:#4a90e2;color:#fff;font-size:1rem;cursor:pointer
+  padding:12px 30px;
+  margin:14px;
+  border:none;
+  border-radius:18px;
+  background:#4a90e2;
+  color:#fff;
+  font-size:1rem;
+  cursor:pointer;
 }
+
 .card{
   background:rgba(255,255,255,.35);
-  padding:22px;border-radius:20px;margin-top:16px
+  padding:24px;
+  border-radius:22px;
+  margin-top:20px;
 }
+
 .breath{
-  width:190px;height:190px;border-radius:50%;
+  width:200px;height:200px;
+  border-radius:50%;
   background:radial-gradient(circle,#b3e5fc,#81d4fa);
-  margin:22px auto;display:flex;
-  align-items:center;justify-content:center;
-  font-size:1.4rem;font-weight:700;
-  transition:2.4s
+  margin:26px auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.4rem;
+  font-weight:700;
+  transition:2.5s;
 }
-.expand{transform:scale(1.75)}
+.expand{transform:scale(1.8)}
 .small{font-size:.9rem;opacity:.85}
 </style>
 </head>
 
 <body>
+
 <div id="bg"></div>
 <div class="rain" id="rain"></div>
 
 <div class="container" id="app">
   <h1>🌿 Calm Thinking</h1>
-  <p>A quiet, supportive place to slow down and reflect.</p>
-  <button id="startBtn">Begin</button>
+  <p>A gentle therapeutic space to slow your mind and reconnect.</p>
+  <button id="startBtn">Begin Session</button>
 </div>
 
 <audio id="ambience" loop src="https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3"></audio>
 
 <script>
-/* ---------- SETUP ---------- */
 const app=document.getElementById("app");
 const ambience=document.getElementById("ambience");
 const rain=document.getElementById("rain");
+
 let step=0;
 let responses=[];
 
@@ -73,13 +119,13 @@ for(let i=0;i<140;i++){
   const d=document.createElement("div");
   d.className="drop";
   d.style.left=Math.random()*100+"%";
-  d.style.animationDuration=(0.7+Math.random())+"s";
+  d.style.animationDuration=(0.6+Math.random())+"s";
   d.style.animationDelay=Math.random()*6+"s";
   rain.appendChild(d);
 }
 
 /* ---------- FLOW ---------- */
-const questions=[
+const flow=[
   "What has been occupying your thoughts lately?",
   "What feels emotionally heavy right now?",
   "What part of this situation is outside your control?",
@@ -104,52 +150,61 @@ startBtn.onclick=()=>{
   renderStep();
 };
 
-/* ---------- ANALYSIS ---------- */
-function tone(text){
-  text=text.toLowerCase();
-  if(/overwhelm|stress|anxious|tired/.test(text)) return "strain";
-  if(/hope|try|learn|heal/.test(text)) return "growth";
-  if(/calm|peace|okay/.test(text)) return "calm";
-  return "reflective";
-}
-
 /* ---------- STEP ---------- */
 function renderStep(){
-  if(step>=questions.length){ conclude(); return; }
+  if(step>=flow.length){ conclude(); return; }
 
-  if(questions[step]==="BREATH"){ breathing(); return; }
+  if(flow[step]==="BREATH"){ breathing(); return; }
 
   app.innerHTML=`
-    <h2>${questions[step]}</h2>
-    <img src="${images[step]}" alt="Nature">
+    <h2>${flow[step]}</h2>
+    <img src="${images[step]}" alt="Calm nature">
     <textarea placeholder="Write freely. There is no judgment."></textarea>
     <button>Continue</button>
   `;
 
   app.querySelector("button").onclick=()=>{
-    const txt=app.querySelector("textarea").value.trim();
-    if(!txt){alert("A few words are enough.");return;}
-    responses.push({text:txt,tone:tone(txt)});
-    therapeuticBrainGame(step);
+    const text=app.querySelector("textarea").value.trim();
+    if(!text){alert("Even a few words are enough.");return;}
+    responses.push(text);
+    brainGame(step);
   };
 }
 
-/* ---------- THERAPEUTIC MICRO-GAMES ---------- */
-function therapeuticBrainGame(i){
+/* ---------- THERAPEUTIC BRAIN GAMES ---------- */
+function brainGame(i){
   const games=[
-    "List any thoughts you want to gently release.",
-    "Rewrite one sentence as if you were comforting a loved one.",
-    "Mentally place what you cannot control on a leaf floating away.",
-    "Name one steady anchor you can return to.",
-    "",
-    "Write one small caring action you can take today."
+    {
+      title:"Thought Unloading",
+      task:"Write three thoughts you want to temporarily set down."
+    },
+    {
+      title:"Emotional Reframe",
+      task:"Rewrite one sentence you wrote, but with compassion."
+    },
+    {
+      title:"Release Practice",
+      task:"List what you cannot control. Imagine placing it aside."
+    },
+    {
+      title:"Focus Narrowing",
+      task:"Choose ONE small thing you can influence today."
+    },
+    {},
+    {
+      title:"Self-Care Planning",
+      task:"Write one gentle action you will do for yourself."
+    }
   ];
+
+  const g=games[i];
+  if(!g.title){step++;renderStep();return;}
 
   app.innerHTML=`
     <div class="card">
-      <h3>🧠 Therapeutic Focus</h3>
-      <p>${games[i]}</p>
-      <textarea placeholder="This is just for you."></textarea>
+      <h3>🧠 ${g.title}</h3>
+      <p>${g.task}</p>
+      <textarea placeholder="This space is just for you."></textarea>
       <button>Continue</button>
     </div>
   `;
@@ -160,11 +215,12 @@ function therapeuticBrainGame(i){
   };
 }
 
-/* ---------- BREATH ---------- */
+/* ---------- BREATHING ---------- */
 function breathing(){
   let p=0;
   app.innerHTML=`
     <h2>🌌 Guided Breathing</h2>
+    <p class="small">Follow the rhythm. Nothing else to do.</p>
     <div class="breath" id="b">Inhale</div>
     <button>Continue</button>
   `;
@@ -183,48 +239,30 @@ function breathing(){
   };
 }
 
-/* ---------- CONCLUSION (PERSONALIZED) ---------- */
+/* ---------- CONCLUSION ---------- */
 function conclude(){
-  const combined=responses.map(r=>r.text).join(" ").toLowerCase();
-
-  const word = combined.includes("stress")
-    ? {w:"Resilience",m:"The quiet strength to continue, even when tired."}
-    : {w:"Gentleness",m:"Allowing softness without guilt."};
-
-  const quote = combined.includes("control")
-    ? "Peace begins where control ends."
-    : "You are allowed to take up space, even on quiet days.";
-
-  const idiom = combined.includes("try")
-    ? {i:"One step at a time",m:"Progress comes from presence, not pressure."}
-    : {i:"Give yourself grace",m:"Growth doesn’t require harshness."};
-
-  const parable = combined.includes("heavy")
-    ? "A traveler set down his burden and realized the path was easier than he thought."
-    : "A seed grows quietly underground long before it is seen.";
-
   app.innerHTML=`
     <h2>🌱 Session Complete</h2>
-    <p>You showed care for yourself today. That matters.</p>
+    <p>You took time to listen to yourself. That is meaningful.</p>
 
     <div class="card">
       <h3>📖 Word of the Day</h3>
-      <p><strong>${word.w}</strong><br>${word.m}</p>
+      <p><strong>Gentleness</strong><br>Allowing yourself softness without guilt.</p>
     </div>
 
     <div class="card">
       <h3>💬 Quote of the Day</h3>
-      <p><em>${quote}</em></p>
+      <p><em>"You do not have to be harsh to grow."</em></p>
     </div>
 
     <div class="card">
       <h3>🗣️ Idiom of the Day</h3>
-      <p><strong>${idiom.i}</strong><br>${idiom.m}</p>
+      <p><strong>One step at a time</strong><br>Progress comes from presence, not pressure.</p>
     </div>
 
     <div class="card">
       <h3>📜 Parable of the Day</h3>
-      <p>${parable}</p>
+      <p>A traveler rested beneath a tree and realized the journey felt lighter when he stopped rushing.</p>
     </div>
 
     <p class="small">Carry this calm with you. You can return anytime.</p>
