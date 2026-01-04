@@ -2,85 +2,71 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Calm Thinking – A Therapeutic Space</title>
+<title>Calm Thinking – Therapeutic Space</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-html,body{
-  margin:0;height:100%;
-  font-family:'Nunito',sans-serif;
-  background:#000;overflow:hidden;
-}
-#background{
-  position:fixed;inset:0;
-  background:linear-gradient(to top,#0c2f3f,#000);
-  z-index:-3;
-}
+html,body{margin:0;height:100%;font-family:Nunito;background:#000;overflow:hidden}
+#bg{position:fixed;inset:0;z-index:-3;background:linear-gradient(to top,#0b2c3d,#000)}
 .rain{position:fixed;inset:0;pointer-events:none;z-index:-2}
-.drop{
-  position:absolute;width:2px;height:18px;
-  background:rgba(255,255,255,.35);
-  animation:fall linear infinite;
-}
+.drop{position:absolute;width:2px;height:18px;background:rgba(255,255,255,.35);animation:fall linear infinite}
 @keyframes fall{to{transform:translateY(110vh)}}
 
 .container{
-  max-width:850px;margin:40px auto;
-  padding:32px;background:rgba(255,255,255,.28);
+  max-width:860px;margin:40px auto;
+  background:rgba(255,255,255,.28);
   backdrop-filter:blur(14px);
-  border-radius:22px;color:#000;
-  text-align:center;
+  padding:32px;border-radius:24px;
+  text-align:center;color:#000
 }
+img{width:100%;border-radius:18px;margin:12px 0}
 textarea{
-  width:100%;height:120px;
-  padding:14px;border-radius:14px;
-  border:2px solid #7fd3e8;
-  font-family:Nunito;font-size:1rem;
+  width:100%;height:120px;padding:14px;
+  border-radius:14px;border:2px solid #7fd3e8;
+  font-family:Nunito;font-size:1rem
 }
 button{
-  padding:12px 26px;margin:10px;
+  padding:12px 28px;margin:10px;
   border:none;border-radius:18px;
-  background:#4a90e2;color:#fff;
-  font-size:1rem;cursor:pointer;
+  background:#4a90e2;color:#fff;font-size:1rem;cursor:pointer
 }
 .card{
   background:rgba(255,255,255,.35);
-  padding:22px;border-radius:20px;
-  margin-top:18px;
+  padding:22px;border-radius:20px;margin-top:16px
 }
 .breath{
   width:190px;height:190px;border-radius:50%;
   background:radial-gradient(circle,#b3e5fc,#81d4fa);
-  margin:22px auto;
-  display:flex;align-items:center;justify-content:center;
+  margin:22px auto;display:flex;
+  align-items:center;justify-content:center;
   font-size:1.4rem;font-weight:700;
-  transition:2.5s;
+  transition:2.4s
 }
 .expand{transform:scale(1.75)}
-.small{font-size:.95rem;opacity:.85}
+.small{font-size:.9rem;opacity:.85}
 </style>
 </head>
 
 <body>
-
-<div id="background"></div>
+<div id="bg"></div>
 <div class="rain" id="rain"></div>
 
 <div class="container" id="app">
   <h1>🌿 Calm Thinking</h1>
-  <p>A quiet, supportive space to slow down and reconnect.</p>
-  <button id="startBtn">Begin Session</button>
+  <p>A quiet, supportive place to slow down and reflect.</p>
+  <button id="startBtn">Begin</button>
 </div>
 
 <audio id="ambience" loop src="https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3"></audio>
 
 <script>
+/* ---------- SETUP ---------- */
 const app=document.getElementById("app");
 const ambience=document.getElementById("ambience");
 const rain=document.getElementById("rain");
-
 let step=0;
+let responses=[];
 
 /* ---------- RAIN ---------- */
 for(let i=0;i<140;i++){
@@ -93,55 +79,77 @@ for(let i=0;i<140;i++){
 }
 
 /* ---------- FLOW ---------- */
-const flow=[
- "What has been occupying your thoughts lately?",
- "What feels emotionally heavy right now?",
- "What part of this situation is outside your control?",
- "What part is still within your control?",
- "BREATH",
- "What is one kind thing you can offer yourself today?"
+const questions=[
+  "What has been occupying your thoughts lately?",
+  "What feels emotionally heavy right now?",
+  "What part of this situation is outside your control?",
+  "What part is still within your control?",
+  "BREATH",
+  "What is one kind thing you can offer yourself today?"
 ];
 
+const images=[
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+  "https://images.unsplash.com/photo-1493244040629-496f6d136cc8",
+  "https://images.unsplash.com/photo-1441974231531-c6227db76b6e",
+  "",
+  "https://images.unsplash.com/photo-1501785888041-af3ef285b470"
+];
+
+/* ---------- START ---------- */
 startBtn.onclick=()=>{
   ambience.volume=.45;
   ambience.play();
   renderStep();
 };
 
-function renderStep(){
-  if(step>=flow.length){ conclusion(); return; }
+/* ---------- ANALYSIS ---------- */
+function tone(text){
+  text=text.toLowerCase();
+  if(/overwhelm|stress|anxious|tired/.test(text)) return "strain";
+  if(/hope|try|learn|heal/.test(text)) return "growth";
+  if(/calm|peace|okay/.test(text)) return "calm";
+  return "reflective";
+}
 
-  if(flow[step]==="BREATH"){ breathing(); return; }
+/* ---------- STEP ---------- */
+function renderStep(){
+  if(step>=questions.length){ conclude(); return; }
+
+  if(questions[step]==="BREATH"){ breathing(); return; }
 
   app.innerHTML=`
-    <h2>${flow[step]}</h2>
-    <textarea placeholder="Write freely. No judgment."></textarea>
+    <h2>${questions[step]}</h2>
+    <img src="${images[step]}" alt="Nature">
+    <textarea placeholder="Write freely. There is no judgment."></textarea>
     <button>Continue</button>
   `;
 
   app.querySelector("button").onclick=()=>{
-    const text=app.querySelector("textarea").value.trim();
-    if(!text){alert("Even a few words are enough.");return;}
-    therapeuticExercise(step);
+    const txt=app.querySelector("textarea").value.trim();
+    if(!txt){alert("A few words are enough.");return;}
+    responses.push({text:txt,tone:tone(txt)});
+    therapeuticBrainGame(step);
   };
 }
 
-/* ---------- THERAPEUTIC BRAINSTORMING ---------- */
-function therapeuticExercise(i){
-  const prompts=[
-    "Gently unload your thoughts. Write anything that comes to mind without organizing it.",
-    "Rewrite one thought in a kinder, softer way — as if supporting a friend.",
-    "List what you cannot control, then mentally place it aside.",
-    "Name one small focus that would bring steadiness right now.",
+/* ---------- THERAPEUTIC MICRO-GAMES ---------- */
+function therapeuticBrainGame(i){
+  const games=[
+    "List any thoughts you want to gently release.",
+    "Rewrite one sentence as if you were comforting a loved one.",
+    "Mentally place what you cannot control on a leaf floating away.",
+    "Name one steady anchor you can return to.",
     "",
-    "Brainstorm small ways to care for yourself in the next 24 hours."
+    "Write one small caring action you can take today."
   ];
 
   app.innerHTML=`
     <div class="card">
       <h3>🧠 Therapeutic Focus</h3>
-      <p>${prompts[i]}</p>
-      <textarea placeholder="There is no right or wrong response."></textarea>
+      <p>${games[i]}</p>
+      <textarea placeholder="This is just for you."></textarea>
       <button>Continue</button>
     </div>
   `;
@@ -152,21 +160,20 @@ function therapeuticExercise(i){
   };
 }
 
-/* ---------- BREATHING ---------- */
+/* ---------- BREATH ---------- */
 function breathing(){
-  let phase=0;
+  let p=0;
   app.innerHTML=`
     <h2>🌌 Guided Breathing</h2>
-    <p class="small">Follow the rhythm. Nothing else to do.</p>
     <div class="breath" id="b">Inhale</div>
     <button>Continue</button>
   `;
   const b=document.getElementById("b");
   const t=setInterval(()=>{
-    if(phase===0){b.textContent="Inhale";b.classList.add("expand")}
-    if(phase===1){b.textContent="Hold"}
-    if(phase===2){b.textContent="Exhale";b.classList.remove("expand")}
-    phase=(phase+1)%3;
+    if(p===0){b.textContent="Inhale";b.classList.add("expand")}
+    if(p===1){b.textContent="Hold"}
+    if(p===2){b.textContent="Exhale";b.classList.remove("expand")}
+    p=(p+1)%3;
   },2200);
 
   app.querySelector("button").onclick=()=>{
@@ -176,43 +183,48 @@ function breathing(){
   };
 }
 
-/* ---------- CONCLUSION ---------- */
-function conclusion(){
-  const quotes=[
-    "You don’t have to fight your thoughts. Let them pass like clouds.",
-    "Gentle progress is still progress.",
-    "Healing begins the moment you stop being harsh with yourself."
-  ];
-  const idioms=[
-    {i:"Take it one step at a time",m:"Focus on the present moment instead of the whole journey."},
-    {i:"This too shall pass",m:"No feeling or situation lasts forever."}
-  ];
-  const parables=[
-    "A man complained the room was dark. Instead of cursing the darkness, he lit a candle.",
-    "A cracked pot still carried water — and along the path, flowers grew."
-  ];
+/* ---------- CONCLUSION (PERSONALIZED) ---------- */
+function conclude(){
+  const combined=responses.map(r=>r.text).join(" ").toLowerCase();
 
-  const q=quotes[Math.floor(Math.random()*quotes.length)];
-  const id=idioms[Math.floor(Math.random()*idioms.length)];
-  const p=parables[Math.floor(Math.random()*parables.length)];
+  const word = combined.includes("stress")
+    ? {w:"Resilience",m:"The quiet strength to continue, even when tired."}
+    : {w:"Gentleness",m:"Allowing softness without guilt."};
+
+  const quote = combined.includes("control")
+    ? "Peace begins where control ends."
+    : "You are allowed to take up space, even on quiet days.";
+
+  const idiom = combined.includes("try")
+    ? {i:"One step at a time",m:"Progress comes from presence, not pressure."}
+    : {i:"Give yourself grace",m:"Growth doesn’t require harshness."};
+
+  const parable = combined.includes("heavy")
+    ? "A traveler set down his burden and realized the path was easier than he thought."
+    : "A seed grows quietly underground long before it is seen.";
 
   app.innerHTML=`
     <h2>🌱 Session Complete</h2>
-    <p>You showed up for yourself today. That alone is meaningful.</p>
+    <p>You showed care for yourself today. That matters.</p>
+
+    <div class="card">
+      <h3>📖 Word of the Day</h3>
+      <p><strong>${word.w}</strong><br>${word.m}</p>
+    </div>
 
     <div class="card">
       <h3>💬 Quote of the Day</h3>
-      <p><em>${q}</em></p>
+      <p><em>${quote}</em></p>
     </div>
 
     <div class="card">
       <h3>🗣️ Idiom of the Day</h3>
-      <p><strong>${id.i}</strong><br>${id.m}</p>
+      <p><strong>${idiom.i}</strong><br>${idiom.m}</p>
     </div>
 
     <div class="card">
       <h3>📜 Parable of the Day</h3>
-      <p>${p}</p>
+      <p>${parable}</p>
     </div>
 
     <p class="small">Carry this calm with you. You can return anytime.</p>
