@@ -29,15 +29,12 @@ canvas { background:green; border-radius:12px; margin-top:15px; }
 </head>
 <body>
 
-<!-- Background Video -->
 <video autoplay muted loop id="bgVideo">
   <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
 </video>
 
-<!-- Rain -->
 <div class="rain-container" id="rain"></div>
 
-<!-- Main Container -->
 <div class="container" id="mainContainer">
   <h1>🌿 Welcome to Calm Thinking 🌿</h1>
   <p>Take a deep breath and prepare for a reflective journey. Press "Start" to begin!</p>
@@ -114,7 +111,7 @@ startButton.onclick = () => {
 bgSelect.onchange = ()=>{ bgVideo.src=bgSelect.value; bgVideo.load(); };
 soundSelect.onchange = ()=>{ setAmbient(soundSelect.value); };
 
-// --- Set Ambient Audio ---
+// --- Set Ambient ---
 function setAmbient(key){
   const option = ambientOptions[key];
   ambientAudio.src = option.url; ambientAudio.volume = 0.5; ambientAudio.play();
@@ -125,7 +122,7 @@ function setAmbient(key){
   }
 }
 
-// --- Rain Animation ---
+// --- Rain ---
 function createRain(count){
   for(let i=0;i<count;i++){
     const drop=document.createElement("div");
@@ -159,7 +156,7 @@ function renderStep(){
   } else { currentStep++; renderStep(); }
 }
 
-// --- Breathing Exercise ---
+// --- Breathing ---
 function startBreathingExercise(){
   const pattern = breathingSelect.value;
   const circle = document.createElement("div"); circle.className="breathing-circle"; circle.innerText="Breathe";
@@ -184,7 +181,7 @@ function startBreathingExercise(){
   container.appendChild(nextBtn);
 }
 
-// --- Mini-games after reflection ---
+// --- Mini-games ---
 function renderRandomGame(input){
   const games = [renderScrabbleGame, renderFocusGame];
   const gameFunc = games[Math.floor(Math.random()*games.length)];
@@ -193,18 +190,14 @@ function renderRandomGame(input){
 
 function renderScrabbleGame(input){
   container.innerHTML=`<h1>🧩 Scrabble Challenge</h1>
-  <div class="game-area">
-    <p>Use letters from your input: "${input}"</p>
-    <p>(Interactive Scrabble placeholder)</p>
-  </div>`;
+  <div class="game-area"><p>Use letters from your input: "${input}"</p><p>(Placeholder)</p></div>`;
   const continueBtn=document.createElement("button"); continueBtn.innerText="Continue";
   continueBtn.onclick=()=>{ currentStep++; renderStep(); };
   container.appendChild(continueBtn);
 }
 
 function renderFocusGame(input){
-  container.innerHTML=`<h1>🎯 Focus Challenge</h1>
-  <div class="game-area"><p>Focus game placeholder</p></div>`;
+  container.innerHTML=`<h1>🎯 Focus Challenge</h1><div class="game-area"><p>Focus game placeholder</p></div>`;
   const continueBtn=document.createElement("button"); continueBtn.innerText="Continue";
   continueBtn.onclick=()=>{ currentStep++; renderStep(); };
   container.appendChild(continueBtn);
@@ -226,11 +219,54 @@ function showConclusion(){
   container.appendChild(hub);
 }
 
-// --- Game Hub Placeholders ---
+// --- Game Hub ---
 function playBoardGames(){ alert("Board games coming soon!"); }
 function playBasketball(){ alert("Basketball game coming soon!"); }
-function playPool(){ alert("8-Ball Pool coming soon!"); }
 
+// --- 8-Ball Pool ---
+function playPool(){
+  container.innerHTML=`<h1>🎱 8-Ball Pool</h1><canvas id="poolCanvas" width="600" height="300"></canvas>`;
+  const canvas=document.getElementById("poolCanvas");
+  const ctx=canvas.getContext("2d");
+  
+  const balls=[];
+  const radius=10;
+
+  // --- Initialize balls ---
+  const colors=["yellow","blue","red","purple","orange","green","brown","black"];
+  for(let i=0;i<8;i++){
+    balls.push({x:50+i*25, y:150, color:colors[i], dx:0, dy:0});
+  }
+
+  // Cue ball
+  const cue={x:550, y:150, dx:0, dy:0, color:"white"};
+
+  let shooting=false;
+
+  canvas.onclick=(e)=>{
+    const rect=canvas.getBoundingClientRect();
+    const mx=e.clientX-rect.left;
+    const my=e.clientY-rect.top;
+    const angle=Math.atan2(my-cue.y, mx-cue.x);
+    const power=5;
+    cue.dx=Math.cos(angle)*power;
+    cue.dy=Math.sin(angle)*power;
+    shooting=true;
+  };
+
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    balls.forEach(b=>{
+      ctx.beginPath(); ctx.arc(b.x,b.y,radius,0,Math.PI*2); ctx.fillStyle=b.color; ctx.fill();
+      b.x+=b.dx; b.y+=b.dy; b.dx*=0.98; b.dy*=0.98;
+    });
+    ctx.beginPath(); ctx.arc(cue.x,cue.y,radius,0,Math.PI*2); ctx.fillStyle=cue.color; ctx.fill();
+    cue.x+=cue.dx; cue.y+=cue.dy; cue.dx*=0.98; cue.dy*=0.98;
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
 </script>
 </body>
 </html>
