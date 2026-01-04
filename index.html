@@ -125,7 +125,7 @@ const steps = [
   { title: "Control", text: "What can you control in this situation?", reflection: true, followup: "Focus on what you can influence." },
   { title: "Time", text: "If you waited 24 hours, what would change?", reflection: true, followup: "Time gives perspective." },
   { title: "Next Step", text: "What is one small step you can take?", reflection: true, followup: "Every small step counts." },
-  { title: "Brain Game", text: "Let’s play a quick brain puzzle before we conclude!", reflection: false },
+  { title: "Brain Game", text: "Let’s have some fun before we conclude!", reflection: false },
   { title: "Mood", text: "How are you feeling now? (Calm, Neutral, Stressed, Thoughtful)", reflection: false },
   { title: "Conclusion", text: "", reflection: false }
 ];
@@ -134,35 +134,57 @@ const steps = [
 function startReflection() {
   document.getElementById("startButton").style.display = "none";
   document.getElementById("title").style.opacity = 1;
-  document.getElementById("prompt").innerText = steps[currentStep].text;
   renderStep();
 }
 
 // Render each step
 function renderStep() {
   const step = steps[currentStep];
-  const inputArea = document.createElement("textarea");
-  inputArea.placeholder = "Type here...";
-  document.querySelector(".container").appendChild(inputArea);
+  const container = document.querySelector(".container");
 
-  const nextButton = document.createElement("button");
-  nextButton.innerText = "Next";
-  nextButton.onclick = () => nextStep(inputArea.value.trim(), inputArea);
-  document.querySelector(".container").appendChild(nextButton);
+  // Clear container except the title and footer
+  container.innerHTML = `<h1 id="title">${step.title}</h1><div class="footer">This tool supports reflection only. No data is saved or tracked.</div>`;
 
-  // If it's the brain game step, add a simple puzzle
-  if (step.title === "Brain Game") {
-    inputArea.style.display = "none";
-    nextButton.style.display = "none";
+  // Set prompt text
+  const prompt = document.createElement("p");
+  prompt.id = "prompt";
+  prompt.innerText = step.text;
+  container.appendChild(prompt);
+
+  // Add input area and next button if needed
+  if (step.title !== "Brain Game" && step.title !== "Conclusion" && step.title !== "Mood") {
+    const inputArea = document.createElement("textarea");
+    inputArea.placeholder = "Type here...";
+    container.appendChild(inputArea);
+
+    const nextButton = document.createElement("button");
+    nextButton.innerText = "Next";
+    nextButton.onclick = () => nextStep(inputArea.value.trim(), inputArea);
+    container.appendChild(nextButton);
+  } else if (step.title === "Brain Game") {
+    // Trigger brain game logic
     setTimeout(() => {
       promptBrainGame();
-    }, 1000);
+    }, 500);
+  } else if (step.title === "Mood") {
+    // Add mood selection
+    const moodOptions = ["Calm", "Neutral", "Stressed", "Thoughtful"];
+    moodOptions.forEach(mood => {
+      const button = document.createElement("button");
+      button.innerText = mood;
+      button.onclick = () => nextStep(mood, null);
+      container.appendChild(button);
+    });
+  } else if (step.title === "Conclusion") {
+    // Show conclusion
+    showConclusion();
   }
 }
 
 // Handle the next step
 function nextStep(userInput, inputArea) {
   const step = steps[currentStep];
+
   if (step.reflection && userInput === "") {
     alert("Please type something to continue.");
     return;
@@ -178,10 +200,12 @@ function nextStep(userInput, inputArea) {
   }
 
   currentStep++;
-  // Clear previous input
-  inputArea.remove();
-  document.querySelector("button").remove();
-  // Render next step
+  // Clear previous input and button
+  if (inputArea) inputArea.remove();
+  const buttons = document.querySelectorAll("button");
+  buttons.forEach(btn => btn.remove());
+
+  // Render the next step or conclusion
   if (currentStep < steps.length) {
     renderStep();
   } else {
@@ -200,31 +224,40 @@ function getMoodGradient(mood) {
   return gradients[mood] || gradients["Neutral"];
 }
 
-// Brain game (simple puzzle)
+// Brain game (multiple-choice, memory, logic)
 function promptBrainGame() {
-  alert("🧠 Brain Game: What is 7 + 5? (Answer quickly!)");
-  // Simulate a quick puzzle for engagement
-  setTimeout(() => {
-    alert("Great job! Let’s continue with the reflection.");
-    renderStep();
-  }, 3000);
+  const container = document.querySelector(".container");
+  container.innerHTML = `<h1 id="title">🧠 Brain Game 🧠</h1>`;
+
+  // Multiple-choice question
+  const mcQuestion = document.createElement("p");
+  mcQuestion.innerText = "What is the capital of France?";
+  container.appendChild(mcQuestion);
+
+  const options = ["Paris", "London", "Rome", "Berlin"];
+  options.forEach(option => {
+    const button = document.createElement("button");
+    button.innerText = option;
+    button.onclick = () => handleMCAnswer(option);
+    container.appendChild(button);
+  });
+}
+
+// Handle multiple-choice answer
+function handleMCAnswer(selectedOption) {
+  const correctAnswer = "Paris";
+  if (selectedOption === correctAnswer) {
+    alert("Correct! Now let’s move on.");
+    nextStep("", null); // Move to next step
+  } else {
+    alert("Oops! That’s not correct. Try again.");
+  }
 }
 
 // Show conclusion
 function showConclusion() {
-  const summaryDiv = document.createElement("div");
-  summaryDiv.className = "summary";
-  document.querySelector(".container").appendChild(summaryDiv);
-
-  let summaryText = "🌈 Your Reflection Journey 🌈\n\n";
-  responses.forEach(r => {
-    summaryText += `${r.step}: ${r.input}\n`;
-  });
-
-  summaryText += "\n💖 Take a deep breath, smile, and feel calm! 💖\nYou’ve reflected, played a fun brain game, and found clarity. Every step you take is progress. 😊🌸";
-
-  summaryDiv.innerText = summaryText;
-  summaryDiv.style.opacity = 1;
+  const container = document.querySelector(".container");
+  container.innerHTML = `<div class="summary">🌈 Your Reflection Journey 🌈\n\n${responses.map(r => `${r.step}: ${r.input}`).join("\n")}\n\n💖 Take a deep breath, smile, and feel calm! 💖\nYou’ve reflected, played fun games, and found clarity. Every step you take is progress. 😊🌸</div>`;
 }
 
 </script>
