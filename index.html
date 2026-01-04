@@ -6,30 +6,30 @@
 <title>🌿 Calm Thinking Journey 🌿</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  body, html {
-    margin:0; padding:0; width:100%; height:100%; font-family:'Nunito',sans-serif;
-    display:flex; justify-content:center; align-items:center; background:#000; overflow:hidden;
-  }
-  video#bgVideo {
-    position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1; opacity:0.6;
-  }
-  .container {
-    position:relative; z-index:1; max-width:700px; width:90%; background:rgba(255,255,255,0.9);
-    padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.2);
-    display:flex; flex-direction:column; align-items:center; text-align:center; transition:all 0.5s;
-  }
-  h1 { font-size:2rem; margin-bottom:20px; opacity:0; animation:fadeBounce 1.5s forwards;}
-  p { line-height:1.6; font-size:1.1rem; }
-  textarea { width:100%; height:120px; margin:15px 0; padding:12px; border-radius:10px; border:2px solid #a0d8ef; font-family:'Nunito'; font-size:1rem; resize:vertical; }
-  button { padding:12px 24px; margin:10px; font-size:1rem; border:none; border-radius:10px; background:#4a90e2; color:#fff; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; }
-  button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(74,144,226,0.4); }
-  .summary { background:rgba(255,255,255,0.96); padding:25px; border-radius:16px; margin-top:15px; white-space:pre-wrap; font-size:1rem; line-height:1.6; opacity:1; }
-  .breathing-circle { width:180px; height:180px; border-radius:50%; background:radial-gradient(circle,#a8edea,#89dceb);
-    display:flex; align-items:center; justify-content:center; color:white; font-weight:600; font-size:1.5rem; margin:20px auto; cursor:pointer;
-    transition:all 6s ease;
-  }
-  .breathing-circle.expanding { transform:scale(1.8); background:radial-gradient(circle,#fed6e3,#fcb7d2);}
-  @keyframes fadeBounce {0%{opacity:0;transform:translateY(-20px);}50%{opacity:1;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);}}
+body, html {
+  margin:0; padding:0; width:100%; height:100%; font-family:'Nunito',sans-serif;
+  display:flex; justify-content:center; align-items:center; background:#000; overflow:hidden;
+}
+video#bgVideo {
+  position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1; opacity:0.6;
+}
+.container {
+  position:relative; z-index:1; max-width:720px; width:90%; background:rgba(255,255,255,0.9);
+  padding:30px; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,0.2);
+  display:flex; flex-direction:column; align-items:center; text-align:center; transition:all 0.5s;
+}
+h1 { font-size:2rem; margin-bottom:15px; opacity:0; animation:fadeBounce 1.5s forwards;}
+p { line-height:1.6; font-size:1.1rem; }
+textarea { width:100%; height:120px; margin:15px 0; padding:12px; border-radius:10px; border:2px solid #a0d8ef; font-family:'Nunito'; font-size:1rem; resize:vertical; }
+button { padding:12px 24px; margin:10px; font-size:1rem; border:none; border-radius:10px; background:#4a90e2; color:#fff; cursor:pointer; transition:transform 0.2s,box-shadow 0.2s; }
+button:hover { transform:scale(1.05); box-shadow:0 4px 15px rgba(74,144,226,0.4); }
+.summary { background:rgba(255,255,255,0.96); padding:25px; border-radius:16px; margin-top:15px; white-space:pre-wrap; font-size:1rem; line-height:1.6; opacity:1; }
+.breathing-circle { width:180px; height:180px; border-radius:50%; background:radial-gradient(circle,#a8edea,#89dceb);
+  display:flex; align-items:center; justify-content:center; color:white; font-weight:600; font-size:1.5rem; margin:20px auto; cursor:pointer; transition:all 6s ease;
+}
+.breathing-circle.expanding { transform:scale(1.8); background:radial-gradient(circle,#fed6e3,#fcb7d2);}
+@keyframes fadeBounce {0%{opacity:0;transform:translateY(-20px);}50%{opacity:1;transform:translateY(8px);}100%{opacity:1;transform:translateY(0);}}
+select { padding:10px; margin:10px 0; border-radius:10px; border:2px solid #a0d8ef; font-size:1rem; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -41,35 +41,68 @@
 <div class="container" id="mainContainer">
   <h1 id="title">🌿 Welcome to Calm Thinking 🌿</h1>
   <p id="prompt">Take a deep breath and get ready for a peaceful reflection journey. Press "Start" to begin! 😊</p>
+
+  <!-- Background selector -->
+  <label for="bgSelect">Choose Background:</label>
+  <select id="bgSelect">
+    <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4">Flowers</option>
+    <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/river.mp4">River</option>
+    <option value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/forest.mp4">Forest</option>
+  </select>
+
+  <!-- Ambient sound selector -->
+  <label for="soundSelect">Choose Ambient Sound:</label>
+  <select id="soundSelect">
+    <option value="https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3">Rainforest</option>
+    <option value="https://bigsoundbank.com/UPLOAD/mp3/0055.mp3">Gentle Rain</option>
+    <option value="https://orangefreesounds.com/wp-content/uploads/2022/05/Birds-and-water-sounds.mp3">Birds & Stream</option>
+  </select>
+
   <button id="startButton">Start</button>
 </div>
 
+<audio id="ambientAudio" loop></audio>
+
 <script>
+const bgVideo = document.getElementById("bgVideo");
+const ambientAudio = document.getElementById("ambientAudio");
+const startButton = document.getElementById("startButton");
+const bgSelect = document.getElementById("bgSelect");
+const soundSelect = document.getElementById("soundSelect");
+const container = document.getElementById("mainContainer");
+
 let currentStep = 0;
 const responses = [];
 const steps = [
-  { title: "Focus", text:"What’s on your mind right now?", reflection:true },
-  { title: "Facts", text:"What facts do you know for sure?", reflection:true },
-  { title: "Assumptions", text:"What assumptions are you making?", reflection:true },
-  { title: "Control", text:"What can you control in this situation?", reflection:true },
-  { title: "Breathing", text:"Follow the circle to relax", reflection:false, breathing:true },
-  { title: "Next Step", text:"What is one small step you can take?", reflection:true },
-  { title: "Brain Game", text:"🧠 Brain Game", reflection:false },
-  { title: "Mood", text:"How are you feeling now?", reflection:false },
+  { title:"Focus", text:"What’s on your mind right now?", reflection:true },
+  { title:"Facts", text:"What facts do you know for sure?", reflection:true },
+  { title:"Assumptions", text:"What assumptions are you making?", reflection:true },
+  { title:"Control", text:"What can you control?", reflection:true },
+  { title:"Breathing", text:"Follow the circle to relax", reflection:false, breathing:true },
+  { title:"Next Step", text:"What is one small step you can take?", reflection:true },
+  { title:"Brain Game", text:"🧠 Brain Game", reflection:false },
+  { title:"Mood", text:"How are you feeling now?", reflection:false },
   { title:"Conclusion", text:"", reflection:false }
 ];
 
-const startButton = document.getElementById("startButton");
-startButton.onclick = startJourney;
-
-function startJourney(){
-  document.getElementById("startButton").style.display="none";
+// Start journey
+startButton.onclick = () => {
+  bgVideo.src = bgSelect.value;
+  bgVideo.load();
+  ambientAudio.src = soundSelect.value;
+  ambientAudio.volume = 0.4;
+  ambientAudio.play();
+  startButton.style.display="none";
   renderStep();
-}
+};
 
+// Update background dynamically
+bgSelect.onchange = () => { bgVideo.src = bgSelect.value; bgVideo.load(); };
+soundSelect.onchange = () => { ambientAudio.src = soundSelect.value; ambientAudio.play(); };
+
+// Render steps
 function renderStep(){
   const step = steps[currentStep];
-  const container = document.getElementById("mainContainer");
   container.innerHTML=`<h1>${step.title}</h1><p>${step.text}</p>`;
 
   if(step.reflection){
@@ -85,7 +118,7 @@ function renderStep(){
     };
     container.appendChild(nextBtn);
   } else if(step.breathing){
-    const circle = document.createElement("div");
+    const circle=document.createElement("div");
     circle.className="breathing-circle";
     circle.innerText="Breathe";
     circle.onclick=()=>circle.classList.toggle("expanding");
@@ -119,10 +152,7 @@ function renderStep(){
   }
 }
 
-function nextStep(){
-  currentStep++;
-  if(currentStep<steps.length) renderStep();
-}
+function nextStep(){ currentStep++; if(currentStep<steps.length) renderStep(); }
 
 function getMoodGradient(mood){
   const gradients={
