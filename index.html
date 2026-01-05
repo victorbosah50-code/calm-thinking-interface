@@ -2,34 +2,33 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<title>Calm Thinking Session</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌿 Calm Thinking Interactive Journey 🌿</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
 <style>
-html,body{margin:0;padding:0;height:100%;font-family:'Nunito',sans-serif;background:#000;overflow-y:auto;}
-#bgVideo{position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:-3;opacity:0.6;}
-.rain-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:-2;overflow:hidden;}
-.drop{position:absolute;width:2px;background:rgba(255,255,255,0.3);bottom:100%;animation-name:fall;animation-timing-function:linear;animation-iteration-count:infinite;}
-@keyframes fall{0%{transform:translateY(0);}100%{transform:translateY(110vh);opacity:0;}}
-.container{max-width:950px;margin:40px auto;padding:36px;background:rgba(255,255,255,.25);backdrop-filter:blur(14px);border-radius:24px;color:#000;text-align:center;}
-img.nature-img{width:100%;max-height:280px;object-fit:cover;border-radius:18px;margin:16px 0;}
+html,body{margin:0;min-height:100%;font-family:'Nunito',sans-serif;background:#000;overflow-y:auto;}
+#bg{position:fixed;inset:0;background:linear-gradient(to top,#0b2c3d,#000);z-index:-3;}
+.rain{position:fixed;inset:0;pointer-events:none;z-index:-2}
+.drop{position:absolute;width:2px;height:18px;background:rgba(255,255,255,.35);animation:fall linear infinite;}
+@keyframes fall{to{transform:translateY(120vh)}}
+.container{max-width:880px;margin:40px auto;padding:34px;background:rgba(255,255,255,.28);backdrop-filter:blur(14px);border-radius:24px;color:#000;text-align:center;}
+img{width:100%;max-height:260px;object-fit:cover;border-radius:18px;margin:14px 0;}
 textarea{width:100%;height:120px;padding:14px;border-radius:14px;border:2px solid #7fd3e8;font-family:Nunito;font-size:1rem;}
-button{padding:12px 28px;margin:14px;border:none;border-radius:18px;background:#4a90e2;color:#fff;font-size:1rem;cursor:pointer;}
+button{padding:12px 30px;margin:14px;border:none;border-radius:18px;background:#4a90e2;color:#fff;font-size:1rem;cursor:pointer;}
 .card{background:rgba(255,255,255,.35);padding:24px;border-radius:22px;margin-top:20px;}
 .breath{width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,#b3e5fc,#81d4fa);margin:26px auto;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;transition:2.5s;}
-.expand{transform:scale(1.8);}
-.small{font-size:.9rem;opacity:.85;}
-.game-area{background:rgba(255,255,255,0.3);padding:18px;border-radius:16px;margin:18px 0;backdrop-filter:blur(6px);}
+.expand{transform:scale(1.8)}
+.small{font-size:.9rem;opacity:.85}
 </style>
 </head>
 <body>
 
-<video autoplay muted loop id="bgVideo" src=""></video>
-<div class="rain-container" id="rain"></div>
+<div id="bg"></div>
+<div class="rain" id="rain"></div>
 
 <div class="container" id="app">
-  <h1>🌿 Calm Thinking Interactive Journey 🌿</h1>
-  <p>Begin a deeply therapeutic, adaptive session personalized to you.</p>
+  <h1>🌿 Calm Thinking</h1>
+  <p>A gentle therapeutic space to slow your mind and reconnect.</p>
   <label for="voiceSelect">Choose your voice:</label>
   <select id="voiceSelect">
     <option value="none" selected>No voice</option>
@@ -40,49 +39,65 @@ button{padding:12px 28px;margin:14px;border:none;border-radius:18px;background:#
   <button id="startBtn">Begin Session</button>
 </div>
 
-<audio id="ambience" loop></audio>
+<audio id="ambience" loop src="https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3"></audio>
 
 <script>
 const app=document.getElementById("app");
 const ambience=document.getElementById("ambience");
-const bgVideo=document.getElementById("bgVideo");
-const rainContainer=document.getElementById("rain");
+const rain=document.getElementById("rain");
 const voiceSelect=document.getElementById("voiceSelect");
 const synth=window.speechSynthesis;
 
-let step=0,responses=[],selectedVoice='none',flow=[],mood='Neutral';
+let step=0;
+let responses=[];
+let selectedVoice='none';
 
-/* ---------- PRELOAD NATURE IMAGES ---------- */
-const natureImages=[
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1506744038136-45673834b3fb?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fc?auto=format&fit=crop&w=900&q=80",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fd?auto=format&fit=crop&w=900&q=80"
-];
-const preloadedImages=[];
-natureImages.forEach(url=>{const img=new Image();img.src=url;preloadedImages.push(img);});
-
-/* ---------- RAIN EFFECT ---------- */
-function createRain(count){
-  rainContainer.innerHTML="";
-  for(let i=0;i<count;i++){
-    const drop=document.createElement("div");
-    drop.className="drop";
-    drop.style.left=Math.random()*100+"%";
-    drop.style.height=(10+Math.random()*20)+"px";
-    drop.style.animationDuration=(0.5+Math.random()*1.5)+"s";
-    drop.style.animationDelay=(Math.random()*5)+"s";
-    drop.style.opacity=(0.2+Math.random()*0.5);
-    rainContainer.appendChild(drop);
-  }
+/* ---------- RAIN ---------- */
+for(let i=0;i<140;i++){
+  const d=document.createElement("div");
+  d.className="drop";
+  d.style.left=Math.random()*100+"%";
+  d.style.animationDuration=(0.6+Math.random())+"s";
+  d.style.animationDelay=Math.random()*6+"s";
+  rain.appendChild(d);
 }
-createRain(150);
 
-/* ---------- QUESTIONS ---------- */
+/* ---------- DYNAMIC QUESTION SETS ---------- */
 const questionSets=[
-  ["What’s on your mind today?","What feeling is strongest right now?","What can you focus on controlling?","What do you need to release?","BREATH","Name one small act of self-care you will do."],
-  ["Recall a positive moment from this week.","What challenge feels heaviest?","Which action was meaningful today?","Identify something outside your control.","BREATH","What intention will guide your next hour?"],
-  ["How do you feel right now?","What thought keeps returning?","What can you let go?","What can you embrace?","BREATH","Name one thing that brings calm to you."]
+  [
+    "What's currently on your mind?",
+    "What emotion is most present for you today?",
+    "What aspect of your day can you influence?",
+    "What part feels beyond your control?",
+    "BREATH",
+    "Name one small act of self-kindness you can do today."
+  ],
+  [
+    "Recall a recent positive moment. Describe it.",
+    "What challenge do you feel is weighing on you?",
+    "Which of your actions today was meaningful?",
+    "Identify something outside your control.",
+    "BREATH",
+    "What intention can guide your next hour?"
+  ],
+  [
+    "How are you feeling in this moment?",
+    "What thought keeps recurring?",
+    "What can you let go of right now?",
+    "What can you embrace or focus on?",
+    "BREATH",
+    "Name one thing that brings calm to you."
+  ]
+];
+
+/* ---------- IMAGE OPTIONS ---------- */
+const images=[
+  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
+  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+  "https://images.unsplash.com/photo-1493244040629-496f6d136cc8",
+  "https://images.unsplash.com/photo-1441974231531-c6227db76b6e",
+  "",
+  "https://images.unsplash.com/photo-1501785888041-af3ef285b470"
 ];
 
 /* ---------- VOICE ---------- */
@@ -93,120 +108,240 @@ function speak(text){
   const utter=new SpeechSynthesisUtterance(text);
   const voices=synth.getVoices();
   let chosenVoice;
-  if(selectedVoice==='female') chosenVoice=voices.find(v=>v.name.toLowerCase().includes("female")) || voices.find(v=>v.lang.startsWith("en"));
-  if(selectedVoice==='male') chosenVoice=voices.find(v=>v.name.toLowerCase().includes("male")) || voices.find(v=>v.lang.startsWith("en"));
+  if(selectedVoice==='female') chosenVoice=voices.find(v=>/female/i.test(v.name))||voices.find(v=>v.lang.includes('en'))||voices[0];
+  if(selectedVoice==='male') chosenVoice=voices.find(v=>/male/i.test(v.name))||voices.find(v=>v.lang.includes('en'))||voices[0];
   utter.voice=chosenVoice;
   utter.rate=0.9;
   utter.pitch=1;
   synth.speak(utter);
 }
 
-/* ---------- START SESSION ---------- */
-document.getElementById("startBtn").onclick=()=>{
+/* ---------- START ---------- */
+startBtn.onclick=()=>{
   selectedVoice=voiceSelect.value;
-  ambience.src="https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3";
   ambience.volume=.45;
   ambience.play();
-  flow=questionSets[Math.floor(Math.random()*questionSets.length)];
-  step=0;
+  // pick a random question set
+  window.flow=questionSets[Math.floor(Math.random()*questionSets.length)];
   renderStep();
 };
 
-/* ---------- RENDER STEP ---------- */
+/* ---------- STEP ---------- */
 function renderStep(){
-  if(step>=flow.length){conclude(); return;}
-  if(flow[step]==="BREATH"){breathing(); return;}
+  if(step>=flow.length){ conclude(); return; }
 
-  const userImg=preloadedImages[Math.floor(Math.random()*preloadedImages.length)].src;
-  bgVideo.src=userImg;
+  if(flow[step]==="BREATH"){ breathing(); return; }
+
+  speak(flow[step]);
 
   app.innerHTML=`
     <h2>${flow[step]}</h2>
-    <img class="nature-img" src="${userImg}" alt="Calm Nature">
-    <textarea placeholder="Write freely..."></textarea>
+    <img src="${images[step]}" alt="Calm nature">
+    <textarea placeholder="Write freely. There is no judgment."></textarea>
     <button>Continue</button>
   `;
-  speak(flow[step]);
 
   app.querySelector("button").onclick=()=>{
-    const val=app.querySelector("textarea").value.trim();
-    if(!val){alert("Write a few words.");return;}
-    responses.push(val);
-    analyzeMood(val);
-    if(responses.length%2===0){adaptiveMicroGame(responses.slice(-2));}
-    else{step++; renderStep();}
+    const text=app.querySelector("textarea").value.trim();
+    if(!text){alert("Even a few words are enough.");return;}
+    responses.push(text);
+
+    if(responses.length % 2 === 0){
+      adaptiveMicroGame(responses.slice(-2));
+    } else {
+      brainGame(step);
+    }
   };
 }
 
-/* ---------- EMOTIONAL TONE ANALYSIS ---------- */
-function analyzeMood(text){
-  const lower=text.toLowerCase();
-  let score=0;
-  ["calm","peace","relax","joy","happy"].forEach(w=>{if(lower.includes(w)) score+=2;});
-  ["stress","tired","worry","anxious"].forEach(w=>{if(lower.includes(w)) score-=2;});
-  ["focus","goal","plan","success"].forEach(w=>{if(lower.includes(w)) score+=1;});
-  if(score>=3) mood="Calm"; else if(score<=-2) mood="Stressed"; else if(score>0) mood="Motivated"; else mood="Neutral";
+/* ---------- THERAPEUTIC BRAIN GAMES ---------- */
+function brainGame(i){
+  const games=[
+    "Write three thoughts you want to gently set aside.",
+    "Rewrite one sentence you wrote with kindness.",
+    "Name one thing you are carrying that is not yours to carry.",
+    "Choose one small focus that feels manageable.",
+    "",
+    "Name one gentle action you will take today."
+  ];
+
+  if(!games[i]){step++;renderStep();return;}
+
+  speak(games[i]);
+
+  app.innerHTML=`
+    <div class="card">
+      <h3>🧠 Therapeutic Focus</h3>
+      <p>${games[i]}</p>
+      <textarea></textarea>
+      <button>Continue</button>
+    </div>
+  `;
+
+  app.querySelector("button").onclick=()=>{
+    step++;
+    renderStep();
+  };
+}
+
+/* ---------- ADAPTIVE MICRO-GAMES ---------- */
+function adaptiveMicroGame(lastTwoResponses){
+  const text=lastTwoResponses.join(" ");
+  let keywords=text.match(/\b\w{4,}\b/g) || [];
+  keywords=keywords.slice(0,5);
+  if(keywords.length===0) keywords=["calm","focus","mind"];
+
+  const games=[triviaFromResponses,memoryFromResponses,patternFromResponses];
+  const g=games[Math.floor(Math.random()*games.length)];
+  g(keywords);
+}
+
+/* ---------- TRIVIA ---------- */
+function triviaFromResponses(keywords){
+  const q="Which word resonates most with your current feelings?";
+  const options=[...keywords].sort(()=>Math.random()-0.5);
+  let buttons="";
+  options.forEach(o=>buttons+=`<button>${o}</button>`);
+
+  app.innerHTML=`
+    <div class="card">
+      <h3>🧩 Personalized Mindfulness Trivia</h3>
+      <p>${q}</p>
+      ${buttons}
+    </div>
+  `;
+
+  app.querySelectorAll("button").forEach(b=>{
+    b.onclick=()=>{
+      alert(`You selected: "${b.textContent}". Reflect on this choice.`);
+      step++;
+      renderStep();
+    };
+  });
+}
+
+/* ---------- MEMORY ---------- */
+function memoryFromResponses(words){
+  const sequence=words.slice(0,3);
+  let userSeq=[];
+  app.innerHTML=`
+    <div class="card">
+      <h3>🧠 Memory Sequence</h3>
+      <p>Memorize this sequence:</p>
+      <p>${sequence.join(" ")}</p>
+      <button id="startMem">Start Recall</button>
+    </div>
+  `;
+  document.getElementById("startMem").onclick=()=>{
+    const inputs=sequence.map(s=>`<button>${s}</button>`).join(" ");
+    app.innerHTML=`
+      <div class="card">
+        <h3>Recall the sequence</h3>
+        <p>Click in the order you saw:</p>
+        ${inputs}
+      </div>
+    `;
+    const btns=app.querySelectorAll("button");
+    btns.forEach((b,i)=>{
+      b.onclick=()=>{
+        userSeq.push(b.textContent);
+        b.disabled=true;
+        if(userSeq.length===sequence.length){
+          const score=userSeq.filter((v,i)=>v===sequence[i]).length;
+          alert(`✅ You recalled ${score}/${sequence.length} correctly!`);
+          step++;
+          renderStep();
+        }
+      };
+    });
+  };
+}
+
+/* ---------- PATTERN ---------- */
+function patternFromResponses(words){
+  const pattern=words.map(w=>w[0]+"*");
+  let user=[];
+  app.innerHTML=`
+    <div class="card">
+      <h3>🌈 Pattern Spotting</h3>
+      <p>Click the elements in alternating pattern:</p>
+      ${pattern.map(p=>`<button>${p}</button>`).join("")}
+    </div>
+  `;
+  app.querySelectorAll("button").forEach((b,i)=>{
+    b.onclick=()=>{
+      user.push(b.textContent);
+      b.disabled=true;
+      if(user.length===pattern.length){
+        const score=user.filter((v,i)=>v===pattern[i]).length;
+        alert(`✅ You matched ${score}/${pattern.length} correctly!`);
+        step++;
+        renderStep();
+      }
+    };
+  });
 }
 
 /* ---------- BREATHING ---------- */
 function breathing(){
-  app.innerHTML=`<h2>Breathe deeply</h2><div class="breath" id="breathCircle">Breathe</div><button>Continue</button>`;
-  const circle=document.getElementById("breathCircle");
-  let inhale=4000,hold=4000,exhale=4000;
-  const cycle=()=>{circle.classList.add("expand");setTimeout(()=>{circle.classList.remove("expand");},inhale+hold+exhale);};
-  const interval=setInterval(cycle,inhale+hold+exhale);
+  let p=0;
+  speak("Follow the breath. Inhale. Hold. Exhale.");
+  app.innerHTML=`
+    <h2>🌌 Guided Breathing</h2>
+    <p class="small">Follow the rhythm. Nothing else to do.</p>
+    <div class="breath" id="b">Inhale</div>
+    <button>Continue</button>
+  `;
+  const b=document.getElementById("b");
+  const t=setInterval(()=>{
+    if(p===0){b.textContent="Inhale";b.classList.add("expand")}
+    if(p===1){b.textContent="Hold"}
+    if(p===2){b.textContent="Exhale";b.classList.remove("expand")}
+    p=(p+1)%3;
+  },2200);
+
   app.querySelector("button").onclick=()=>{
-    clearInterval(interval);
+    clearInterval(t);
     step++;
     renderStep();
   };
-  cycle();
 }
 
-/* ---------- ADAPTIVE MICRO-GAME ---------- */
-function adaptiveMicroGame(lastTwo){
-  app.innerHTML=`<h2>🧠 Quick Therapeutic Brain Game 🧠</h2>
-  <p>Reflect on your last two answers and identify patterns, themes, or feelings.</p>
-  <button>Done</button>`;
-  app.querySelector("button").onclick=()=>{
-    step++;
-    renderStep();
-  };
-}
-
-/* ---------- CONCLUDE ---------- */
+/* ---------- CONCLUSION (Fully AI-Personalized) ---------- */
 function conclude(){
-  const wordList=["Serenity","Resolve","Mindful","Gratitude","Focus"];
-  const idioms=["A stitch in time saves nine","Actions speak louder than words","Every cloud has a silver lining"];
-  const parables=["The Farmer and the River","The Wise Owl","The Ant and the Grasshopper"];
-  const quotes=["Peace comes from within","The mind is everything","Happiness is a journey"];
-  const jokes=["Why did the meditation student bring a ladder? To reach higher consciousness!","I told my mind to relax, it said 'Nope!'","Why don’t stressed people tell secrets? Too much pressure!"];
+  speak("You showed up for yourself today.");
+  const userText=responses.join(" ").toLowerCase();
 
-  const word=wordList[Math.floor(Math.random()*wordList.length)];
-  const idiom=idioms[Math.floor(Math.random()*idioms.length)];
-  const parable=parables[Math.floor(Math.random()*parables.length)];
-  const quote=quotes[Math.floor(Math.random()*quotes.length)];
+  const wordList=userText.match(/\b\w{5,}\b/g)||["Presence"];
+  const word=wordList.sort((a,b)=>b.length-a.length)[0];
+
+  let quote="Reflecting on yourself brings clarity.";
+  if(userText.match(/stress|tired|worry|anxious/)) quote="Even tension transforms when observed with care.";
+  if(userText.match(/happy|joy|calm|peace/)) quote="Joy deepens when noticed fully.";
+
+  let idiom="Step by step, progress is made.";
+  if(userText.includes("control")) idiom="Let go to grow.";
+
+  let parable="A traveler paused under a tree and felt renewed.";
+  if(userText.match(/heavy|burden|struggle/)) parable="Even the heaviest load eases when shared with awareness.";
+
+  const keywords=userText.match(/\b\w+\b/g)||["mind"];
+  const jokes=[
+    `Why did the ${keywords[0]} go on a walk? To clear its thoughts!`,
+    `What did one thought say to another? "Let's meditate, we need space!"`,
+    `Why did the brain take a break? To recharge its focus!`
+  ];
   const joke=jokes[Math.floor(Math.random()*jokes.length)];
 
-  app.innerHTML=`<h2>🌈 Session Complete 🌈</h2>
-    <div class="card"><strong>Your Responses:</strong><br>${responses.map(r=>`- ${r}`).join("<br>")}</div>
-    <div class="card"><strong>Word of the Day:</strong> ${word} - Meaning: ${getWordMeaning(word)}</div>
-    <div class="card"><strong>Idiom of the Day:</strong> ${idiom}</div>
-    <div class="card"><strong>Parable of the Day:</strong> ${parable}</div>
-    <div class="card"><strong>Quote of the Day:</strong> ${quote}</div>
-    <div class="card"><strong>Joke of the Day:</strong> ${joke}</div>`;
-}
-
-/* ---------- WORD MEANING ---------- */
-function getWordMeaning(word){
-  const meanings={
-    "Serenity":"The state of being calm, peaceful, and untroubled.",
-    "Resolve":"Firm determination to do something.",
-    "Mindful":"Being consciously aware of the present moment.",
-    "Gratitude":"The quality of being thankful.",
-    "Focus":"The center of interest or activity."
-  };
-  return meanings[word] || "Reflect on its meaning.";
+  app.innerHTML=`
+    <h2>🌱 Session Complete</h2>
+    <div class="card"><h3>📖 Word of the Day</h3><p><strong>${word}</strong><br>Derived from your reflections.</p></div>
+    <div class="card"><h3>💬 Quote of the Day</h3><p><em>${quote}</em></p></div>
+    <div class="card"><h3>🗣️ Idiom of the Day</h3><p>${idiom}</p></div>
+    <div class="card"><h3>📜 Parable of the Day</h3><p>${parable}</p></div>
+    <div class="card"><h3>😂 Joke of the Day</h3><p>${joke}</p></div>
+    <p class="small">Return anytime. This space remembers you.</p>
+  `;
 }
 </script>
 </body>
