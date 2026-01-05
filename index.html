@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Calm Thinking Session</title>
+<title>Calm Thinking – Personalized Therapeutic Session</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
 <style>
-html,body{margin:0;min-height:100%;font-family:'Nunito',sans-serif;background:#000;overflow-y:auto;}
+html,body{margin:0;min-height:100%;font-family:'Nunito',sans-serif;background:#000;}
+body{overflow-y:auto;}
 #bg{position:fixed;inset:0;background:linear-gradient(to top,#0b2c3d,#000);z-index:-3;}
 .rain{position:fixed;inset:0;pointer-events:none;z-index:-2}
 .drop{position:absolute;width:2px;height:18px;background:rgba(255,255,255,.35);animation:fall linear infinite;}
@@ -62,35 +63,16 @@ for(let i=0;i<140;i++){
   rain.appendChild(d);
 }
 
-/* ---------- DYNAMIC QUESTION SETS ---------- */
-const questionSets=[
-  [
-    "What's currently on your mind?",
-    "What emotion is most present for you today?",
-    "What aspect of your day can you influence?",
-    "What part feels beyond your control?",
-    "BREATH",
-    "Name one small act of self-kindness you can do today."
-  ],
-  [
-    "Recall a recent positive moment. Describe it.",
-    "What challenge do you feel is weighing on you?",
-    "Which of your actions today was meaningful?",
-    "Identify something outside your control.",
-    "BREATH",
-    "What intention can guide your next hour?"
-  ],
-  [
-    "How are you feeling in this moment?",
-    "What thought keeps recurring?",
-    "What can you let go of right now?",
-    "What can you embrace or focus on?",
-    "BREATH",
-    "Name one thing that brings calm to you."
-  ]
+/* ---------- FLOW ---------- */
+const flow=[
+  "What has been occupying your thoughts lately?",
+  "What feels emotionally heavy right now?",
+  "What part of this situation is outside your control?",
+  "What part is still within your control?",
+  "BREATH",
+  "What is one kind thing you can offer yourself today?"
 ];
 
-/* ---------- IMAGE OPTIONS ---------- */
 const images=[
   "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
   "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
@@ -107,10 +89,8 @@ function speak(text){
   synth.cancel();
   const utter=new SpeechSynthesisUtterance(text);
   const voices=synth.getVoices();
-  let chosenVoice;
-  if(selectedVoice==='female') chosenVoice=voices.find(v=>/female/i.test(v.name))||voices.find(v=>v.lang.includes('en'))||voices[0];
-  if(selectedVoice==='male') chosenVoice=voices.find(v=>/male/i.test(v.name))||voices.find(v=>v.lang.includes('en'))||voices[0];
-  utter.voice=chosenVoice;
+  if(selectedVoice==='female') utter.voice=voices.find(v=>v.name.toLowerCase().includes('female'))||voices[0];
+  if(selectedVoice==='male') utter.voice=voices.find(v=>v.name.toLowerCase().includes('male'))||voices[0];
   utter.rate=0.9;
   utter.pitch=1;
   synth.speak(utter);
@@ -121,8 +101,6 @@ startBtn.onclick=()=>{
   selectedVoice=voiceSelect.value;
   ambience.volume=.45;
   ambience.play();
-  // pick a random question set
-  window.flow=questionSets[Math.floor(Math.random()*questionSets.length)];
   renderStep();
 };
 
@@ -196,9 +174,9 @@ function adaptiveMicroGame(lastTwoResponses){
   g(keywords);
 }
 
-/* ---------- TRIVIA ---------- */
+/* ---------- TRIVIA BASED ON RESPONSES ---------- */
 function triviaFromResponses(keywords){
-  const q="Which word resonates most with your current feelings?";
+  const q="Which of these words resonates most with your current feelings?";
   const options=[...keywords].sort(()=>Math.random()-0.5);
   let buttons="";
   options.forEach(o=>buttons+=`<button>${o}</button>`);
@@ -220,7 +198,7 @@ function triviaFromResponses(keywords){
   });
 }
 
-/* ---------- MEMORY ---------- */
+/* ---------- MEMORY GAME BASED ON RESPONSES ---------- */
 function memoryFromResponses(words){
   const sequence=words.slice(0,3);
   let userSeq=[];
@@ -257,7 +235,7 @@ function memoryFromResponses(words){
   };
 }
 
-/* ---------- PATTERN ---------- */
+/* ---------- PATTERN GAME BASED ON RESPONSES ---------- */
 function patternFromResponses(words){
   const pattern=words.map(w=>w[0]+"*");
   let user=[];
@@ -307,31 +285,27 @@ function breathing(){
   };
 }
 
-/* ---------- CONCLUSION (Fully AI-Personalized) ---------- */
+/* ---------- CONCLUSION (Fully Personalized) ---------- */
 function conclude(){
   speak("You showed up for yourself today.");
   const userText=responses.join(" ").toLowerCase();
 
+  // Word of the Day: longest meaningful word
   const wordList=userText.match(/\b\w{5,}\b/g)||["Presence"];
   const word=wordList.sort((a,b)=>b.length-a.length)[0];
 
+  // Quote dynamically from sentiment keywords
   let quote="Reflecting on yourself brings clarity.";
-  if(userText.match(/stress|tired|worry|anxious/)) quote="Even tension transforms when observed with care.";
-  if(userText.match(/happy|joy|calm|peace/)) quote="Joy deepens when noticed fully.";
+  if(userText.includes("stress")||userText.includes("worry")) quote="Even tension can become awareness with presence.";
+  else if(userText.includes("happy")||userText.includes("joy")) quote="Joy magnifies as you notice it deeply.";
 
+  // Idiom dynamically
   let idiom="Step by step, progress is made.";
   if(userText.includes("control")) idiom="Let go to grow.";
 
+  // Parable dynamically
   let parable="A traveler paused under a tree and felt renewed.";
-  if(userText.match(/heavy|burden|struggle/)) parable="Even the heaviest load eases when shared with awareness.";
-
-  const keywords=userText.match(/\b\w+\b/g)||["mind"];
-  const jokes=[
-    `Why did the ${keywords[0]} go on a walk? To clear its thoughts!`,
-    `What did one thought say to another? "Let's meditate, we need space!"`,
-    `Why did the brain take a break? To recharge its focus!`
-  ];
-  const joke=jokes[Math.floor(Math.random()*jokes.length)];
+  if(userText.includes("heavy")||userText.includes("burden")) parable="Even the heaviest load eases when shared with care.";
 
   app.innerHTML=`
     <h2>🌱 Session Complete</h2>
@@ -339,7 +313,6 @@ function conclude(){
     <div class="card"><h3>💬 Quote of the Day</h3><p><em>${quote}</em></p></div>
     <div class="card"><h3>🗣️ Idiom of the Day</h3><p>${idiom}</p></div>
     <div class="card"><h3>📜 Parable of the Day</h3><p>${parable}</p></div>
-    <div class="card"><h3>😂 Joke of the Day</h3><p>${joke}</p></div>
     <p class="small">Return anytime. This space remembers you.</p>
   `;
 }
