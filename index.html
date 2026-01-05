@@ -2,69 +2,131 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Calm Thinking – Personalized Therapeutic Session</title>
+<title>Calm Thinking – A Therapeutic Space</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
-html,body{margin:0;min-height:100%;font-family:'Nunito',sans-serif;background:#000;}
-body{overflow-y:auto;}
-#bg{position:fixed;inset:0;background:linear-gradient(to top,#0b2c3d,#000);z-index:-3;}
-.rain{position:fixed;inset:0;pointer-events:none;z-index:-2}
-.drop{position:absolute;width:2px;height:18px;background:rgba(255,255,255,.35);animation:fall linear infinite;}
-@keyframes fall{to{transform:translateY(120vh)}}
-.container{max-width:880px;margin:40px auto;padding:34px;background:rgba(255,255,255,.28);backdrop-filter:blur(14px);border-radius:24px;color:#000;text-align:center;}
-img{width:100%;max-height:260px;object-fit:cover;border-radius:18px;margin:14px 0;}
-textarea{width:100%;height:120px;padding:14px;border-radius:14px;border:2px solid #7fd3e8;font-family:Nunito;font-size:1rem;}
-button{padding:12px 30px;margin:14px;border:none;border-radius:18px;background:#4a90e2;color:#fff;font-size:1rem;cursor:pointer;}
-.card{background:rgba(255,255,255,.35);padding:24px;border-radius:22px;margin-top:20px;}
-.breath{width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,#b3e5fc,#81d4fa);margin:26px auto;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;transition:2.5s;}
-.expand{transform:scale(1.8)}
-.small{font-size:.9rem;opacity:.85}
+html,body{
+  margin:0;
+  height:100%;
+  font-family:'Nunito',sans-serif;
+  background:#000;
+  overflow:hidden;
+}
+#background{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(to top,#0c2f3f,#000);
+  z-index:-3;
+}
+.rain{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-2;
+}
+.drop{
+  position:absolute;
+  width:2px;
+  height:18px;
+  background:rgba(255,255,255,0.35);
+  animation:fall linear infinite;
+}
+@keyframes fall{
+  to{transform:translateY(110vh);}
+}
+
+.container{
+  max-width:850px;
+  margin:40px auto;
+  padding:32px;
+  background:rgba(255,255,255,0.28);
+  backdrop-filter:blur(14px);
+  border-radius:22px;
+  color:#000;
+  text-align:center;
+}
+h1,h2{margin-bottom:12px}
+p{line-height:1.7;font-size:1.05rem}
+
+textarea{
+  width:100%;
+  height:120px;
+  padding:14px;
+  border-radius:14px;
+  border:2px solid #7fd3e8;
+  font-size:1rem;
+  font-family:Nunito;
+}
+button{
+  padding:12px 26px;
+  margin:10px;
+  border:none;
+  border-radius:18px;
+  background:#4a90e2;
+  color:#fff;
+  font-size:1rem;
+  cursor:pointer;
+}
+.card{
+  background:rgba(255,255,255,0.35);
+  padding:22px;
+  border-radius:20px;
+  margin-top:18px;
+}
+.breath{
+  width:190px;
+  height:190px;
+  border-radius:50%;
+  background:radial-gradient(circle,#b3e5fc,#81d4fa);
+  margin:22px auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.4rem;
+  font-weight:700;
+  transition:2.5s;
+}
+.expand{transform:scale(1.75)}
+.small{font-size:.95rem;opacity:.85}
 </style>
 </head>
+
 <body>
 
-<div id="bg"></div>
+<div id="background"></div>
 <div class="rain" id="rain"></div>
 
 <div class="container" id="app">
   <h1>🌿 Calm Thinking</h1>
-  <p>A gentle therapeutic space to slow your mind and reconnect.</p>
-  <label for="voiceSelect">Choose your voice:</label>
-  <select id="voiceSelect">
-    <option value="none" selected>No voice</option>
-    <option value="male">Male</option>
-    <option value="female">Female</option>
-  </select>
-  <br>
+  <p>A quiet, supportive space to slow down and reconnect with yourself.</p>
   <button id="startBtn">Begin Session</button>
 </div>
 
 <audio id="ambience" loop src="https://www.orangefreesounds.com/wp-content/uploads/2016/04/Rainforest-sounds.mp3"></audio>
 
 <script>
-const app=document.getElementById("app");
-const ambience=document.getElementById("ambience");
-const rain=document.getElementById("rain");
-const voiceSelect=document.getElementById("voiceSelect");
-const synth=window.speechSynthesis;
+/* ---------- SETUP ---------- */
+const app = document.getElementById("app");
+const ambience = document.getElementById("ambience");
+const rain = document.getElementById("rain");
 
-let step=0;
-let responses=[];
-let selectedVoice='none';
+let step = 0;
+const reflections = [];
 
 /* ---------- RAIN ---------- */
 for(let i=0;i<140;i++){
   const d=document.createElement("div");
   d.className="drop";
   d.style.left=Math.random()*100+"%";
-  d.style.animationDuration=(0.6+Math.random())+"s";
+  d.style.animationDuration=(0.7+Math.random()*0.8)+"s";
   d.style.animationDelay=Math.random()*6+"s";
   rain.appendChild(d);
 }
 
-/* ---------- FLOW ---------- */
-const flow=[
+/* ---------- QUESTIONS ---------- */
+const flow = [
   "What has been occupying your thoughts lately?",
   "What feels emotionally heavy right now?",
   "What part of this situation is outside your control?",
@@ -73,247 +135,140 @@ const flow=[
   "What is one kind thing you can offer yourself today?"
 ];
 
-const images=[
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
-  "https://images.unsplash.com/photo-1493244040629-496f6d136cc8",
-  "https://images.unsplash.com/photo-1441974231531-c6227db76b6e",
-  "",
-  "https://images.unsplash.com/photo-1501785888041-af3ef285b470"
-];
-
-/* ---------- VOICE ---------- */
-function speak(text){
-  if(selectedVoice==='none') return;
-  if(!synth) return;
-  synth.cancel();
-  const utter=new SpeechSynthesisUtterance(text);
-  const voices=synth.getVoices();
-  if(selectedVoice==='female') utter.voice=voices.find(v=>v.name.toLowerCase().includes('female'))||voices[0];
-  if(selectedVoice==='male') utter.voice=voices.find(v=>v.name.toLowerCase().includes('male'))||voices[0];
-  utter.rate=0.9;
-  utter.pitch=1;
-  synth.speak(utter);
-}
-
 /* ---------- START ---------- */
-startBtn.onclick=()=>{
-  selectedVoice=voiceSelect.value;
-  ambience.volume=.45;
+startBtn.onclick = () => {
+  ambience.volume = 0.45;
   ambience.play();
   renderStep();
 };
 
-/* ---------- STEP ---------- */
+/* ---------- TONE ---------- */
+function analyzeTone(text){
+  const t=text.toLowerCase();
+  if(/overwhelmed|anxious|stressed|tired/.test(t)) return "stressed";
+  if(/trying|learning|hope|healing/.test(t)) return "healing";
+  if(/calm|okay|peace/.test(t)) return "calm";
+  return "reflective";
+}
+
+/* ---------- FLOW ---------- */
 function renderStep(){
-  if(step>=flow.length){ conclude(); return; }
+  if(step >= flow.length){
+    conclusion();
+    return;
+  }
 
-  if(flow[step]==="BREATH"){ breathing(); return; }
+  if(flow[step] === "BREATH"){
+    breathing();
+    return;
+  }
 
-  speak(flow[step]);
-
-  app.innerHTML=`
+  app.innerHTML = `
     <h2>${flow[step]}</h2>
-    <img src="${images[step]}" alt="Calm nature">
-    <textarea placeholder="Write freely. There is no judgment."></textarea>
+    <textarea placeholder="There is no right or wrong answer. Just be honest."></textarea>
     <button>Continue</button>
   `;
 
-  app.querySelector("button").onclick=()=>{
-    const text=app.querySelector("textarea").value.trim();
-    if(!text){alert("Even a few words are enough.");return;}
-    responses.push(text);
-
-    if(responses.length % 2 === 0){
-      adaptiveMicroGame(responses.slice(-2));
-    } else {
-      brainGame(step);
+  app.querySelector("button").onclick = () => {
+    const text = app.querySelector("textarea").value.trim();
+    if(!text){
+      alert("Take your time. Even a few words are enough.");
+      return;
     }
+    const tone = analyzeTone(text);
+    reflections.push({q:flow[step],text,tone});
+    therapeuticReflection(tone);
   };
 }
 
-/* ---------- THERAPEUTIC BRAIN GAMES ---------- */
-function brainGame(i){
-  const games=[
-    "Write three thoughts you want to gently set aside.",
-    "Rewrite one sentence you wrote with kindness.",
-    "Name one thing you are carrying that is not yours to carry.",
-    "Choose one small focus that feels manageable.",
-    "",
-    "Name one gentle action you will take today."
-  ];
+/* ---------- THERAPEUTIC EXERCISE ---------- */
+function therapeuticReflection(tone){
+  let prompt = "";
+  if(tone==="stressed"){
+    prompt="Gently rewrite one sentence from your response as if you were comforting a close friend.";
+  }else if(tone==="healing"){
+    prompt="Notice the effort you're making. What does that say about your resilience?";
+  }else if(tone==="calm"){
+    prompt="Pause and name what feels stable or supportive in this moment.";
+  }else{
+    prompt="Observe your thoughts without changing them. What do you notice?";
+  }
 
-  if(!games[i]){step++;renderStep();return;}
-
-  speak(games[i]);
-
-  app.innerHTML=`
+  app.innerHTML = `
     <div class="card">
-      <h3>🧠 Therapeutic Focus</h3>
-      <p>${games[i]}</p>
-      <textarea></textarea>
+      <h3>🧠 Gentle Reflection</h3>
+      <p>${prompt}</p>
+      <textarea placeholder="Write softly. No pressure."></textarea>
       <button>Continue</button>
     </div>
   `;
 
-  app.querySelector("button").onclick=()=>{
+  app.querySelector("button").onclick = () => {
     step++;
     renderStep();
   };
-}
-
-/* ---------- ADAPTIVE MICRO-GAMES ---------- */
-function adaptiveMicroGame(lastTwoResponses){
-  const text=lastTwoResponses.join(" ");
-  let keywords=text.match(/\b\w{4,}\b/g) || [];
-  keywords=keywords.slice(0,5);
-  if(keywords.length===0) keywords=["calm","focus","mind"];
-
-  const games=[triviaFromResponses,memoryFromResponses,patternFromResponses];
-  const g=games[Math.floor(Math.random()*games.length)];
-  g(keywords);
-}
-
-/* ---------- TRIVIA BASED ON RESPONSES ---------- */
-function triviaFromResponses(keywords){
-  const q="Which of these words resonates most with your current feelings?";
-  const options=[...keywords].sort(()=>Math.random()-0.5);
-  let buttons="";
-  options.forEach(o=>buttons+=`<button>${o}</button>`);
-
-  app.innerHTML=`
-    <div class="card">
-      <h3>🧩 Personalized Mindfulness Trivia</h3>
-      <p>${q}</p>
-      ${buttons}
-    </div>
-  `;
-
-  app.querySelectorAll("button").forEach(b=>{
-    b.onclick=()=>{
-      alert(`You selected: "${b.textContent}". Reflect on this choice.`);
-      step++;
-      renderStep();
-    };
-  });
-}
-
-/* ---------- MEMORY GAME BASED ON RESPONSES ---------- */
-function memoryFromResponses(words){
-  const sequence=words.slice(0,3);
-  let userSeq=[];
-  app.innerHTML=`
-    <div class="card">
-      <h3>🧠 Memory Sequence</h3>
-      <p>Memorize this sequence:</p>
-      <p>${sequence.join(" ")}</p>
-      <button id="startMem">Start Recall</button>
-    </div>
-  `;
-  document.getElementById("startMem").onclick=()=>{
-    const inputs=sequence.map(s=>`<button>${s}</button>`).join(" ");
-    app.innerHTML=`
-      <div class="card">
-        <h3>Recall the sequence</h3>
-        <p>Click in the order you saw:</p>
-        ${inputs}
-      </div>
-    `;
-    const btns=app.querySelectorAll("button");
-    btns.forEach((b,i)=>{
-      b.onclick=()=>{
-        userSeq.push(b.textContent);
-        b.disabled=true;
-        if(userSeq.length===sequence.length){
-          const score=userSeq.filter((v,i)=>v===sequence[i]).length;
-          alert(`✅ You recalled ${score}/${sequence.length} correctly!`);
-          step++;
-          renderStep();
-        }
-      };
-    });
-  };
-}
-
-/* ---------- PATTERN GAME BASED ON RESPONSES ---------- */
-function patternFromResponses(words){
-  const pattern=words.map(w=>w[0]+"*");
-  let user=[];
-  app.innerHTML=`
-    <div class="card">
-      <h3>🌈 Pattern Spotting</h3>
-      <p>Click the elements in alternating pattern:</p>
-      ${pattern.map(p=>`<button>${p}</button>`).join("")}
-    </div>
-  `;
-  app.querySelectorAll("button").forEach((b,i)=>{
-    b.onclick=()=>{
-      user.push(b.textContent);
-      b.disabled=true;
-      if(user.length===pattern.length){
-        const score=user.filter((v,i)=>v===pattern[i]).length;
-        alert(`✅ You matched ${score}/${pattern.length} correctly!`);
-        step++;
-        renderStep();
-      }
-    };
-  });
 }
 
 /* ---------- BREATHING ---------- */
 function breathing(){
-  let p=0;
-  speak("Follow the breath. Inhale. Hold. Exhale.");
-  app.innerHTML=`
+  let phase=0;
+  app.innerHTML = `
     <h2>🌌 Guided Breathing</h2>
     <p class="small">Follow the rhythm. Nothing else to do.</p>
-    <div class="breath" id="b">Inhale</div>
+    <div class="breath" id="breath">Inhale</div>
     <button>Continue</button>
   `;
-  const b=document.getElementById("b");
-  const t=setInterval(()=>{
-    if(p===0){b.textContent="Inhale";b.classList.add("expand")}
-    if(p===1){b.textContent="Hold"}
-    if(p===2){b.textContent="Exhale";b.classList.remove("expand")}
-    p=(p+1)%3;
+  const b=document.getElementById("breath");
+  const timer=setInterval(()=>{
+    if(phase===0){b.textContent="Inhale";b.classList.add("expand")}
+    if(phase===1){b.textContent="Hold"}
+    if(phase===2){b.textContent="Exhale";b.classList.remove("expand")}
+    phase=(phase+1)%3;
   },2200);
 
   app.querySelector("button").onclick=()=>{
-    clearInterval(t);
+    clearInterval(timer);
     step++;
     renderStep();
   };
 }
 
-/* ---------- CONCLUSION (Fully Personalized) ---------- */
-function conclude(){
-  speak("You showed up for yourself today.");
-  const userText=responses.join(" ").toLowerCase();
+/* ---------- CONCLUSION ---------- */
+function conclusion(){
+  const quotes=[
+    "You don’t have to control your thoughts. You just have to stop letting them control you.",
+    "Healing is not linear. Be patient with yourself.",
+    "Small steps taken gently still move you forward."
+  ];
+  const words=[
+    {w:"Gentleness",m:"The quality of being kind, calm, and tender with yourself."},
+    {w:"Resilience",m:"The ability to recover and continue, even when things feel heavy."},
+    {w:"Presence",m:"Being fully here, without judging the moment."}
+  ];
+  const q=quotes[Math.floor(Math.random()*quotes.length)];
+  const wd=words[Math.floor(Math.random()*words.length)];
 
-  // Word of the Day: longest meaningful word
-  const wordList=userText.match(/\b\w{5,}\b/g)||["Presence"];
-  const word=wordList.sort((a,b)=>b.length-a.length)[0];
-
-  // Quote dynamically from sentiment keywords
-  let quote="Reflecting on yourself brings clarity.";
-  if(userText.includes("stress")||userText.includes("worry")) quote="Even tension can become awareness with presence.";
-  else if(userText.includes("happy")||userText.includes("joy")) quote="Joy magnifies as you notice it deeply.";
-
-  // Idiom dynamically
-  let idiom="Step by step, progress is made.";
-  if(userText.includes("control")) idiom="Let go to grow.";
-
-  // Parable dynamically
-  let parable="A traveler paused under a tree and felt renewed.";
-  if(userText.includes("heavy")||userText.includes("burden")) parable="Even the heaviest load eases when shared with care.";
-
-  app.innerHTML=`
+  app.innerHTML = `
     <h2>🌱 Session Complete</h2>
-    <div class="card"><h3>📖 Word of the Day</h3><p><strong>${word}</strong><br>Derived from your reflections.</p></div>
-    <div class="card"><h3>💬 Quote of the Day</h3><p><em>${quote}</em></p></div>
-    <div class="card"><h3>🗣️ Idiom of the Day</h3><p>${idiom}</p></div>
-    <div class="card"><h3>📜 Parable of the Day</h3><p>${parable}</p></div>
-    <p class="small">Return anytime. This space remembers you.</p>
+    <p>You showed up for yourself today. That matters.</p>
+
+    <div class="card">
+      <h3>💬 Quote of the Day</h3>
+      <p><em>${q}</em></p>
+    </div>
+
+    <div class="card">
+      <h3>📖 Word of the Day</h3>
+      <p><strong>${wd.w}</strong><br>${wd.m}</p>
+    </div>
+
+    <div class="card">
+      <h3>♟️ Board Games (Optional)</h3>
+      <p>When you're ready for light mental engagement, board games can help gently refocus your mind.</p>
+      <p class="small">(Coming soon – always optional, never required.)</p>
+    </div>
+
+    <p class="small">Take a deep breath before returning to your day. You're doing the best you can.</p>
   `;
 }
 </script>
